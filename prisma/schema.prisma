@@ -1,0 +1,113 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id             String        @id @default(cuid())
+  user           User          @relation(fields: [id], references: [id], onDelete: Cascade)
+  hashedPassword String?
+  loginProvider  LoginProvider
+}
+
+model User {
+  id           String        @id @default(cuid())
+  nickname     String        @unique
+  profileImage String?
+  karma        Int           @default(0)
+  role         UserRole      @default(USER)
+  account      Account?
+  achievements Achievement[]
+  posts        Post[]        @relation("UserPosts")
+  comments     PostComment[] @relation("UserComments")
+  reactions    Reaction[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Post {
+  id            String         @id @default(cuid())
+  title         String
+  slug          String         @unique
+  subTitle      String?
+  content       String
+  featuredImage String?
+  tags          String[]
+  category      ForumsCategory @default(OTHERS)
+  status        PostStatus
+  comments      PostComment[]
+  reactions     Reaction[]
+  author        User           @relation("UserPosts", fields: [authorId], references: [id])
+  authorId      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model PostComment {
+  id              String        @id @default(cuid())
+  content         String
+  reactions       Reaction[]
+  author          User          @relation("UserComments", fields: [authorId], references: [id])
+  post            Post?         @relation(fields: [postId], references: [id])
+  postId          String?
+  authorId        String
+  parentCommentId String?
+  parentComment   PostComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  replies         PostComment[] @relation("CommentReplies")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Achievement {
+  id        String   @id @default(cuid())
+  name      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+}
+
+model Reaction {
+  id        String       @id @default(cuid())
+  type      String
+  user      User         @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post?        @relation(fields: [postId], references: [id])
+  postId    String?
+  comment   PostComment? @relation(fields: [commentId], references: [id])
+  commentId String?
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, postId, commentId, type])
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum LoginProvider {
+  DISCORD
+  GITHUB
+  CREDENTIALS
+}
+
+enum ForumsCategory {
+  BLOG
+  NEWS
+  TOUHOU
+  CREATIVE
+  OTHERS
+}
+
+enum UserRole {
+  USER
+  BLOCKED
+  SUPPORTER
+  MODERATOR
+  ADMIN
+}
