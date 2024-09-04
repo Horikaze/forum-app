@@ -1,6 +1,5 @@
 "use client";
 import { emoticons } from "@/app/constants/emotes";
-
 import { Emoticon } from "@/mdx-components";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
@@ -24,14 +23,14 @@ export default function AddReaction({
   const [lastClicked, setLastClicked] = useState<Date | null>(null);
   const { data } = useSession();
   const addReaction = async (reactionType: string) => {
-    // if (lastClicked) {
-    //   const timeElapsed = new Date().getTime() - lastClicked.getTime();
-    //   const timeLeft = 10000 - timeElapsed;
-    //   if (timeLeft > 0) {
-    //     toast.error(`Poczekaj ${Math.ceil(timeLeft / 1000)}s`);
-    //     return;
-    //   }
-    // }
+    if (lastClicked) {
+      const timeElapsed = new Date().getTime() - lastClicked.getTime();
+      const timeLeft = 2000 - timeElapsed;
+      if (timeLeft > 0) {
+        toast.error(`Poczekaj ${Math.ceil(timeLeft / 1000)}s`);
+        return;
+      }
+    }
     setLastClicked(new Date());
     const res = await addReactionAction(reactionType, targetId, isPost);
     if (!res.success) {
@@ -47,9 +46,10 @@ export default function AddReaction({
           <div
             key={r}
             className="tooltip tooltip-accent"
-            data-tip={reactions.segregated[r]
-              .map((r) => r.user.nickname)
-              .join(", ")}
+            data-tip={
+              `${r}: ` +
+              reactions.segregated[r].map((r) => r.user.nickname).join(", ")
+            }
           >
             <button
               className={cn(

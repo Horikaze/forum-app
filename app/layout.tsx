@@ -46,7 +46,7 @@ export default function RootLayout({
             <NavSide />
             <div className="flex flex-1 flex-col overflow-hidden">
               <NavBarTop />
-              <main className="flex-1 overflow-auto">{children}</main>
+              <main className="flex-1 overflow-auto min-h-[calc(100vh-4rem)]">{children}</main>
             </div>
           </div>
         </body>

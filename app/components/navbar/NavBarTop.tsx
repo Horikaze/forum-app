@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 export default function NavBarTop() {
   const { data: session, status } = useSession();
   return (
-    <nav className="z-10 flex w-full items-center border-b border-base-300 bg-base-200">
+    <nav className="z-10 flex h-16 w-full items-center border-b border-base-300 bg-base-200">
       <NavNavigator />
       <div className="ml-auto flex h-16 flex-shrink-0 items-center gap-2 p-2">
         {status === "loading" ? (

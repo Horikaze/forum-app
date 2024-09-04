@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaInfo } from "react-icons/fa";
+import { FaUsers } from "react-icons/fa6";
 import {
   FaArrowLeft,
   FaBookOpen,
@@ -20,6 +21,11 @@ const sideNavLinks = [
     title: "Strona główna",
     href: "/",
     icon: FaHouse,
+  },
+  {
+    title: "Użytkownicy",
+    href: "/user",
+    icon: FaUsers,
   },
   {
     title: "Forum",

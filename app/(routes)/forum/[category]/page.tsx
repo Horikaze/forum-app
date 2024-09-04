@@ -16,7 +16,7 @@ export default async function CategoryPage({
   const pageNumber = Number(searchParams.page) || 0;
   if (!category) notFound();
 
-  const postCount = 10;
+  const postCount = 20;
   const allPostCount = await db.post.count({
     where: {
       category: category.dbTarget,
