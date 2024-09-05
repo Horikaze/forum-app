@@ -1,18 +1,13 @@
 "use server";
 import { segregateReactionsByType } from "@/app/components/forumComponents/PostCard";
-import { forumCategory } from "@/app/constants/forum";
 import { getFormattedDate } from "@/app/utils/formatDate";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
-import { ForumsCategory } from "@prisma/client";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
 import * as z from "zod";
-const categories = forumCategory.map((topic) => topic.dbTarget) as [
-  string,
-  ...string[],
-];
+
 const newPostSchema = z.object({
   title: z
     .string()
@@ -24,10 +19,10 @@ const newPostSchema = z.object({
   content: z
     .string()
     .min(10, { message: "Zawartość musi mieć co najmniej 10 znaków" }),
-  category: z.enum(categories),
+  dbTarget: z.string(),
 });
 export const newPostAction = async (prevState: any, formData: FormData) => {
-  let category = "";
+  let dbTarget = "";
   let title = "";
   let subTitle = "";
   let content = "";
@@ -36,20 +31,20 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
   try {
     const session = await getUserSessionCreate();
     const formDataEntries = Object.fromEntries(formData.entries());
-    category = formDataEntries.category as string;
+    dbTarget = formDataEntries.dbTarget as string;
     title = formDataEntries.title as string;
     subTitle = formDataEntries.subTitle as string;
     content = formDataEntries.content as string;
     for (const [key, value] of Object.entries(formDataEntries)) {
       if (value === "on") {
-        category = key;
+        dbTarget = key;
         break;
       }
     }
     const newPostObject = {
       title,
       subTitle,
-      category,
+      dbTarget,
       content,
     };
     const result = newPostSchema.safeParse(newPostObject);
@@ -67,7 +62,7 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
       replacement: "-",
     });
     slug += "-" + getFormattedDate();
-    slugUrl = `/forum/${category.toLowerCase()}/${slug}`;
+    slugUrl = `/forum/${dbTarget.toLowerCase()}/${slug}`;
     await db.post.create({
       data: {
         title,
@@ -75,11 +70,12 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
         slug,
         content,
         status: "PUBLISHED",
-        category: category as ForumsCategory,
+        category: dbTarget,
         authorId: session.user.id,
         tags: [],
       },
     });
+    revalidateTag(dbTarget + "Preview");
   } catch (error) {
     errorOccurred = true;
     if (error instanceof Error) {
@@ -87,7 +83,7 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
         prevState: {
           title,
           subTitle,
-          category,
+          dbTarget,
           content,
         },
         success: false,
@@ -112,14 +108,13 @@ export const addCommentAction = async (
   postId: string,
   currentUrl: string,
   isReplay: boolean,
+  tagToRevalidate: string,
 ) => {
   try {
     const session = await getUserSessionCreate();
-
     const newComment = {
       comment,
     };
-
     const result = addCommentSchema.safeParse(newComment);
     if (!result.success) {
       let errorMessage = "";
@@ -156,8 +151,8 @@ export const addCommentAction = async (
         });
       });
     }
-
     revalidatePath(currentUrl, "page");
+    revalidateTag(tagToRevalidate);
     return {
       success: true,
       message: "ok",
@@ -173,7 +168,7 @@ export const addCommentAction = async (
   }
 };
 
-const getPostReactionmCount = async (isPost: boolean, targetId: string) => {
+const getPostReactionCount = async (isPost: boolean, targetId: string) => {
   if (isPost) {
     const res = await db.post.findFirst({
       relationLoadStrategy: "join",
@@ -218,6 +213,7 @@ export const addReactionAction = async (
   reactionType: string,
   targetId: string,
   isPost: boolean,
+  tagToRevalidate: string,
 ) => {
   try {
     const session = await getUserSessionCreate();
@@ -238,7 +234,7 @@ export const addReactionAction = async (
       return {
         success: true,
         message: "Reaction added successfully.",
-        reactions: await getPostReactionmCount(isPost, targetId),
+        reactions: await getPostReactionCount(isPost, targetId),
       };
     }
     if (reactionType === userReaction.type) {
@@ -250,7 +246,7 @@ export const addReactionAction = async (
       return {
         success: true,
         message: "Reaction updated successfully.",
-        reactions: await getPostReactionmCount(isPost, targetId),
+        reactions: await getPostReactionCount(isPost, targetId),
       };
     }
     await db.reaction.update({
@@ -261,20 +257,22 @@ export const addReactionAction = async (
         type: reactionType,
       },
     });
-
     return {
       success: true,
       message: "Reaction added successfully.",
-      reactions: await getPostReactionmCount(isPost, targetId),
+      reactions: await getPostReactionCount(isPost, targetId),
     };
   } catch (error) {
-    console.log(error);
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error occurred";
     return {
       success: false,
       message: errorMessage,
-      reactions: await getPostReactionmCount(isPost, targetId),
+      reactions: await getPostReactionCount(isPost, targetId),
     };
+  } finally {
+    if (isPost) {
+      revalidateTag(tagToRevalidate);
+    }
   }
 };

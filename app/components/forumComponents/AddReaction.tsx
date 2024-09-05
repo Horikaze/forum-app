@@ -1,14 +1,15 @@
 "use client";
+import { addReactionAction } from "@/app/(routes)/forum/forumActions";
 import { emoticons } from "@/app/constants/emotes";
+import { cn } from "@/app/utils/twUtils";
 import { Emoticon } from "@/mdx-components";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
+import toast from "react-hot-toast";
 import { FaRegFaceSmile } from "react-icons/fa6";
 import { segregateReactionsType } from "./PostCard";
-import { addReactionAction } from "@/app/(routes)/forum/forumActions";
-import toast from "react-hot-toast";
-import Image from "next/image";
-import { cn } from "@/app/utils/twUtils";
 
 export default function AddReaction({
   initialReactions,
@@ -19,6 +20,8 @@ export default function AddReaction({
   targetId: string;
   isPost: boolean;
 }) {
+  // needed for dbtarget revalidate tag
+  const pathname = usePathname();
   const [reactions, setReactions] = useState(initialReactions);
   const [lastClicked, setLastClicked] = useState<Date | null>(null);
   const { data } = useSession();
@@ -32,7 +35,12 @@ export default function AddReaction({
       }
     }
     setLastClicked(new Date());
-    const res = await addReactionAction(reactionType, targetId, isPost);
+    const res = await addReactionAction(
+      reactionType,
+      targetId,
+      isPost,
+      pathname.split("/")[2] + "Preview",
+    );
     if (!res.success) {
       toast.error(`${res.message}`);
     }

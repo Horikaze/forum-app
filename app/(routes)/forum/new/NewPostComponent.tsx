@@ -2,12 +2,12 @@
 import MDXEditor from "@/app/components/MDXEditor";
 import { forumCategory } from "@/app/constants/forum";
 import { TopicListProp } from "@/app/types/prismaTypes";
+import { cn } from "@/app/utils/twUtils";
 import { useSession } from "next-auth/react";
 import { useActionState, useState } from "react";
 import { FaRegCircleXmark } from "react-icons/fa6";
 import { newPostAction } from "../forumActions";
-import TopicListCard from "../forumComponents/TopicListCard";
-import { cn } from "@/app/utils/twUtils";
+import TopicListCard from "../../../components/forumComponents/TopicListCard";
 const date = new Date();
 type NewPostComponentProps = {
   forumTarget: string;
@@ -18,7 +18,7 @@ const dummyTopic: TopicListProp = {
   subTitle: "",
   createdAt: date,
   slug: "",
-  category: "TOUHOU",
+  category: "touhou",
   _count: {
     comments: 5,
     reactions: 23,
@@ -43,14 +43,16 @@ export default function NewPostComponent({
   const [title, setTitle] = useState("Mój epicki post");
   const [subTitle, setSubTitle] = useState("");
   const [inputValue, setInputValue] = useState<string>("");
-  const [category, setCategory] = useState(forumTarget || "TOUHOU");
+  const [dbTarget, setDbTarget] = useState(
+    forumTarget || forumCategory[0].dbTarget,
+  );
   const [previewPostCard, setPreviewPostCard] =
     useState<TopicListProp>(dummyTopic);
   const [state, action, isPending] = useActionState(newPostAction, null);
   const [showError, setShowError] = useState(true);
   const formAction = async (formData: FormData) => {
     formData.append("content", inputValue);
-    formData.append("category", category);
+    formData.append("dbTarget", dbTarget);
     action(formData);
     setShowError(true);
   };
@@ -84,10 +86,10 @@ export default function NewPostComponent({
               <button
                 key={t.title}
                 className={cn("btn", {
-                  "btn-primary": category === t.dbTarget,
+                  "btn-primary": dbTarget === t.dbTarget,
                 })}
                 type="button"
-                onClick={() => setCategory(t.dbTarget)}
+                onClick={() => setDbTarget(t.dbTarget)}
               >
                 {t.title}
               </button>

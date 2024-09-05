@@ -1,4 +1,10 @@
-export function formatDatePost(date: Date): string {
+export function formatDatePost(dateInput: string | Date): string {
+  const date = new Date(dateInput);
+
+  if (isNaN(date.getTime())) {
+    throw new Error("Invalid date");
+  }
+
   const daysOfWeek = ["ndz", "pon", "wt", "śr", "czw", "pt", "sob"];
   const months = [
     "sty",

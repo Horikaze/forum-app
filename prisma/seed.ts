@@ -1,5 +1,12 @@
-const { PrismaClient } = require("@prisma/client");
-const { faker } = require("@faker-js/faker"); // Ensure the correct import
+import { forumCategory } from "@/app/constants/forum";
+
+import {
+  LoginProvider,
+  PostStatus,
+  PrismaClient,
+  UserRole,
+} from "@prisma/client";
+import { faker } from "@faker-js/faker"; // Ensure the correct import
 
 const db = new PrismaClient();
 
@@ -12,18 +19,18 @@ async function createRandomUser() {
     "SUPPORTER",
     "MODERATOR",
     "ADMIN",
-  ]);
+  ]) as UserRole;
   const loginProvider = faker.helpers.arrayElement([
     "DISCORD",
     "GITHUB",
     "CREDENTIALS",
-  ]);
+  ]) as LoginProvider;
 
-  // Create user with associated account
   const user = await db.user.create({
     data: {
       nickname,
       role,
+      profileImage: "https://api.api-ninjas.com/v1/randomimage?category=nature",
       account: {
         create: {
           hashedPassword,
@@ -48,14 +55,13 @@ async function createRandomPost(authorId: string) {
   const subTitle = faker.lorem.sentence();
   const content = faker.lorem.paragraphs(3);
   const tags = faker.lorem.words(3).split(" ");
-  const category = faker.helpers.arrayElement([
-    "BLOG",
-    "NEWS",
-    "TOUHOU",
-    "CREATIVE",
-    "OTHERS",
-  ]);
-  const status = faker.helpers.arrayElement(["DRAFT", "PUBLISHED"]);
+  const category = faker.helpers.arrayElement(
+    forumCategory.map((c) => c.dbTarget),
+  );
+  const status = faker.helpers.arrayElement([
+    "DRAFT",
+    "PUBLISHED",
+  ]) as PostStatus;
 
   const post = await db.post.create({
     data: {

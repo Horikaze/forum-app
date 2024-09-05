@@ -1,17 +1,25 @@
 import Link from "next/link";
 import { FaPlus } from "react-icons/fa6";
-import TopicList from "./forumComponents/TopicList";
 import { forumCategory } from "@/app/constants/forum";
-export const dynamic = "force-dynamic";
+import { revalidateTag } from "next/cache";
+import TopicList from "@/app/components/forumComponents/TopicList";
 export default async function Forum() {
   return (
     <div className="flex flex-col items-end gap-5">
+      <form
+        action={async () => {
+          "use server";
+          revalidateTag("touhou");
+        }}
+      >
+        <button className="btn">Revaalidate</button>
+      </form>
       <Link href={"/forum/new"} className="btn btn-primary">
         Dodaj
         <FaPlus />
       </Link>
       {forumCategory.map((t) => (
-        <TopicList {...t} key={t.title} postCount={4} />
+        <TopicList {...t} key={t.title} postCount={4} isPreview={true} />
       ))}
     </div>
   );

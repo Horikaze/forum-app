@@ -1,9 +1,9 @@
+import TopicList from "@/app/components/forumComponents/TopicList";
 import { forumCategory } from "@/app/constants/forum";
+import db from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FaPlus } from "react-icons/fa6";
-import TopicList from "../forumComponents/TopicList";
-import db from "@/lib/db";
 
 export default async function CategoryPage({
   params,
@@ -12,21 +12,21 @@ export default async function CategoryPage({
   params: { category: string };
   searchParams: { page: string | undefined };
 }) {
-  const category = forumCategory.find((c) => c.href === params.category);
-  const pageNumber = Number(searchParams.page) || 0;
+  const category = forumCategory.find((c) => c.dbTarget === params.category);
   if (!category) notFound();
 
-  const postCount = 20;
+  const pageNumber = Math.max(1, Number(searchParams.page) || 1);
+  const postsPerPage = 10;
+
   const allPostCount = await db.post.count({
     where: {
       category: category.dbTarget,
     },
   });
 
-  const totalPages = Math.ceil(allPostCount / postCount);
-
+  const totalPages = Math.max(1, Math.ceil(allPostCount / postsPerPage));
   return (
-    <div className="flex flex-col items-end gap-5 size-full mb-5">
+    <div className="mb-5 flex size-full flex-col items-end gap-5">
       <Link
         href={`/forum/new/?forumTarget=${category.dbTarget}`}
         className="btn btn-primary"
@@ -36,36 +36,32 @@ export default async function CategoryPage({
       </Link>
       <TopicList
         {...category}
-        postCount={postCount}
-        postSkip={postCount * pageNumber}
+        postCount={postsPerPage}
+        postSkip={(pageNumber - 1) * postsPerPage}
       />
-      <div className="join self-center mt-auto">
-        {pageNumber === 0 ? (
-          <button disabled className="join-item btn">
-            «
-          </button>
-        ) : (
+      <div className="join mt-auto self-center">
+        {pageNumber > 1 ? (
           <Link
-            href={`/forum/${category.dbTarget.toLowerCase()}?page=${
-              pageNumber - 1
-            }`}
-            className="join-item btn"
+            href={`/forum/${category.dbTarget}?page=${pageNumber - 1}`}
+            className="btn join-item"
           >
             «
           </Link>
+        ) : (
+          <button disabled className="btn join-item">
+            «
+          </button>
         )}
-        <button className="join-item btn">Strona {pageNumber + 1}</button>
-        {pageNumber < totalPages - 1 ? (
+        <button className="btn join-item">Strona {pageNumber}</button>
+        {pageNumber < totalPages ? (
           <Link
-            href={`/forum/${category.dbTarget.toLowerCase()}?page=${
-              pageNumber + 1
-            }`}
-            className="join-item btn"
+            href={`/forum/${category.dbTarget}?page=${pageNumber + 1}`}
+            className="btn join-item"
           >
             »
           </Link>
         ) : (
-          <button disabled className="join-item btn">
+          <button disabled className="btn join-item">
             »
           </button>
         )}

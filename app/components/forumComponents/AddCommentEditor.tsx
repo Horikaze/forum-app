@@ -30,7 +30,8 @@ export default function AddCommentEditor({
         comment,
         postId,
         pathname,
-        isReply ? isReply : false
+        isReply ? isReply : false,
+        pathname.split("/")[2] + "Preview",
       );
       if (!res.success) {
         toast.error(res.message);
@@ -43,7 +44,7 @@ export default function AddCommentEditor({
   return (
     <>
       <MDXEditor getRawMDXValue={comment} setRawMDXValue={setComment} />
-      <div className="flex items-center justify-end w-full p-2">
+      <div className="flex w-full items-center justify-end p-2">
         <button
           onClick={sendComment}
           disabled={isPending}
