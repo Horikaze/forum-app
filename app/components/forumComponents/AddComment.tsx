@@ -42,7 +42,7 @@ export default function AddComment({ postId }: AddCommentProps) {
       {isOpen ? (
         <AddCommentEditor
           session={session}
-          postId={postId}
+          targetId={postId}
           closeWindow={() => setIsOpen(false)}
         />
       ) : null}

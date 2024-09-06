@@ -138,7 +138,7 @@ const UserInput = ({ onChange, value }: UserInputProps) => {
       />
       <div className="dropdown dropdown-end dropdown-top absolute bottom-3 right-3">
         <FaRegFaceSmile
-          className="size-5 cursor-pointer opacity-50 transition-opacity hover:opacity-100"
+          className="size-5 cursor-pointer opacity-60 transition-opacity hover:opacity-100"
           tabIndex={0}
           role="button"
         />

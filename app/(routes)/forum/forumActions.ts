@@ -97,14 +97,14 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
   }
 };
 
-const addCommentSchema = z.object({
-  comment: z
+const commentSchema = z.object({
+  content: z
     .string()
     .min(2, { message: "Komentarz musi miec co najmniej 2 znaki." }),
 });
 
 export const addCommentAction = async (
-  comment: string,
+  content: string,
   postId: string,
   currentUrl: string,
   isReplay: boolean,
@@ -112,10 +112,7 @@ export const addCommentAction = async (
 ) => {
   try {
     const session = await getUserSessionCreate();
-    const newComment = {
-      comment,
-    };
-    const result = addCommentSchema.safeParse(newComment);
+    const result = commentSchema.safeParse({ content });
     if (!result.success) {
       let errorMessage = "";
       result.error.issues.forEach((issue) => {
@@ -123,12 +120,11 @@ export const addCommentAction = async (
       });
       throw new Error(errorMessage);
     }
-
     if (isReplay) {
       await db.postComment.create({
         data: {
           parentCommentId: postId,
-          content: comment,
+          content: content,
           authorId: session.user.id,
         },
       });
@@ -137,7 +133,7 @@ export const addCommentAction = async (
         await tx.postComment.create({
           data: {
             postId: postId,
-            content: comment,
+            content: content,
             authorId: session.user.id,
           },
         });
@@ -146,7 +142,7 @@ export const addCommentAction = async (
             id: postId,
           },
           data: {
-            updatedAt: new Date(),
+            bumpDate: new Date(),
           },
         });
       });
@@ -264,7 +260,7 @@ export const addReactionAction = async (
     };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Unknown error occurred";
+      error instanceof Error ? error.message : "Nieznany błąd";
     return {
       success: false,
       message: errorMessage,
@@ -273,6 +269,95 @@ export const addReactionAction = async (
   } finally {
     if (isPost) {
       revalidateTag(tagToRevalidate);
+    }
+  }
+};
+
+export const editPostAction = async (
+  targetId: string,
+  isPost: boolean,
+  currentUrl: string,
+  content: string,
+) => {
+  try {
+    const session = await getUserSessionCreate();
+    const result = commentSchema.safeParse({ content });
+    if (!result.success) {
+      let errorMessage = "";
+      result.error.issues.forEach((issue) => {
+        errorMessage = errorMessage + issue.message + " ";
+      });
+      throw new Error(errorMessage);
+    }
+    if (isPost) {
+      await db.post.update({
+        where: {
+          id: targetId,
+          authorId: session.user.id,
+        },
+        data: {
+          content,
+        },
+      });
+    } else {
+      await db.postComment.update({
+        where: {
+          id: targetId,
+          authorId: session.user.id,
+        },
+        data: {
+          content,
+        },
+      });
+    }
+    revalidatePath(currentUrl);
+    return {
+      success: true,
+      message: "Post/Comment updated successfully.",
+    };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Nieznany błąd";
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+export const deletePostAction = async (
+  targetId: string,
+  isPost: boolean,
+  currentUrl: string,
+) => {
+  let isError = false;
+  try {
+    const session = await getUserSessionCreate();
+    if (isPost) {
+      await db.post.delete({
+        where: {
+          id: targetId,
+          authorId: session.user.id,
+        },
+      });
+    } else {
+      await db.postComment.delete({
+        where: {
+          id: targetId,
+          authorId: session.user.id,
+        },
+      });
+    }
+    if (isPost) {
+      revalidateTag(currentUrl.split("/")[2] + "Preview");
+      return;
+    }
+    revalidatePath(currentUrl);
+  } catch (error) {
+    isError = true;
+    console.log(error);
+  } finally {
+    if (!isError && isPost) {
+      redirect("/forum");
     }
   }
 };

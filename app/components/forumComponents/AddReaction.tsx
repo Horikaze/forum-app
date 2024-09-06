@@ -80,10 +80,11 @@ export default function AddReaction({
       })}
       <div className="dropdown dropdown-end dropdown-top dropdown-hover">
         <div
-          className="flex size-8 cursor-pointer items-center justify-center rounded-sm opacity-50 transition-opacity hover:opacity-100"
+          className="flex size-8 cursor-pointer items-center justify-center rounded-sm opacity-60 transition-opacity hover:opacity-100"
           role="button"
+          tabIndex={0}
         >
-          <FaRegFaceSmile className="size-6" tabIndex={0} />
+          <FaRegFaceSmile className="size-6" />
         </div>
         <div
           tabIndex={0}

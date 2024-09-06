@@ -3,6 +3,7 @@ import db from "@/lib/db";
 import { notFound } from "next/navigation";
 import SSRMDXRenderer from "../../../../components/SSRMDXRenderer";
 import AddComment from "../../../../components/forumComponents/AddComment";
+import { auth } from "@/auth";
 
 export default async function PostPage({
   params,
@@ -99,19 +100,27 @@ export default async function PostPage({
   });
 
   if (!post) return notFound();
+  const session = await auth();
   return (
     <div className="flex flex-col">
       <h2 className="text-2xl font-semibold">{post.title}</h2>
       {post.subTitle ? (
         <p className="text-sm opacity-80">{post.subTitle}</p>
       ) : null}
-      <PostCard post={post} renderer={SSRMDXRenderer} hideReply={true} isPost />
+      <PostCard
+        post={post}
+        renderer={SSRMDXRenderer}
+        hideReply={true}
+        isPost
+        currentUserId={session?.user.id}
+      />
       {post.comments.map((c) => (
         <PostCard
           key={c.id}
           post={c}
           renderer={SSRMDXRenderer}
           replays={c.replies}
+          currentUserId={session?.user.id}
         />
       ))}
       <AddComment postId={post.id} />

@@ -9,7 +9,7 @@ export default async function Forum() {
       <form
         action={async () => {
           "use server";
-          revalidateTag("touhou");
+          revalidateTag("touhouPreview");
         }}
       >
         <button className="btn">Revaalidate</button>

@@ -13,5 +13,5 @@ export default async function UserPage({
     },
   });
   if (!user) notFound();
-  return <div>{params.user}</div>;
+  return <div className="size-full">{params.user}</div>;
 }

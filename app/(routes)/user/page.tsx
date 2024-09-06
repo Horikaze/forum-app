@@ -8,7 +8,7 @@ export default async function CategoryPage({
   searchParams: { page: string | undefined };
 }) {
   const pageNumber = Math.max(1, Number(searchParams.page) || 1);
-  const userPerPage = 7;
+  const userPerPage = 10;
 
   const allUserCount = await db.user.count();
   const users = await db.user.findMany({
@@ -18,17 +18,13 @@ export default async function CategoryPage({
   console.log(users.length);
   const totalPages = Math.max(1, Math.ceil(allUserCount / userPerPage));
   return (
-    <div className="mb-5 flex flex-col items-end gap-5">
+    <div className="flex flex-col gap-5 min-h-full">
       {users.map((u) => (
         <UserCardList user={u} key={u.id} />
       ))}
       <div className="join mt-auto self-center">
         {pageNumber > 1 ? (
-          <Link
-            scroll={false}
-            href={`/user?page=${pageNumber - 1}`}
-            className="btn join-item"
-          >
+          <Link href={`/user?page=${pageNumber - 1}`} className="btn join-item">
             «
           </Link>
         ) : (
@@ -38,11 +34,7 @@ export default async function CategoryPage({
         )}
         <button className="btn join-item">Strona {pageNumber}</button>
         {pageNumber < totalPages ? (
-          <Link
-            scroll={false}
-            href={`/user?page=${pageNumber + 1}`}
-            className="btn join-item"
-          >
+          <Link href={`/user?page=${pageNumber + 1}`} className="btn join-item">
             »
           </Link>
         ) : (

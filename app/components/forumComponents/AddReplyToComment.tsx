@@ -25,7 +25,7 @@ export default function AddReplyToComment({ postId }: AddCommentProps) {
             href={`/login?redirectTo=${pathname}`}
             className="btn btn-ghost btn-sm relative -top-10 right-2 z-10 lg:-top-12 lg:right-4"
           >
-            <FaReply className="size-5" />
+            <FaReply className="size-5 opacity-80" />
           </Link>
         </div>
       </div>
@@ -41,20 +41,20 @@ export default function AddReplyToComment({ postId }: AddCommentProps) {
             isOpen ? "btn-primary" : "btn-ghost",
           )}
         >
-          <FaReply className="size-5" />
+          <FaReply className="size-5 opacity-80" />
         </button>
       </div>
       {isOpen ? (
         <div className="mt-5 flex w-full">
-          <div className="relative ml-10 w-full lg:ml-20">
+          <div className="relative ml-10 w-full lg:ml-20 bg-base-200 rounded-box p-5">
             <AddCommentEditor
               session={session}
-              postId={postId}
+              targetId={postId}
               isReply={true}
               closeWindow={() => setIsOpen(false)}
             />
 
-            <div className="div pointer-events-none absolute -left-5 bottom-1/2 -z-10 h-[calc(100%+2rem)] w-full rounded-box rounded-tl-none border-b-4 border-l-4 border-base-300"></div>
+            <div className="div pointer-events-none absolute -left-5 bottom-[calc(50%-0.15rem)] -z-10 h-[calc(100%+2rem)] w-full rounded-box rounded-tl-none border-b-4 border-l-4 border-base-300"/>
           </div>
         </div>
       ) : null}

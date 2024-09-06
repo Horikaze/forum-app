@@ -39,10 +39,11 @@ model Post {
   featuredImage String?
   tags          String[]
   category      String
+  bumpDate      DateTime      @default(now())
   status        PostStatus
   comments      PostComment[]
   reactions     Reaction[]
-  author        User          @relation("UserPosts", fields: [authorId], references: [id])
+  author        User          @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
   authorId      String
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -52,12 +53,13 @@ model PostComment {
   id              String        @id @default(cuid())
   content         String
   reactions       Reaction[]
-  author          User          @relation("UserComments", fields: [authorId], references: [id])
-  post            Post?         @relation(fields: [postId], references: [id])
+  author          User          @relation("UserComments", fields: [authorId], references: [id], onDelete: Cascade)
+  post            Post?         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  bumpDate        DateTime      @default(now())
   postId          String?
   authorId        String
   parentCommentId String?
-  parentComment   PostComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id])
+  parentComment   PostComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
   replies         PostComment[] @relation("CommentReplies")
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -66,7 +68,7 @@ model PostComment {
 model Achievement {
   id        String   @id @default(cuid())
   name      String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
 }
@@ -74,11 +76,11 @@ model Achievement {
 model Reaction {
   id        String       @id @default(cuid())
   type      String
-  user      User         @relation(fields: [userId], references: [id])
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  post      Post?        @relation(fields: [postId], references: [id])
+  post      Post?        @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String?
-  comment   PostComment? @relation(fields: [commentId], references: [id])
+  comment   PostComment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId String?
   createdAt DateTime     @default(now())
 

@@ -1,6 +1,5 @@
 "use server";
 import { signIn } from "@/auth";
-import { redirect } from "next/navigation";
 import * as z from "zod";
 const registerSchema = z
   .object({

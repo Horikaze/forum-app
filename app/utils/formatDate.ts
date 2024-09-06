@@ -35,18 +35,27 @@ export function getFormattedDate(): string {
   const now = new Date();
 
   // Get month, day, and year
-  let month: number | string = now.getMonth() + 1; // Months are zero-based
+  let month: number | string = now.getMonth() + 1;
   let day: number | string = now.getDate();
   let year: number | string = now.getFullYear();
 
-  // Format year as last two digits
   year = year % 100;
 
-  // Add leading zeroes if necessary
   month = month < 10 ? `0${month}` : month;
   day = day < 10 ? `0${day}` : day;
   year = year < 10 ? `0${year}` : year;
 
-  // Construct the formatted date string
   return `${day}-${month}-${year}`;
+}
+export function areDatesEqual(
+  date1: string | Date,
+  date2: string | Date,
+): boolean {
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+
+  if (isNaN(d1.getTime()) || isNaN(d2.getTime())) {
+    return false;
+  }
+  return d1.getTime() === d2.getTime();
 }

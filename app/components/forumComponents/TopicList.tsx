@@ -3,6 +3,8 @@ import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { FaInfo } from "react-icons/fa6";
 import TopicListCard from "./TopicListCard";
+import { Suspense } from "react";
+export const experimental_ppr = true;
 type TopicListProps = {
   title: string;
   dbTarget: string;
@@ -11,7 +13,6 @@ type TopicListProps = {
   summary: string;
   isPreview?: boolean;
 };
-
 export default async function TopicList({
   title,
   dbTarget,
@@ -24,7 +25,7 @@ export default async function TopicList({
     return await db.post.findMany({
       relationLoadStrategy: "join",
       where: {
-        category: "touhou",
+        category: dbTarget,
       },
       select: {
         title: true,
@@ -81,7 +82,27 @@ export default async function TopicList({
       tags: [tag],
     },
   );
-  const categoryPosts = isPreview ? await getCachedPosts() : await fetchPosts();
+  const Posts = async () => {
+    const categoryPosts = isPreview
+      ? await getCachedPosts()
+      : await fetchPosts();
+    return (
+      <>
+        {categoryPosts.length >= 1 ? (
+          <>
+            {categoryPosts.map((e, idx) => (
+              <TopicListCard {...e} key={idx} />
+            ))}
+          </>
+        ) : (
+          <span className="my-5 text-center font-semibold opacity-80">
+            Brak postów
+          </span>
+        )}
+      </>
+    );
+  };
+
   return (
     <div className="flex w-full flex-col rounded-box border border-base-300 bg-base-200">
       <div className="flex flex-col gap-1 rounded-box p-2 md:p-4">
@@ -107,20 +128,28 @@ export default async function TopicList({
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          {categoryPosts.length >= 1 ? (
-            <>
-              {categoryPosts.map((e, idx) => (
-                <TopicListCard {...e} key={idx} />
-              ))}
-            </>
-          ) : (
-            <span className="my-5 text-center font-semibold opacity-80">
-              Brak postów
-            </span>
-          )}
+          <Suspense fallback={ListCardSkeleton()}>
+            <Posts />
+          </Suspense>
         </div>
       </div>
     </div>
   );
 }
-<p className="text-center text-warning">Html tagi</p>;
+export const ListCardSkeleton = () => {
+  const arr = [1, 2, 3];
+  return (
+    <>
+      {arr.map((i) => (
+        <div className="flex h-24 items-center gap-5 rounded-box border-b-2 border-base-100 p-2 md:p-4">
+          <div className="skeleton size-10 rounded-full" />
+          <div className="flex flex-col gap-1">
+            <div className="skeleton h-3 w-32"></div>
+            <div className="skeleton h-3 w-44"></div>
+            <div className="skeleton mt-1 h-2 w-52"></div>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+};

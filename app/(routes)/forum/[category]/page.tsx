@@ -14,9 +14,9 @@ export default async function CategoryPage({
 }) {
   const category = forumCategory.find((c) => c.dbTarget === params.category);
   if (!category) notFound();
+  const postsPerPage = 10;
 
   const pageNumber = Math.max(1, Number(searchParams.page) || 1);
-  const postsPerPage = 10;
 
   const allPostCount = await db.post.count({
     where: {
@@ -26,7 +26,7 @@ export default async function CategoryPage({
 
   const totalPages = Math.max(1, Math.ceil(allPostCount / postsPerPage));
   return (
-    <div className="mb-5 flex size-full flex-col items-end gap-5">
+    <div className="flex min-h-full flex-col items-end gap-5">
       <Link
         href={`/forum/new/?forumTarget=${category.dbTarget}`}
         className="btn btn-primary"

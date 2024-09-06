@@ -8,27 +8,27 @@ import { FaPaperPlane } from "react-icons/fa6";
 
 type AddCommentEditorProps = {
   session: Session | null;
-  postId: string;
+  targetId: string;
   isReply?: boolean;
   closeWindow: () => void;
 };
 
 export default function AddCommentEditor({
-  postId,
+  targetId,
   session,
   isReply,
   closeWindow,
 }: AddCommentEditorProps) {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
-  const [comment, setComment] = useState("");
+  const [content, setContent] = useState("");
   if (!session) return notFound();
 
   const sendComment = async () => {
     startTransition(async () => {
       const res = await addCommentAction(
-        comment,
-        postId,
+        content,
+        targetId,
         pathname,
         isReply ? isReply : false,
         pathname.split("/")[2] + "Preview",
@@ -37,13 +37,13 @@ export default function AddCommentEditor({
         toast.error(res.message);
         return;
       }
-      setComment("");
+      setContent("");
       closeWindow();
     });
   };
   return (
     <>
-      <MDXEditor getRawMDXValue={comment} setRawMDXValue={setComment} />
+      <MDXEditor getRawMDXValue={content} setRawMDXValue={setContent} />
       <div className="flex w-full items-center justify-end p-2">
         <button
           onClick={sendComment}
