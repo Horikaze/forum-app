@@ -42,25 +42,6 @@ export async function generateMetadata(
       title: "Nie znaleziono",
     };
   }
-  const image = new ImageResponse(
-    (
-      <GETHandlerImage
-        commentsCount={post._count.comments}
-        likesCount={post._count.reactions}
-        nickname={post.author.nickname}
-        profileImage={
-          post.author.profileImage ||
-          `https://ui-avatars.com/api/?name=${post.author.nickname}`
-        }
-        title={post.title}
-        subTitle={post.subTitle || ""}
-      />
-    ),
-    {
-      width: 1200,
-      height: 600,
-    },
-  );
   return {
     title: post.title,
     description: post.subTitle || `Post ${post.author.nickname}`,
@@ -72,7 +53,12 @@ export async function generateMetadata(
       type: "article",
       authors: [post.author.nickname],
       siteName: "Gensokyawka",
-      images: image,
+      images: {
+        url: `/api/embeddedimage?comments=${post._count.comments}&reactions=${post._count.reactions}&nickname=${post.author.nickname}&profileImage=${post.author.profileImage || ""}&title=${encodeURIComponent(post.title)}&subTitle=${encodeURIComponent(post.subTitle || "")}`,
+        width: 1200,
+        height: 600,
+        alt: post.title,
+      },
     },
   };
 }
