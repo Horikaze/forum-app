@@ -128,7 +128,10 @@ export default async function TopicList({
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          <Suspense fallback={ListCardSkeleton()}>
+          <Suspense
+            key={dbTarget + postSkip + isPreview}
+            fallback={ListCardSkeleton()}
+          >
             <Posts />
           </Suspense>
         </div>
@@ -141,7 +144,10 @@ export const ListCardSkeleton = () => {
   return (
     <>
       {arr.map((i) => (
-        <div className="flex h-24 items-center gap-5 rounded-box border-b-2 border-base-100 p-2 md:p-4">
+        <div
+          key={i}
+          className="flex h-24 items-center gap-5 rounded-box border-b-2 border-base-100 p-2 md:p-4"
+        >
           <div className="skeleton size-10 rounded-full" />
           <div className="flex flex-col gap-1">
             <div className="skeleton h-3 w-32"></div>

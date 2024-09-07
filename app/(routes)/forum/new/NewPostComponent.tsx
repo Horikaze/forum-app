@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useActionState, useState } from "react";
 import { FaRegCircleXmark } from "react-icons/fa6";
 import { newPostAction } from "../forumActions";
+
 import TopicListCard from "../../../components/forumComponents/TopicListCard";
 const date = new Date();
 type NewPostComponentProps = {

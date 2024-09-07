@@ -15,10 +15,9 @@ export default async function CategoryPage({
     take: userPerPage,
     skip: (pageNumber - 1) * userPerPage,
   });
-  console.log(users.length);
   const totalPages = Math.max(1, Math.ceil(allUserCount / userPerPage));
   return (
-    <div className="flex flex-col gap-5 min-h-full">
+    <div className="flex min-h-full flex-col gap-5">
       {users.map((u) => (
         <UserCardList user={u} key={u.id} />
       ))}

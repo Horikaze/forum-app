@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { FaArrowDown } from "react-icons/fa6";
 const AddCommentEditor = dynamic(() => import("./AddCommentEditor"));
 
@@ -16,7 +16,7 @@ export default function AddComment({ postId }: AddCommentProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const { data: session, status, update } = useSession();
-  if (!session) {
+  if (!session && status !== "loading") {
     return (
       <div className="mt-5 flex flex-col items-center">
         <Link
@@ -31,6 +31,7 @@ export default function AddComment({ postId }: AddCommentProps) {
   return (
     <div className="mt-5 flex flex-col items-center">
       <button
+        disabled={status === "loading"}
         onClick={() => setIsOpen((p) => !p)}
         className="btn btn-ghost btn-sm"
       >
@@ -40,11 +41,13 @@ export default function AddComment({ postId }: AddCommentProps) {
         />
       </button>
       {isOpen ? (
-        <AddCommentEditor
-          session={session}
-          targetId={postId}
-          closeWindow={() => setIsOpen(false)}
-        />
+        <Suspense>
+          <AddCommentEditor
+            session={session}
+            targetId={postId}
+            closeWindow={() => setIsOpen(false)}
+          />
+        </Suspense>
       ) : null}
     </div>
   );

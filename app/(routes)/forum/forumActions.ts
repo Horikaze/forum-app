@@ -219,13 +219,40 @@ export const addReactionAction = async (
         userId: session.user.id,
       },
     });
+    const targetUserPost = isPost
+      ? await db.post.findUnique({
+          where: { id: targetId },
+          select: { authorId: true },
+        })
+      : await db.postComment.findUnique({
+          where: { id: targetId },
+          select: { authorId: true },
+        });
+
+    if (!targetUserPost) {
+      throw new Error(`Ten ${isPost ? "post" : "komentarz"} nie istnieje`);
+    }
     if (!userReaction) {
-      await db.reaction.create({
-        data: {
-          [isPost ? "postId" : "commentId"]: targetId,
-          userId: session.user.id,
-          type: reactionType,
-        },
+      await db.$transaction(async (tx) => {
+        await tx.reaction.create({
+          data: {
+            [isPost ? "postId" : "commentId"]: targetId,
+            userId: session.user.id,
+            type: reactionType,
+          },
+        });
+        if (targetUserPost.authorId !== session.user.id) {
+          await tx.user.update({
+            where: {
+              id: targetUserPost.authorId,
+            },
+            data: {
+              karma: {
+                increment: 1,
+              },
+            },
+          });
+        }
       });
       return {
         success: true,
@@ -234,10 +261,25 @@ export const addReactionAction = async (
       };
     }
     if (reactionType === userReaction.type) {
-      await db.reaction.delete({
-        where: {
-          id: userReaction.id,
-        },
+      await db.$transaction(async (tx) => {
+        await db.reaction.delete({
+          where: {
+            id: userReaction.id,
+          },
+        });
+
+        if (targetUserPost.authorId !== session.user.id) {
+          await tx.user.update({
+            where: {
+              id: targetUserPost.authorId,
+            },
+            data: {
+              karma: {
+                decrement: 1,
+              },
+            },
+          });
+        }
       });
       return {
         success: true,
@@ -266,10 +308,6 @@ export const addReactionAction = async (
       message: errorMessage,
       reactions: await getPostReactionCount(isPost, targetId),
     };
-  } finally {
-    if (isPost) {
-      revalidateTag(tagToRevalidate);
-    }
   }
 };
 
