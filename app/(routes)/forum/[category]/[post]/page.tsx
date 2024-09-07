@@ -22,6 +22,7 @@ export async function generateMetadata(
     select: {
       title: true,
       subTitle: true,
+      category: true,
       author: {
         select: {
           nickname: true,
@@ -41,42 +42,7 @@ export async function generateMetadata(
       title: "Nie znaleziono",
     };
   }
-  return {
-    title: post.title,
-    description: post.subTitle || `Post ${post.author.nickname}`,
-    openGraph: {
-      title: post.title,
-      description: post.subTitle || `Post ${post.author.nickname}`,
-      type: "article",
-      authors: [post.author.nickname],
-    },
-  };
-}
-
-export async function GET(request: Request, { params }: Props) {
-  const post = await db.post.findFirst({
-    where: {
-      slug: params.post,
-    },
-    select: {
-      title: true,
-      subTitle: true,
-      author: {
-        select: {
-          nickname: true,
-          profileImage: true,
-        },
-      },
-      _count: {
-        select: {
-          comments: true,
-          reactions: true,
-        },
-      },
-    },
-  });
-  if (!post) return;
-  return new ImageResponse(
+  const image = new ImageResponse(
     (
       <GETHandlerImage
         commentsCount={post._count.comments}
@@ -95,6 +61,20 @@ export async function GET(request: Request, { params }: Props) {
       height: 600,
     },
   );
+  return {
+    title: post.title,
+    description: post.subTitle || `Post ${post.author.nickname}`,
+    creator: post.author.nickname,
+    category: post.category,
+    openGraph: {
+      title: post.title,
+      description: post.subTitle || `Post ${post.author.nickname}`,
+      type: "article",
+      authors: [post.author.nickname],
+      siteName: "Gensokyawka",
+      images: image,
+    },
+  };
 }
 
 export default async function PostPage({ params }: Props) {
