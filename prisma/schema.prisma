@@ -4,9 +4,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model Account {
@@ -20,6 +20,8 @@ model User {
   id           String        @id @default(cuid())
   nickname     String        @unique
   profileImage String?
+  bannerImage  String?
+  signature    String?
   karma        Int           @default(0)
   role         UserRole      @default(USER)
   account      Account?
@@ -36,6 +38,7 @@ model Post {
   title         String
   slug          String        @unique
   subTitle      String?
+  isPinned      Boolean       @default(false)
   content       String
   featuredImage String?
   tags          String[]
@@ -67,11 +70,11 @@ model PostComment {
 }
 
 model Achievement {
-  id        String   @id @default(cuid())
-  name      String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  AchievementId Int
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  createdAt     DateTime @default(now())
 }
 
 model Reaction {

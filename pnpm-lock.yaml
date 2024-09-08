@@ -47,6 +47,9 @@ dependencies:
   react-icons:
     specifier: ^5.3.0
     version: 5.3.0(react@19.0.0-rc-f994737d14-20240522)
+  react-image-crop:
+    specifier: ^11.0.6
+    version: 11.0.6(react@19.0.0-rc-f994737d14-20240522)
   react-markdown:
     specifier: 9.0.1
     version: 9.0.1(@types/react@18.3.4)(react@19.0.0-rc-f994737d14-20240522)
@@ -3651,6 +3654,14 @@ packages:
     resolution: {integrity: sha512-DnUk8aFbTyQPSkCfF8dbX6kQjXA9DktMeJqfjrg6cK9vwQVMxmcA3BfP4QoiztVmEHtwlTgLFsPuH2NskKT6eg==}
     peerDependencies:
       react: '*'
+    dependencies:
+      react: 19.0.0-rc-f994737d14-20240522
+    dev: false
+
+  /react-image-crop@11.0.6(react@19.0.0-rc-f994737d14-20240522):
+    resolution: {integrity: sha512-T+/RPBhwFxdf8PjD/uoWk+tBkS0Xf2XW0lY5mnsmClvnAujO81EEjDwj0M2pcHX3seXVgKOr/yIiL+Sx4evMNw==}
+    peerDependencies:
+      react: '>=16.13.1'
     dependencies:
       react: 19.0.0-rc-f994737d14-20240522
     dev: false

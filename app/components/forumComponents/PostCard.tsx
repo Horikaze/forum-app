@@ -43,6 +43,7 @@ export type PostCardProps = {
   post: PostDataProps;
   renderer: React.ElementType<{ markdown: string }>;
   hideReply?: boolean;
+  hideReactions?: boolean;
   replays?: PostDataProps[];
   isPost?: boolean;
   currentUserId?: string;
@@ -51,6 +52,7 @@ export default function PostCard({
   post,
   renderer: Renderer,
   hideReply,
+  hideReactions,
   replays,
   isPost,
   currentUserId,
@@ -110,11 +112,13 @@ export default function PostCard({
               <Renderer markdown={post.content} />
             </div>
             <div className="mr-12 flex flex-col items-end justify-center">
-              <AddReaction
-                initialReactions={reactionsSorted}
-                targetId={post.id}
-                isPost={reactionsSorted.isPost}
-              />
+              {!hideReactions ? (
+                <AddReaction
+                  initialReactions={reactionsSorted}
+                  targetId={post.id}
+                  isPost={reactionsSorted.isPost}
+                />
+              ) : null}
             </div>
           </div>
         </div>

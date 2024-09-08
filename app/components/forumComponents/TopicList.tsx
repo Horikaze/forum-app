@@ -1,9 +1,9 @@
 import db from "@/lib/db";
 import { unstable_cache } from "next/cache";
 import Link from "next/link";
+import { Suspense } from "react";
 import { FaInfo } from "react-icons/fa6";
 import TopicListCard from "./TopicListCard";
-import { Suspense } from "react";
 export const experimental_ppr = true;
 type TopicListProps = {
   title: string;
@@ -22,6 +22,7 @@ export default async function TopicList({
   isPreview,
 }: TopicListProps) {
   const fetchPosts = async () => {
+    console.log("rfch");
     return await db.post.findMany({
       relationLoadStrategy: "join",
       where: {
@@ -58,28 +59,27 @@ export default async function TopicList({
             createdAt: true,
           },
           orderBy: {
-            updatedAt: "desc",
+            createdAt: "desc",
           },
         },
       },
       orderBy: [
         {
-          updatedAt: "desc",
+          bumpDate: "desc",
         },
       ],
       take: postCount,
       skip: postSkip,
     });
   };
-  const tag = dbTarget + "Preview";
   const getCachedPosts = unstable_cache(
     async () => {
       return fetchPosts();
     },
-    [tag],
+    [dbTarget],
     {
       revalidate: false,
-      tags: [tag],
+      tags: [dbTarget],
     },
   );
   const Posts = async () => {

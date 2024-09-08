@@ -19,7 +19,6 @@ export default function AddCommentEditor({
   isReply,
   closeWindow,
 }: AddCommentEditorProps) {
-  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [content, setContent] = useState("");
   if (!session) return notFound();
@@ -29,9 +28,7 @@ export default function AddCommentEditor({
       const res = await addCommentAction(
         content,
         targetId,
-        pathname,
         isReply ? isReply : false,
-        pathname.split("/")[2] + "Preview",
       );
       if (!res.success) {
         toast.error(res.message);

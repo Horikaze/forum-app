@@ -82,8 +82,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (PROTECTED_ROUTES.includes(pathname)) return !!auth;
       return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, account, trigger, session }) {
+      if (trigger === "update" && session?.nickname) {
+        token.user.nickname = session.nickname;
+        return token;
+      }
+      if (trigger === "update" && session?.profileImage) {
+        token.user.profileImage = session.profileImage;
+        return token;
+      }
       if (!user) return token;
+
       let provider;
       switch (account?.provider) {
         case "github":
@@ -118,7 +127,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (isUserExist && isUserExist.hashedPassword) {
           const isValidPass = await bcryptjs.compare(
             user.password!,
-            isUserExist.hashedPassword!
+            isUserExist.hashedPassword!,
           );
           if (isValidPass && isUserExist.hashedPassword) {
             token.picture = isUserExist.user.profileImage || null;

@@ -1,15 +1,15 @@
+import TopicList from "@/app/components/forumComponents/TopicList";
+import { forumCategory } from "@/app/constants/forum";
+import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { FaPlus } from "react-icons/fa6";
-import { forumCategory } from "@/app/constants/forum";
-import { revalidateTag } from "next/cache";
-import TopicList from "@/app/components/forumComponents/TopicList";
 export default async function Forum() {
   return (
     <div className="flex flex-col items-end gap-5">
       <form
         action={async () => {
           "use server";
-          revalidateTag("touhouPreview");
+          revalidatePath("/forum");
         }}
       >
         <button className="btn">Revaalidate</button>

@@ -23,7 +23,7 @@
     AUTH_DISCORD_SECRET=""
     AUTH_GITHUB_ID=""
     AUTH_GITHUB_SECRET=""
-    DATABASE_URL="postgres://[user[:password]@][host][:port][/dbname]"
+    DATABASE_URL="postgres://[user]:[password]@[host]:[port][/dbname]"
     AUTH_TRUST_HOST="http://localhost:3000"
     ```
 

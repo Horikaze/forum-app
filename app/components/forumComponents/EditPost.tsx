@@ -3,7 +3,7 @@
 import { deletePostAction } from "@/app/(routes)/forum/forumActions";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { FaPen, FaTrash } from "react-icons/fa6";
 const EditPostEditor = dynamic(() => import("./EditPostEditor"));
 type EditPostProps = {
@@ -26,14 +26,16 @@ export default function EditPost({
   return (
     <>
       {isOpen ? (
-        <div className="relative col-start-1 col-end-2 row-start-1 row-end-2 mt-5">
-          <EditPostEditor
-            initialContent={initialContent}
-            closeWindow={() => setIsOpen(false)}
-            targetId={targetId}
-            isPost={isPost}
-          />
-        </div>
+        <Suspense>
+          <div className="relative col-start-1 col-end-2 row-start-1 row-end-2 mt-5">
+            <EditPostEditor
+              initialContent={initialContent}
+              closeWindow={() => setIsOpen(false)}
+              targetId={targetId}
+              isPost={isPost}
+            />
+          </div>
+        </Suspense>
       ) : (
         <>
           <div className="dropdown dropdown-end absolute right-12 top-5 mt-5 opacity-0 transition-all group-hover:opacity-100">

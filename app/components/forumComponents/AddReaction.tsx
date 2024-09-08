@@ -20,8 +20,6 @@ export default function AddReaction({
   targetId: string;
   isPost: boolean;
 }) {
-  // needed for dbtarget revalidate tag
-  const pathname = usePathname();
   const [reactions, setReactions] = useState(initialReactions);
   const [lastClicked, setLastClicked] = useState<Date | null>(null);
   const { data } = useSession();
@@ -35,12 +33,7 @@ export default function AddReaction({
       }
     }
     setLastClicked(new Date());
-    const res = await addReactionAction(
-      reactionType,
-      targetId,
-      isPost,
-      pathname.split("/")[2] + "Preview",
-    );
+    const res = await addReactionAction(reactionType, targetId, isPost);
     if (!res.success) {
       toast.error(`${res.message}`);
     }

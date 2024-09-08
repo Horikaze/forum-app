@@ -167,8 +167,11 @@ type PreviewMDXProps = {
 };
 const PreviewMDXComment = ({ post }: PreviewMDXProps) => {
   return (
-    <div className="pointer-events-none">
-      <PostCard post={post} renderer={MDXRenderer} hideReply={true} />
-    </div>
+    <PostCard
+      post={post}
+      renderer={MDXRenderer}
+      hideReply={true}
+      hideReactions={true}
+    />
   );
 };

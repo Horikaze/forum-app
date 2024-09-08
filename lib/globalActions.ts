@@ -1,6 +1,5 @@
 "use server";
-
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import db from "./db";

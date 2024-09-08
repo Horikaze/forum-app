@@ -3,7 +3,7 @@ import { segregateReactionsByType } from "@/app/components/forumComponents/PostC
 import { getFormattedDate } from "@/app/utils/formatDate";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
 import * as z from "zod";
@@ -75,7 +75,7 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
         tags: [],
       },
     });
-    revalidateTag(dbTarget + "Preview");
+    revalidatePath("/forum");
   } catch (error) {
     errorOccurred = true;
     if (error instanceof Error) {
@@ -106,9 +106,7 @@ const commentSchema = z.object({
 export const addCommentAction = async (
   content: string,
   postId: string,
-  currentUrl: string,
   isReplay: boolean,
-  tagToRevalidate: string,
 ) => {
   try {
     const session = await getUserSessionCreate();
@@ -137,18 +135,26 @@ export const addCommentAction = async (
             authorId: session.user.id,
           },
         });
+        const oldUpdateDate = await tx.post.findFirst({
+          where: {
+            id: postId,
+          },
+          select: {
+            updatedAt: true,
+          },
+        });
         await tx.post.update({
           where: {
             id: postId,
           },
           data: {
             bumpDate: new Date(),
+            updatedAt: oldUpdateDate?.updatedAt,
           },
         });
       });
     }
-    revalidatePath(currentUrl, "page");
-    revalidateTag(tagToRevalidate);
+    revalidatePath("/forum");
     return {
       success: true,
       message: "ok",
@@ -164,7 +170,7 @@ export const addCommentAction = async (
   }
 };
 
-const getPostReactionCount = async (isPost: boolean, targetId: string) => {
+const getPostReaction = async (isPost: boolean, targetId: string) => {
   if (isPost) {
     const res = await db.post.findFirst({
       relationLoadStrategy: "join",
@@ -183,6 +189,7 @@ const getPostReactionCount = async (isPost: boolean, targetId: string) => {
         },
       },
     });
+    revalidatePath("/forum");
     return segregateReactionsByType(res?.reactions!, isPost);
   }
   const res = await db.postComment.findFirst({
@@ -209,7 +216,6 @@ export const addReactionAction = async (
   reactionType: string,
   targetId: string,
   isPost: boolean,
-  tagToRevalidate: string,
 ) => {
   try {
     const session = await getUserSessionCreate();
@@ -257,7 +263,7 @@ export const addReactionAction = async (
       return {
         success: true,
         message: "Reaction added successfully.",
-        reactions: await getPostReactionCount(isPost, targetId),
+        reactions: await getPostReaction(isPost, targetId),
       };
     }
     if (reactionType === userReaction.type) {
@@ -284,7 +290,7 @@ export const addReactionAction = async (
       return {
         success: true,
         message: "Reaction updated successfully.",
-        reactions: await getPostReactionCount(isPost, targetId),
+        reactions: await getPostReaction(isPost, targetId),
       };
     }
     await db.reaction.update({
@@ -298,7 +304,7 @@ export const addReactionAction = async (
     return {
       success: true,
       message: "Reaction added successfully.",
-      reactions: await getPostReactionCount(isPost, targetId),
+      reactions: await getPostReaction(isPost, targetId),
     };
   } catch (error) {
     const errorMessage =
@@ -306,7 +312,7 @@ export const addReactionAction = async (
     return {
       success: false,
       message: errorMessage,
-      reactions: await getPostReactionCount(isPost, targetId),
+      reactions: await getPostReaction(isPost, targetId),
     };
   }
 };
@@ -386,7 +392,7 @@ export const deletePostAction = async (
       });
     }
     if (isPost) {
-      revalidateTag(currentUrl.split("/")[2] + "Preview");
+      revalidatePath("/forum");
       return;
     }
     revalidatePath(currentUrl);

@@ -102,6 +102,7 @@ export default function NavSide() {
           <div className="size-[63px] p-2">
             <Image
               src={"/images/gensoIcon.webp"}
+              priority
               alt="icon"
               width="0"
               height="0"
