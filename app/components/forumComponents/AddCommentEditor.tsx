@@ -24,19 +24,20 @@ export default function AddCommentEditor({
   if (!session) return notFound();
 
   const sendComment = async () => {
-    startTransition(async () => {
-      const res = await addCommentAction(
-        content,
-        targetId,
-        isReply ? isReply : false,
-      );
-      if (!res.success) {
-        toast.error(res.message);
-        return;
-      }
-      setContent("");
-      closeWindow();
-    });
+    try {
+      startTransition(async () => {
+        const res = await addCommentAction(
+          content,
+          targetId,
+          isReply ? isReply : false,
+        );
+        if (!res.success) throw new Error(`${res.message}`);
+        setContent("");
+        closeWindow();
+      });
+    } catch (error) {
+      toast.error(`${error}`);
+    }
   };
   return (
     <>

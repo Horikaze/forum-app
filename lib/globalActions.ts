@@ -11,21 +11,24 @@ export default async function redirectHard(uri: string) {
   redirect(uri);
 }
 
-export const getUserSessionCreate = async () => {
+export const getUserSessionCreate = async (isAdmin: boolean = false) => {
   const session = await auth();
   if (!session) {
     throw new Error("Nie zalogowano");
   }
-  const res = await db.user.findFirst({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      role: true,
-    },
+  const user = await db.user.findFirst({
+    where: { id: session.user.id },
+    select: { role: true },
   });
-  if (res?.role === "BLOCKED") {
+  if (!user) {
+    throw new Error("Nie znaleziono użytkownika");
+  }
+  const { role } = user;
+  if (role === "BLOCKED") {
     throw new Error("Nie masz uprawnień");
+  }
+  if (isAdmin && role !== "ADMIN" && role !== "MODERATOR") {
+    throw new Error("Nie masz uprawnień do operacji administracyjnych");
   }
   return session;
 };

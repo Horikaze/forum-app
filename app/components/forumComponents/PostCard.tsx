@@ -108,9 +108,7 @@ export default function PostCard({
                 </p>
               ) : null}
             </div>
-            <div className="flex-1 overflow-hidden">
-              <Renderer markdown={post.content} />
-            </div>
+            <Renderer markdown={post.content} />
             <div className="mr-12 flex flex-col items-end justify-center">
               {!hideReactions ? (
                 <AddReaction

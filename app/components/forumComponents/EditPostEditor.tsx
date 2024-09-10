@@ -22,15 +22,16 @@ export default function EditPostEditor({
   const [isPending, startTransition] = useTransition();
 
   const updatePost = async () => {
-    startTransition(async () => {
-      const res = await editPostAction(targetId, isPost, pathname, content);
-      if (!res.success) {
-        toast.error(res.message);
-        return;
-      }
-      setContent("");
-      closeWindow();
-    });
+    try {
+      startTransition(async () => {
+        const res = await editPostAction(targetId, isPost, pathname, content);
+        if (!res.success) throw new Error(`${res.message}`);
+        setContent("");
+        closeWindow();
+      });
+    } catch (error) {
+      toast.error(`${error}`);
+    }
   };
 
   return (

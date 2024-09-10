@@ -24,20 +24,22 @@ export default function AddReaction({
   const [lastClicked, setLastClicked] = useState<Date | null>(null);
   const { data } = useSession();
   const addReaction = async (reactionType: string) => {
-    if (lastClicked) {
-      const timeElapsed = new Date().getTime() - lastClicked.getTime();
-      const timeLeft = 2000 - timeElapsed;
-      if (timeLeft > 0) {
-        toast.error(`Poczekaj ${Math.ceil(timeLeft / 1000)}s`);
-        return;
+    try {
+      if (lastClicked) {
+        const timeElapsed = new Date().getTime() - lastClicked.getTime();
+        const timeLeft = 2000 - timeElapsed;
+        if (timeLeft > 0) {
+          toast.error(`Poczekaj ${Math.ceil(timeLeft / 1000)}s`);
+          return;
+        }
       }
+      setLastClicked(new Date());
+      const res = await addReactionAction(reactionType, targetId, isPost);
+      if (!res.success) throw new Error(`${res.message}`);
+      setReactions(res.reactions);
+    } catch (error) {
+      toast.error(`${error}`);
     }
-    setLastClicked(new Date());
-    const res = await addReactionAction(reactionType, targetId, isPost);
-    if (!res.success) {
-      toast.error(`${res.message}`);
-    }
-    setReactions(res.reactions);
   };
 
   return (

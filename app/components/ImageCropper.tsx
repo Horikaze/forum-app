@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { LegacyRef, useEffect, useRef, useState } from "react";
 import ReactCrop, {
   Crop,
   PixelCrop,
@@ -10,9 +10,14 @@ import "react-image-crop/dist/ReactCrop.css";
 type ImageCropperProps = {
   aspect: number;
   onCropChange: (croppedImage: File | null) => void;
+  preview?: React.ElementType<{ ref: LegacyRef<HTMLCanvasElement> }>;
 };
 
-const ImageCropper = ({ aspect, onCropChange }: ImageCropperProps) => {
+const ImageCropper = ({
+  aspect,
+  onCropChange,
+  preview: Preview = DefaultPreview,
+}: ImageCropperProps) => {
   const [imgSrc, setImgSrc] = useState<string>("");
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
@@ -190,10 +195,7 @@ const ImageCropper = ({ aspect, onCropChange }: ImageCropperProps) => {
           {completedCrop && (
             <>
               <span className="mb-2 text-xl font-semibold">Podgląd</span>
-              <canvas
-                ref={previewCanvasRef}
-                className="size-64 rounded-box object-contain"
-              />
+              <Preview ref={previewCanvasRef} />
             </>
           )}
         </div>
@@ -203,3 +205,6 @@ const ImageCropper = ({ aspect, onCropChange }: ImageCropperProps) => {
 };
 
 export default ImageCropper;
+const DefaultPreview = ({ ref }: { ref: LegacyRef<HTMLCanvasElement> }) => {
+  return <canvas ref={ref} className="size-full rounded-box object-contain" />;
+};

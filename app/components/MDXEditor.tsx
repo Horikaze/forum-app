@@ -1,40 +1,20 @@
 import { emoticons } from "@/app/constants/emotes";
 import { Emoticon } from "@/mdx-components";
-import { useSession } from "next-auth/react";
 import React, { ChangeEvent, useId, useState } from "react";
 import { FaRegFaceSmile } from "react-icons/fa6";
-import { PostDataProps } from "../types/prismaTypes";
-import MDXRenderer from "./MDXRenderer";
-import PostCard from "./forumComponents/PostCard";
+import PreviewPost from "./PreviewPost";
 type MDXEditorProps = {
   setRawMDXValue: (mdx: string) => void;
   getRawMDXValue: string;
+  preview?: React.ElementType<{ markdown: string }>;
 };
-const date = new Date();
 export default function MDXEditor({
   getRawMDXValue,
   setRawMDXValue,
+  preview: Preview = PreviewPost,
 }: MDXEditorProps) {
-  const { data: session } = useSession();
   const radioId = useId();
-  const post: PostDataProps = {
-    id: "1",
-    content: getRawMDXValue,
-    createdAt: date,
-    updatedAt: date,
-    reactions: [],
-    author: {
-      id: "",
-      nickname: session?.user.name || "Cirno",
-      profileImage: session?.user.image || "/images/placeholder.png",
-      role: "USER",
-      createdAt: date,
-      karma: 999,
-      _count: {
-        posts: 9,
-      },
-    },
-  };
+
   return (
     <div className="w-full">
       <div role="tablist" className="tabs tabs-lifted">
@@ -68,7 +48,7 @@ export default function MDXEditor({
           role="tabpanel"
           className="tab-content rounded-box border-base-300 bg-base-200"
         >
-          <PreviewMDXComment post={post} />
+          <Preview markdown={getRawMDXValue} />
         </div>
         <input
           type="radio"
@@ -89,7 +69,7 @@ export default function MDXEditor({
               value={getRawMDXValue}
             />
           </div>
-          <PreviewMDXComment post={post} />
+          <Preview markdown={getRawMDXValue} />
         </div>
       </div>
     </div>
@@ -160,18 +140,5 @@ const UserInput = ({ onChange, value }: UserInputProps) => {
         </div>
       </div>
     </div>
-  );
-};
-type PreviewMDXProps = {
-  post: PostDataProps;
-};
-const PreviewMDXComment = ({ post }: PreviewMDXProps) => {
-  return (
-    <PostCard
-      post={post}
-      renderer={MDXRenderer}
-      hideReply={true}
-      hideReactions={true}
-    />
   );
 };

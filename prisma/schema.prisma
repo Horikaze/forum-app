@@ -10,18 +10,18 @@ datasource db {
 }
 
 model Account {
-  id             String        @id @default(cuid())
+  id             String        @id @unique @default(cuid())
   user           User          @relation(fields: [id], references: [id], onDelete: Cascade)
   hashedPassword String?
   loginProvider  LoginProvider
 }
 
 model User {
-  id           String        @id @default(cuid())
+  id           String        @id @unique @default(cuid())
   nickname     String        @unique
   profileImage String?
   bannerImage  String?
-  signature    String?
+  description  String?
   karma        Int           @default(0)
   role         UserRole      @default(USER)
   account      Account?
@@ -29,6 +29,8 @@ model User {
   posts        Post[]        @relation("UserPosts")
   comments     PostComment[] @relation("UserComments")
   reactions    Reaction[]
+  replay       Replay[]
+  table        Table?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
@@ -89,6 +91,55 @@ model Reaction {
   createdAt DateTime     @default(now())
 
   @@unique([userId, postId, commentId, type])
+}
+
+model Replay {
+  replayId    String    @id @default(cuid())
+  player      String
+  character   String
+  rank        String
+  shottype    String?
+  stage       String?
+  stageScore  String
+  score       Int
+  game        Int
+  replayDate  String?
+  rpyName     String
+  slowRate    String?
+  acceptedBy  String?
+  file        Bytes
+  comment     String?
+  createdAt   DateTime  @default(now())
+  fileDate    DateTime?
+  achievement Int
+  status      Boolean   @default(false)
+
+  userId  String
+  profile User?  @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Table {
+  hrtp    String
+  soew    String
+  podd    String
+  lls     String
+  ms      String
+  eosd    String
+  pcb     String
+  in      String
+  pofv    String
+  mof     String
+  sa      String
+  ufo     String
+  gfw     String
+  td      String
+  ddc     String
+  lolk    String
+  hsifs   String
+  wbawc   String
+  um      String
+  userId  String @unique
+  profile User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum PostStatus {

@@ -13,12 +13,21 @@ const newPostSchema = z.object({
     .string()
     .min(3, { message: "Tytuł musi miec co najmniej 3 znaki." })
     .max(130, { message: "Tytuł nie może mieć więcej niż 130 znaków." }),
-  subTitle: z
-    .string()
-    .max(130, { message: "Opis nie może mieć więcej niż 130 znaków." }),
+  subTitle: z.string().refine(
+    (value) => value.length <= 130,
+    (value) => ({
+      message: `Tytuł nie może mieć więcej niż 130 znaków.(${value.length})`,
+    }),
+  ),
   content: z
     .string()
-    .min(10, { message: "Zawartość musi mieć co najmniej 10 znaków" }),
+    .min(10, { message: "Zawartość musi mieć co najmniej 10 znaków" })
+    .refine(
+      (value) => value.length <= 5000,
+      (value) => ({
+        message: `Post nie może mieć więcej niż 5000 znaków.(${value.length})`,
+      }),
+    ),
   dbTarget: z.string(),
 });
 export const newPostAction = async (prevState: any, formData: FormData) => {
@@ -35,6 +44,7 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
     title = formDataEntries.title as string;
     subTitle = formDataEntries.subTitle as string;
     content = formDataEntries.content as string;
+    console.log(content.length);
     for (const [key, value] of Object.entries(formDataEntries)) {
       if (value === "on") {
         dbTarget = key;

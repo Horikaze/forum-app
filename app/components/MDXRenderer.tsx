@@ -11,7 +11,7 @@ export default function MDXRenderer({ markdown }: { markdown: string }) {
       remarkRehypeOptions={{
         allowDangerousHtml: true,
       }}
-      className={"prose max-w-none"}
+      className={"prose max-w-none [overflow-wrap:anywhere]"}
       // @ts-ignore
       components={MDXComponents()}
     >

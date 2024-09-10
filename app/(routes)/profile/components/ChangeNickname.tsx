@@ -6,7 +6,6 @@ import { changeNicknameAction } from "../profileActions";
 
 export default function ChangeNickname({ nickname }: { nickname: string }) {
   const [error, setError] = useState("");
-  const [newNickname, setNewNickname] = useState(nickname);
   const [isPending, setIsPending] = useState(false);
   const ref = useRef<HTMLDialogElement>(null);
   const { data: session, update } = useSession();
@@ -23,7 +22,6 @@ export default function ChangeNickname({ nickname }: { nickname: string }) {
       update({ nickname: nickname });
       ref.current?.close();
     } catch (error) {
-      console.log(error);
       setError(`${error}`);
     } finally {
       setIsPending(false);
@@ -61,10 +59,21 @@ export default function ChangeNickname({ nickname }: { nickname: string }) {
               <span>{error}</span>
             </div>
           ) : null}
-          <button disabled={isPending} className="btn btn-primary">
-            {isPending ? <span className="loading loading-spinner" /> : null}
-            Zapisz
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                ref.current?.close();
+              }}
+              className="btn btn-ghost"
+            >
+              Anuluj
+            </button>
+            <button disabled={isPending} className="btn btn-primary">
+              {isPending ? <span className="loading loading-spinner" /> : null}
+              Zapisz
+            </button>
+          </div>
         </form>
         <form method="dialog" className="modal-backdrop">
           <button />

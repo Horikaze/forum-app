@@ -36,5 +36,9 @@ export default async function SSRMDXRenderer({
     //@ts-ignore
     .use(rehypeReact, production)
     .process(markdown);
-  return <div className="prose max-w-none">{file.result}</div>;
+  return (
+    <div className="prose max-w-none [overflow-wrap:anywhere]">
+      {file.result}
+    </div>
+  );
 }

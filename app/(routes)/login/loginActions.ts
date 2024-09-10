@@ -10,7 +10,12 @@ const registerSchema = z
     password: z
       .string()
       .min(3, { message: "Hasło musi składać się z co najmniej 3 znaków." })
-      .max(15, { message: "Hasło nie może zawierać więcej niż 15 znaków." }),
+      .refine(
+        (value) => value.length <= 15,
+        (value) => ({
+          message: `Hasło nie może zawierać więcej niż 15 znaków. (${value.length})`,
+        }),
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -68,7 +73,7 @@ export const loginUserAction = async (formData: FormData) => {
 
 export const loginWithProvider = async (
   provider: string,
-  redirectTo: string
+  redirectTo: string,
 ) => {
   if (redirectTo === "/login") {
     redirectTo = "/";
