@@ -14,7 +14,7 @@ export default async function redirectHard(uri: string) {
 export const getUserSessionCreate = async (isAdmin: boolean = false) => {
   const session = await auth();
   if (!session) {
-    throw new Error("Nie zalogowano");
+    throw new Error("Niezalogowano");
   }
   const user = await db.user.findFirst({
     where: { id: session.user.id },
@@ -30,5 +30,5 @@ export const getUserSessionCreate = async (isAdmin: boolean = false) => {
   if (isAdmin && role !== "ADMIN" && role !== "MODERATOR") {
     throw new Error("Nie masz uprawnień do operacji administracyjnych");
   }
-  return session;
+  return { session, user };
 };

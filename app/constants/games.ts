@@ -1,3 +1,5 @@
+import { ScoreObject } from "../types/gameTypes";
+
 export const allGamesString = [
   "HRtP",
   "SoEW",
@@ -20,7 +22,6 @@ export const allGamesString = [
   "UM",
   "UDoALG",
 ];
-export const games618 = allGamesString.splice(5);
 
 export const achievementList = ["CC", "NM", "NB", "NMNB", "NNN", "NNNN"];
 
@@ -44,15 +45,6 @@ export const achievementRankValues: Record<string, number> = {
   NNN: 5,
   NNNN: 6,
 };
-export const emptyScoreObject = {
-  EASY: { score: 0, id: "", CC: 0, char: "" },
-  NORMAL: { score: 0, id: "", CC: 0, char: "" },
-  HARD: { score: 0, id: "", CC: 0, char: "" },
-  LUNATIC: { score: 0, id: "", CC: 0, char: "" },
-  EXTRA: { score: 0, id: "", CC: 0, char: "" },
-  PHANTASM: { score: 0, id: "", CC: 0, char: "" },
-};
-
 export const gameCodeRecord: Record<string, number> = {
   hrtp: 6,
   soew: 6,
@@ -72,4 +64,65 @@ export const gameCodeRecord: Record<string, number> = {
   hsifs: 16,
   wbawc: 17,
   um: 18,
+};
+
+export const emptyScoreObject: ScoreObject = {
+  EASY: {
+    score: 0,
+    id: null,
+    CC: 0,
+    char: null,
+  },
+  NORMAL: {
+    score: 0,
+    id: null,
+    CC: 0,
+    char: null,
+  },
+  HARD: {
+    score: 0,
+    id: null,
+    CC: 0,
+    char: null,
+  },
+  LUNATIC: {
+    score: 0,
+    id: null,
+    CC: 0,
+    char: null,
+  },
+  EXTRA: {
+    score: 0,
+    id: null,
+    CC: 0,
+    char: null,
+  },
+  PHANTASM: {
+    score: 0,
+    id: null,
+    CC: 0,
+    char: null,
+  },
+};
+const newUserGameRow = JSON.stringify(emptyScoreObject);
+export const emptyScoreObjectNewUser = {
+  hrtp: newUserGameRow,
+  soew: newUserGameRow,
+  podd: newUserGameRow,
+  lls: newUserGameRow,
+  ms: newUserGameRow,
+  eosd: newUserGameRow,
+  pcb: newUserGameRow,
+  in: newUserGameRow,
+  pofv: newUserGameRow,
+  mof: newUserGameRow,
+  sa: newUserGameRow,
+  ufo: newUserGameRow,
+  gfw: newUserGameRow,
+  td: newUserGameRow,
+  ddc: newUserGameRow,
+  lolk: newUserGameRow,
+  hsifs: newUserGameRow,
+  wbawc: newUserGameRow,
+  um: newUserGameRow,
 };

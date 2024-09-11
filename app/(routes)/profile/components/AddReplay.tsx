@@ -1,6 +1,9 @@
 "use client";
 import { ReplayApiInfo } from "@/app/types/gameTypes";
-import { getCharacterFromData } from "@/app/utils/replayUtils";
+import {
+  getCharacterFromData,
+  getGameNumberFromReplayName,
+} from "@/app/utils/replayUtils";
 import React, { useRef, useState } from "react";
 import { FaX } from "react-icons/fa6";
 import { getRpyDataAction, sendReplayAction } from "../profileActions";
@@ -11,14 +14,14 @@ export default function AddReplay() {
   const [file, setFile] = useState<File | null>(null);
   const [rpyData, setRpyData] = useState<ReplayApiInfo | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [achievement, setAchievement] = useState("");
+  const [achievement, setAchievement] = useState("CC");
   const [isPending, setIsPending] = useState(false);
   const resetAll = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
     setRpyData(null);
-    setAchievement("");
+    setAchievement("CC");
   };
 
   const sendReplay = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -27,16 +30,15 @@ export default function AddReplay() {
       e.preventDefault();
       const formData = new FormData(e.target as HTMLFormElement);
       const comment = formData.get("comment") as string;
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+      const cc = formData.get("CC") as string;
+      if (!cc) throw new Error("Replay musi być 1cc");
       if (!file || !rpyData) throw new Error("Błąd z plikiem");
       const res = await sendReplayAction(rpyData, file, {
         comment,
         achievement,
         fileDate: file.lastModified,
       });
-      if (!res.success) throw new Error("Wystąpił problem :<");
+      if (!res.success) throw new Error(res.message);
       toast.success("Wysłano!");
       resetAll();
     } catch (error) {
@@ -55,7 +57,6 @@ export default function AddReplay() {
       setRpyData(res.message as ReplayApiInfo);
     } catch (error) {
       toast.error(`${error}`);
-      // resetAll();
     }
   };
 
@@ -63,6 +64,7 @@ export default function AddReplay() {
     <form onSubmit={sendReplay} className="flex flex-col gap-2">
       <div className="flex items-center justify-center gap-2">
         <input
+          disabled={isPending}
           ref={fileInputRef}
           type="file"
           onChange={(e) => {
@@ -77,8 +79,12 @@ export default function AddReplay() {
         />
       </div>
       {rpyData ? (
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 lg:flex-row">
           <div className="flex w-full flex-col gap-1">
+            <p>
+              <span className="opacity-80">Game: </span>
+              Touhou: {getGameNumberFromReplayName(rpyData?.rpyName)}
+            </p>
             <p>
               <span className="opacity-80">Player: </span>
               {rpyData?.player}
@@ -114,7 +120,7 @@ export default function AddReplay() {
             />
             <div className="flex flex-wrap">
               <label className="label flex cursor-pointer gap-1 self-start">
-                <span className="label-text">CC</span>
+                <span className="label-text">1CC</span>
                 <input
                   defaultChecked
                   name={"CC"}
@@ -131,10 +137,10 @@ export default function AddReplay() {
                   >
                     <span className="label-text">{a}</span>
                     <input
-                      onClick={() => {
+                      onChange={() => {
                         achievement !== a
                           ? setAchievement(a)
-                          : setAchievement("");
+                          : setAchievement("CC");
                       }}
                       type="checkbox"
                       checked={achievement === a}

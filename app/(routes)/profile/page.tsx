@@ -13,6 +13,7 @@ import CCTable from "./components/CCTable";
 import ChangeDescription from "./components/ChangeDescription";
 import ChangeImage from "./components/ChangeImage";
 import ChangeNickname from "./components/ChangeNickname";
+import TakeTableSS from "./components/TakeTableSS";
 
 export default async function Profile() {
   const session = await auth();
@@ -30,6 +31,7 @@ export default async function Profile() {
           posts: true,
         },
       },
+      table: true,
     },
   });
   const testSig = `<p className="text-center text-warning font-semibold text-xl">To jest mój opis :reisenXD:</p>
@@ -97,7 +99,7 @@ export default async function Profile() {
             </div>
             <div className="flex flex-col">
               <ChangeNickname nickname={user.nickname} />
-              <span className="font-semibold">Użytkownik</span>
+              <span className="font-semibold">{user.role}</span>
               <span className="text-xs">
                 <span className="opacity-80">Karma: </span>
                 {user.karma}
@@ -109,6 +111,10 @@ export default async function Profile() {
               <span className="text-xs">
                 <span className="opacity-80">Dołączono: </span>
                 {formatDatePost(user.createdAt)}
+              </span>
+              <span className="text-xs">
+                <span className="opacity-80">Liczba CC: </span>
+                {user.cc}
               </span>
             </div>
           </div>
@@ -144,12 +150,13 @@ export default async function Profile() {
           <AchievementsList achievements={testAchiv} />
         </div>
       </div>
-      <div className="relative min-h-32 rounded-box bg-base-300 p-2 lg:p-4">
+      <div className="group relative min-h-32 rounded-box bg-base-300 p-2 lg:p-4">
+        <TakeTableSS />
         <p className="text-center text-2xl font-semibold">
           Osiągniecia w grach
         </p>
         <div className="divider" />
-        <CCTable />
+        <CCTable table={user.table!} />
       </div>
       <div className="relative min-h-32 rounded-box bg-base-300 p-2 lg:p-4">
         <p className="text-center text-2xl font-semibold">Dodaj powtórkę</p>

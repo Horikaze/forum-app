@@ -1,4 +1,4 @@
-import { gameCodeRecord } from "../constants/games";
+import { achievementRankValues, gameCodeRecord } from "../constants/games";
 import { ReplayApiInfo } from "../types/gameTypes";
 
 export const getGameInt = (gameCode: string) => {
@@ -12,19 +12,10 @@ export const getGameString = (gameNumber: number) => {
 };
 
 export const getCCstring = (CCNumber: number) => {
-  const AchievementRank = {
-    CC: 1,
-    NM: 2,
-    NB: 3,
-    NMNB: 4,
-    NNN: 5,
-    NNNN: 6,
-  };
-  const CCString = Object.keys(AchievementRank).find(
-    //@ts-ignore
-    (key) => AchievementRank[key] === CCNumber,
+  const CCString = Object.keys(achievementRankValues).find(
+    (key) => achievementRankValues[key] === CCNumber,
   );
-  return CCString || "CC";
+  return CCString || "";
 };
 export const getGameNumberFromReplayName = (replayName: string) => {
   try {

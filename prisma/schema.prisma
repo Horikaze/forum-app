@@ -23,6 +23,7 @@ model User {
   bannerImage  String?
   description  String?
   karma        Int           @default(0)
+  cc           Int           @default(0)
   role         UserRole      @default(USER)
   account      Account?
   achievements Achievement[]
@@ -98,10 +99,10 @@ model Replay {
   player      String
   character   String
   rank        String
-  shottype    String?
+  shotType    String?
   stage       String?
   stageScore  String
-  score       Int
+  score       BigInt
   game        Int
   replayDate  String?
   rpyName     String

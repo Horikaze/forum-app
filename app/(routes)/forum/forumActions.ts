@@ -38,7 +38,7 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
   let slugUrl = "";
   let errorOccurred = false;
   try {
-    const session = await getUserSessionCreate();
+    const {session} = await getUserSessionCreate();
     const formDataEntries = Object.fromEntries(formData.entries());
     dbTarget = formDataEntries.dbTarget as string;
     title = formDataEntries.title as string;
@@ -119,7 +119,7 @@ export const addCommentAction = async (
   isReplay: boolean,
 ) => {
   try {
-    const session = await getUserSessionCreate();
+    const {session} = await getUserSessionCreate();
     const result = commentSchema.safeParse({ content });
     if (!result.success) {
       let errorMessage = "";
@@ -228,7 +228,7 @@ export const addReactionAction = async (
   isPost: boolean,
 ) => {
   try {
-    const session = await getUserSessionCreate();
+    const {session} = await getUserSessionCreate();
     const userReaction = await db.reaction.findFirst({
       where: {
         [isPost ? "postId" : "commentId"]: targetId,
@@ -334,7 +334,7 @@ export const editPostAction = async (
   content: string,
 ) => {
   try {
-    const session = await getUserSessionCreate();
+    const {session} = await getUserSessionCreate();
     const result = commentSchema.safeParse({ content });
     if (!result.success) {
       let errorMessage = "";
@@ -385,7 +385,7 @@ export const deletePostAction = async (
 ) => {
   let isError = false;
   try {
-    const session = await getUserSessionCreate();
+    const {session} = await getUserSessionCreate();
     if (isPost) {
       await db.post.delete({
         where: {
