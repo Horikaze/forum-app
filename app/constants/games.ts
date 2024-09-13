@@ -33,7 +33,6 @@ export const touhouDifficulty = [
   "Extra",
   "Phantasm",
 ];
-export const touhouDifficultysTable = touhouDifficulty.slice(0, -1);
 
 export const shotTypeList = ["A", "B", "C", "Wolf", "Otter", "Eagle"];
 

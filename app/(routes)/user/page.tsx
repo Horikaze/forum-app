@@ -17,7 +17,7 @@ export default async function CategoryPage({
   });
   const totalPages = Math.max(1, Math.ceil(allUserCount / userPerPage));
   return (
-    <div className="flex min-h-full flex-col gap-5">
+    <div className="flex flex-grow flex-col">
       {users.map((u) => (
         <UserCardList user={u} key={u.id} />
       ))}

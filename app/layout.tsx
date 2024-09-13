@@ -6,6 +6,7 @@ import NavBarTop from "./components/navbar/NavBarTop";
 import NavSide from "./components/navbar/NavSide";
 import "./globals.css";
 import SessionWrapper from "./providers/SessionWrapper";
+import RecentPanel from "./components/RecentPanel";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -46,8 +47,11 @@ export default function RootLayout({
             <NavSide />
             <div className="flex flex-1 flex-col overflow-hidden">
               <NavBarTop />
-              <main className="flex min-h-[calc(100vh-4rem)] flex-1 flex-col overflow-auto">
-                <div className="container flex-1 px-2 py-5">{children}</div>
+              <main className="flex h-[calc(100vh-4rem)] justify-center gap-5 overflow-auto px-1 py-5">
+                <div className="min-h-full max-w-7xl flex-1 [height:max-content] flex flex-col">
+                  {children}
+                </div>
+                <RecentPanel />
               </main>
             </div>
           </div>

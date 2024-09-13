@@ -28,7 +28,8 @@ export default function AddReplay() {
     try {
       setIsPending(true);
       e.preventDefault();
-      const formData = new FormData(e.target as HTMLFormElement);
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
       const comment = formData.get("comment") as string;
       const cc = formData.get("CC") as string;
       if (!cc) throw new Error("Replay musi być 1cc");
@@ -41,6 +42,7 @@ export default function AddReplay() {
       if (!res.success) throw new Error(res.message);
       toast.success("Wysłano!");
       resetAll();
+      form.reset();
     } catch (error) {
       toast.error(`${error}`);
     } finally {
@@ -49,6 +51,7 @@ export default function AddReplay() {
   };
 
   const getRpyData = async (file: File | null) => {
+    setIsPending(true);
     try {
       if (!file) throw new Error("Brak pliku!");
       setFile(file);
@@ -56,58 +59,63 @@ export default function AddReplay() {
       if (!res.success) throw new Error(`${res.message}`);
       setRpyData(res.message as ReplayApiInfo);
     } catch (error) {
-      toast.error(`${error}`);
+      toast.error(`Wystąpił błąd z serwerm :<`);
+    } finally {
     }
+    setIsPending(false);
   };
 
   return (
-    <form onSubmit={sendReplay} className="flex flex-col gap-2">
-      <div className="flex items-center justify-center gap-2">
-        <input
-          disabled={isPending}
-          ref={fileInputRef}
-          type="file"
-          onChange={(e) => {
-            getRpyData(e.target.files![0]);
-          }}
-          accept=".rpy"
-          className="file-input file-input-bordered file-input-xs w-full max-w-sm"
-        />
-        <FaX
-          onClick={resetAll}
-          className="cursor-pointer opacity-80 hover:opacity-100"
-        />
-      </div>
-      {rpyData ? (
+    <div className="relative rounded-box bg-base-300 p-2 lg:p-4">
+      <p className="text-center text-2xl font-semibold">Dodaj powtórkę</p>
+      <div className="divider" />
+      <form onSubmit={sendReplay} className="flex flex-col gap-2">
+        <div className="flex items-center justify-center gap-2">
+          <input
+            disabled={isPending}
+            ref={fileInputRef}
+            type="file"
+            onChange={(e) => {
+              getRpyData(e.target.files![0]);
+            }}
+            accept=".rpy"
+            className="file-input file-input-bordered file-input-xs w-full max-w-sm"
+          />
+          <FaX
+            onClick={resetAll}
+            className="cursor-pointer opacity-80 hover:opacity-100"
+          />
+        </div>
+
         <div className="flex flex-col gap-2 lg:flex-row">
           <div className="flex w-full flex-col gap-1">
             <p>
-              <span className="opacity-80">Game: </span>
-              Touhou: {getGameNumberFromReplayName(rpyData?.rpyName)}
+              <span className="opacity-80">Touhou: </span>
+              {rpyData ? getGameNumberFromReplayName(rpyData?.rpyName) : ""}
             </p>
             <p>
               <span className="opacity-80">Player: </span>
-              {rpyData?.player}
+              {rpyData?.player || ""}
             </p>
             <p>
               <span className="opacity-80">Rank: </span>
-              {rpyData?.rank}
+              {rpyData?.rank || ""}
             </p>
             <p>
               <span className="opacity-80">Shot: </span>
-              {getCharacterFromData(rpyData!, true)}
+              {rpyData ? getCharacterFromData(rpyData!, true) : ""}
             </p>
             <p>
               <span className="opacity-80">Slow rate: </span>
-              {rpyData?.slowRate} %
+              {rpyData?.slowRate || ""}
             </p>
             <p>
               <span className="opacity-80">Stage: </span>
-              {rpyData?.stage || "Brak danych"}
+              {rpyData?.stage || ""}
             </p>
             <p>
               <span className="opacity-80">Score: </span>
-              {rpyData?.stageScore.at(-1)?.toLocaleString()}
+              {rpyData?.stageScore.at(-1)?.toLocaleString() || ""}
             </p>
           </div>
           <div className="flex w-full flex-col">
@@ -151,15 +159,13 @@ export default function AddReplay() {
             </div>
           </div>
         </div>
-      ) : null}
-      {rpyData ? (
         <div className="flex justify-end">
-          <button disabled={isPending} className="btn btn-primary">
+          <button disabled={isPending || !rpyData} className="btn btn-primary">
             {isPending ? <span className="loading loading-spinner" /> : null}
             Wyślij
           </button>
         </div>
-      ) : null}
-    </form>
+      </form>
+    </div>
   );
 }

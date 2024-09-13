@@ -22,6 +22,7 @@ declare module "next-auth" {
       name: string;
       id: string;
       image?: string;
+      role?: string;
     };
   }
   interface User {
@@ -176,6 +177,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       session.user.id = token.id;
       //@ts-ignore delete email, it shouldn't break ye?
       delete session.user.email;
+      session.user.role = token.user.role;
       session.user.image = token.user.profileImage || undefined;
       return session;
     },

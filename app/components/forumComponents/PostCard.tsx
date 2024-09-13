@@ -109,7 +109,7 @@ export default function PostCard({
               ) : null}
             </div>
             <Renderer markdown={post.content} />
-            <div className="mr-12 flex flex-col items-end justify-center">
+            <div className="mr-12 mt-auto flex flex-col items-end justify-center">
               {!hideReactions ? (
                 <AddReaction
                   initialReactions={reactionsSorted}
@@ -124,7 +124,7 @@ export default function PostCard({
           <>
             <EditPost
               targetId={post.id}
-              initialContent={post.content}
+              post={post}
               isPost={reactionsSorted.isPost}
             />
           </>

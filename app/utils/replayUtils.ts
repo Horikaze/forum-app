@@ -29,17 +29,21 @@ export const getCharacterFromData = (
   replyData: ReplayApiInfo,
   includeType: boolean = false,
 ) => {
-  const { character, shotType } = replyData;
-  if (!character) {
+  try {
+    const { character, shotType } = replyData;
+    if (!character) {
+      return "";
+    }
+    if (character instanceof Array) {
+      const characterWithoutSpaces = character[0]
+        .split(" vs ")[0]
+        .replace(/\s/g, "");
+      return includeType
+        ? `${characterWithoutSpaces} ${shotType}`
+        : characterWithoutSpaces;
+    }
+    return includeType ? `${character} ${shotType}` : character;
+  } catch (error) {
     return "";
   }
-  if (character instanceof Array) {
-    const characterWithoutSpaces = character[0]
-      .split(" vs ")[0]
-      .replace(/\s/g, "");
-    return includeType
-      ? `${characterWithoutSpaces} ${shotType}`
-      : characterWithoutSpaces;
-  }
-  return includeType ? `${character} ${shotType}` : character;
 };

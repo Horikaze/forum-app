@@ -46,7 +46,7 @@ export const changeNicknameAction = async (nickname: string) => {
         nickname,
       },
     });
-    revalidatePath(`/profile`);
+    revalidatePath(`/profile`, "page");
     return {
       success: true,
     };
@@ -74,7 +74,7 @@ export const changeProfileImageAction = async (file: File, target: string) => {
       },
     });
 
-    revalidatePath("/profile");
+    revalidatePath(`/profile`, "page");
     return {
       success: true,
       message: res,
@@ -117,7 +117,7 @@ export const changeDescriptionAction = async (description: string) => {
       },
     });
     console.log("123");
-    revalidatePath(`/profile`);
+    revalidatePath(`/profile`, "page");
     return {
       success: true,
     };
@@ -145,12 +145,6 @@ export const getRpyDataAction = async (file: File) => {
     };
   }
 };
-
-function removeNullBytes(buffer: Buffer): Buffer {
-  let str = buffer.toString("utf8");
-  str = str.replace(/\x00/g, "");
-  return Buffer.from(str, "utf8");
-}
 
 const replaySchema = z.object({
   comment: z.string().refine(
@@ -186,7 +180,7 @@ export const sendReplayAction = async (
     const existingRpy = await db.replay.findFirst({
       where: { stageScore: rpyData.stageScore.join("+") },
     });
-    if (existingRpy) throw new Error("Replay already exists in the database");
+    if (existingRpy) throw new Error("Replay już istnieje");
 
     const { session } = await getUserSessionCreate();
 
@@ -216,7 +210,7 @@ export const sendReplayAction = async (
     });
 
     await changeRanking(newReplay);
-    revalidatePath("/profile");
+    revalidatePath(`/profile`);
     return { success: true, message: "Dodano replay!" };
   } catch (error) {
     console.log(error);
@@ -352,7 +346,7 @@ export const deleteReplayAction = async ({
     if (replayToReplace) {
       await changeRanking(replayToReplace);
     }
-    revalidatePath("/profile");
+    revalidatePath("/profile", "page");
     return { success: true, message: "ok" };
   } catch (error) {
     error instanceof Error ? error.message : error;

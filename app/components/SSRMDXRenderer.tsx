@@ -8,11 +8,21 @@ import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import remarkGfm from "remark-gfm";
 import { unified } from "unified";
-const scheama = {
-  ...defaultSchema,
-  attributes: {
-    "*": ["className", "src", "width", "checked"],
-  },
+import { cn } from "../utils/twUtils";
+
+const createSchema = (disableLinks: boolean) => {
+  const schema = {
+    ...defaultSchema,
+    attributes: {
+      "*": ["className", "src", "width", "checked"],
+    },
+  };
+  if (disableLinks) {
+    schema.tagNames = schema.tagNames?.filter((tag) => tag !== "a");
+    // @ts-ignore
+    delete schema.attributes?.a;
+  }
+  return schema;
 };
 
 const production = {
@@ -22,22 +32,33 @@ const production = {
   jsx: prod.jsx,
   components: MDXComponents(),
 };
+
 export default async function SSRMDXRenderer({
   markdown,
+  isPreview = false,
 }: {
   markdown: string;
+  isPreview?: boolean;
 }) {
+  const schema = createSchema(isPreview);
+
   const file = await unified()
     .use(remarkParse, { fragment: true })
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(remarkGfm)
     .use(rehypeRaw)
-    .use(rehypeSanitize, scheama)
+    .use(rehypeSanitize, schema)
     //@ts-ignore
     .use(rehypeReact, production)
     .process(markdown);
+
   return (
-    <div className="prose max-w-none [overflow-wrap:anywhere]">
+    <div
+      className={cn(
+        "max-w-none [overflow-wrap:anywhere]",
+        isPreview ? "" : "prose",
+      )}
+    >
       {file.result}
     </div>
   );

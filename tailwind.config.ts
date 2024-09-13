@@ -5,6 +5,10 @@ const config: Config = {
   theme: {
     container: {
       center: true,
+      // screens: {
+      //   lg: "976px",
+      //   xl: "1440px",
+      // },
     },
     extend: {},
   },

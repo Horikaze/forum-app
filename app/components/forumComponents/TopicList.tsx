@@ -22,7 +22,6 @@ export default async function TopicList({
   isPreview,
 }: TopicListProps) {
   const fetchPosts = async () => {
-    console.log("rfch");
     return await db.post.findMany({
       relationLoadStrategy: "join",
       where: {
@@ -35,6 +34,7 @@ export default async function TopicList({
         id: true,
         slug: true,
         category: true,
+        status: true,
         _count: {
           select: {
             comments: true,
@@ -79,7 +79,7 @@ export default async function TopicList({
     [dbTarget],
     {
       revalidate: false,
-      tags: [dbTarget],
+      tags: ["recent"],
     },
   );
   const Posts = async () => {
@@ -123,7 +123,7 @@ export default async function TopicList({
           </div>
           <div className="hidden items-center gap-5 text-center text-xs lg:flex">
             <span className="w-20">ODPOWIEDZI</span>
-            <span className="w-20">REAKCJIE</span>
+            <span className="w-20">REAKCJE</span>
             <span className="w-48 text-start">OSTATNI POST</span>
           </div>
         </div>

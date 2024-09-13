@@ -1,21 +1,18 @@
 "use client";
 
 import { deletePostAction } from "@/app/(routes)/forum/forumActions";
+import { PostDataProps } from "@/app/types/prismaTypes";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import { FaPen, FaTrash } from "react-icons/fa6";
 const EditPostEditor = dynamic(() => import("./EditPostEditor"));
 type EditPostProps = {
-  initialContent: string;
+  post: PostDataProps;
   targetId: string;
   isPost: boolean;
 };
-export default function EditPost({
-  initialContent,
-  targetId,
-  isPost,
-}: EditPostProps) {
+export default function EditPost({ post, targetId, isPost }: EditPostProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathaname = usePathname();
 
@@ -29,7 +26,7 @@ export default function EditPost({
         <Suspense>
           <div className="relative col-start-1 col-end-2 row-start-1 row-end-2 mt-5">
             <EditPostEditor
-              initialContent={initialContent}
+              post={post}
               closeWindow={() => setIsOpen(false)}
               targetId={targetId}
               isPost={isPost}

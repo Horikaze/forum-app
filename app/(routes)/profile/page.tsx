@@ -13,7 +13,6 @@ import CCTable from "./components/CCTable";
 import ChangeDescription from "./components/ChangeDescription";
 import ChangeImage from "./components/ChangeImage";
 import ChangeNickname from "./components/ChangeNickname";
-import TakeTableSS from "./components/TakeTableSS";
 
 export default async function Profile() {
   const session = await auth();
@@ -34,18 +33,9 @@ export default async function Profile() {
       table: true,
     },
   });
-  const testSig = `<p className="text-center text-warning font-semibold text-xl">To jest mój opis :reisenXD:</p>
-           
-  Emmm nie wiem co tu napisać :sad: ,  lorem goooo...
-
- Lorem, ipsum dolor sit amet consectetur adipisicing elit. Sequi accusantium corporis maiores omnis quam error! Praesentium, impedit? Tempore enim nam fugit molestias eum tenetur praesentium cupiditate nulla minus pariatur quisquam modi, suscipit est id impedit cum nobis ex qui harum! Ullam necessitatibus corrupti voluptatem dignissimos reiciendis, doloribus placeat. Aut sint quisquam tempore ex iure soluta. Distinctio minus optio nulla doloremque.
-
-            `;
   if (!user) {
     redirect("/");
   }
-
-  const array = Array.from({ length: 32 }, (_, i) => i + 1);
   return (
     <div className="flex min-h-screen flex-col gap-5 overflow-x-hidden">
       <div
@@ -143,26 +133,9 @@ export default async function Profile() {
           </div>
         ) : null}
       </div>
-      <div className="relative min-h-32 rounded-box bg-base-300 p-2 lg:p-4">
-        <p className="text-center text-2xl font-semibold">Osiągnięcia</p>
-        <div className="divider" />
-        <div className="flex flex-wrap gap-1">
-          <AchievementsList achievements={testAchiv} />
-        </div>
-      </div>
-      <div className="group relative min-h-32 rounded-box bg-base-300 p-2 lg:p-4">
-        <TakeTableSS />
-        <p className="text-center text-2xl font-semibold">
-          Osiągniecia w grach
-        </p>
-        <div className="divider" />
-        <CCTable table={user.table!} />
-      </div>
-      <div className="relative min-h-32 rounded-box bg-base-300 p-2 lg:p-4">
-        <p className="text-center text-2xl font-semibold">Dodaj powtórkę</p>
-        <div className="divider" />
-        <AddReplay />
-      </div>
+      <AchievementsList achievements={testAchiv} />
+      <CCTable table={user.table!} />
+      <AddReplay />
     </div>
   );
 }

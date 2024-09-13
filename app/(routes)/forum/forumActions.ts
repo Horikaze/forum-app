@@ -3,7 +3,7 @@ import { segregateReactionsByType } from "@/app/components/forumComponents/PostC
 import { getFormattedDate } from "@/app/utils/formatDate";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
 import * as z from "zod";
@@ -12,11 +12,16 @@ const newPostSchema = z.object({
   title: z
     .string()
     .min(3, { message: "Tytuł musi miec co najmniej 3 znaki." })
-    .max(130, { message: "Tytuł nie może mieć więcej niż 130 znaków." }),
+    .refine(
+      (value) => value.length <= 130,
+      (value) => ({
+        message: `Tytuł nie może mieć więcej niż 130 znaków.(${value.length})`,
+      }),
+    ),
   subTitle: z.string().refine(
     (value) => value.length <= 130,
     (value) => ({
-      message: `Tytuł nie może mieć więcej niż 130 znaków.(${value.length})`,
+      message: `Opis nie może mieć więcej niż 130 znaków.(${value.length})`,
     }),
   ),
   content: z
@@ -38,7 +43,7 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
   let slugUrl = "";
   let errorOccurred = false;
   try {
-    const {session} = await getUserSessionCreate();
+    const { session } = await getUserSessionCreate();
     const formDataEntries = Object.fromEntries(formData.entries());
     dbTarget = formDataEntries.dbTarget as string;
     title = formDataEntries.title as string;
@@ -82,10 +87,9 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
         status: "PUBLISHED",
         category: dbTarget,
         authorId: session.user.id,
-        tags: [],
       },
     });
-    revalidatePath("/forum");
+    revalidateTag("recent");
   } catch (error) {
     errorOccurred = true;
     if (error instanceof Error) {
@@ -110,7 +114,13 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
 const commentSchema = z.object({
   content: z
     .string()
-    .min(2, { message: "Komentarz musi miec co najmniej 2 znaki." }),
+    .min(2, { message: "Komentarz musi miec co najmniej 2 znaki." })
+    .refine(
+      (value) => value.length <= 5000,
+      (value) => ({
+        message: `Komentarz nie może mieć więcej niż 5000 znaków.(${value.length})`,
+      }),
+    ),
 });
 
 export const addCommentAction = async (
@@ -119,7 +129,7 @@ export const addCommentAction = async (
   isReplay: boolean,
 ) => {
   try {
-    const {session} = await getUserSessionCreate();
+    const { session } = await getUserSessionCreate();
     const result = commentSchema.safeParse({ content });
     if (!result.success) {
       let errorMessage = "";
@@ -164,7 +174,7 @@ export const addCommentAction = async (
         });
       });
     }
-    revalidatePath("/forum");
+    revalidateTag("recent");
     return {
       success: true,
       message: "ok",
@@ -199,7 +209,7 @@ const getPostReaction = async (isPost: boolean, targetId: string) => {
         },
       },
     });
-    revalidatePath("/forum");
+    revalidateTag("recent");
     return segregateReactionsByType(res?.reactions!, isPost);
   }
   const res = await db.postComment.findFirst({
@@ -228,7 +238,7 @@ export const addReactionAction = async (
   isPost: boolean,
 ) => {
   try {
-    const {session} = await getUserSessionCreate();
+    const { session } = await getUserSessionCreate();
     const userReaction = await db.reaction.findFirst({
       where: {
         [isPost ? "postId" : "commentId"]: targetId,
@@ -327,15 +337,55 @@ export const addReactionAction = async (
   }
 };
 
+const editPostSchema = z.object({
+  title: z
+    .string()
+    .min(3, { message: "Tytuł musi miec co najmniej 3 znaki." })
+    .refine(
+      (value) => value.length <= 130,
+      (value) => ({
+        message: `Tytuł nie może mieć więcej niż 130 znaków.(${value.length})`,
+      }),
+    )
+    .optional()
+    .or(z.literal(null)),
+  subTitle: z
+    .string()
+    .refine(
+      (value) => value.length <= 130,
+      (value) => ({
+        message: `Opis nie może mieć więcej niż 130 znaków.(${value.length})`,
+      }),
+    )
+    .optional()
+    .or(z.literal(null)),
+  content: z
+    .string()
+    .min(2, { message: "Zawartość musi mieć co najmniej 2 znaków" })
+    .refine(
+      (value) => value.length <= 5000,
+      (value) => ({
+        message: `Post/komentarz nie może mieć więcej niż 5000 znaków.(${value.length})`,
+      }),
+    )
+    .optional()
+    .or(z.literal(null)),
+});
+
 export const editPostAction = async (
   targetId: string,
   isPost: boolean,
   currentUrl: string,
-  content: string,
+  dataToUpdate: {
+    content?: string;
+    title?: string;
+    subTitle?: string;
+  },
 ) => {
   try {
-    const {session} = await getUserSessionCreate();
-    const result = commentSchema.safeParse({ content });
+    const { session } = await getUserSessionCreate();
+    const result = editPostSchema.safeParse(dataToUpdate);
+    console.log(dataToUpdate);
     if (!result.success) {
       let errorMessage = "";
       result.error.issues.forEach((issue) => {
@@ -349,9 +399,7 @@ export const editPostAction = async (
           id: targetId,
           authorId: session.user.id,
         },
-        data: {
-          content,
-        },
+        data: dataToUpdate,
       });
     } else {
       await db.postComment.update({
@@ -359,12 +407,10 @@ export const editPostAction = async (
           id: targetId,
           authorId: session.user.id,
         },
-        data: {
-          content,
-        },
+        data: dataToUpdate,
       });
     }
-    revalidatePath(currentUrl);
+    revalidatePath(currentUrl, "page");
     return {
       success: true,
       message: "Post/Comment updated successfully.",
@@ -385,7 +431,7 @@ export const deletePostAction = async (
 ) => {
   let isError = false;
   try {
-    const {session} = await getUserSessionCreate();
+    const { session } = await getUserSessionCreate();
     if (isPost) {
       await db.post.delete({
         where: {
@@ -402,7 +448,7 @@ export const deletePostAction = async (
       });
     }
     if (isPost) {
-      revalidatePath("/forum");
+      revalidateTag("recent");
       return;
     }
     revalidatePath(currentUrl);

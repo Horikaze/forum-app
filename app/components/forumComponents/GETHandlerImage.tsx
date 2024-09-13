@@ -69,7 +69,6 @@ export default function GETHandlerImage({
           display: "flex",
           flex: 1,
           flexDirection: "column",
-          // alignItems: "center",
           justifyContent: "center",
           gap: "10px",
         }}

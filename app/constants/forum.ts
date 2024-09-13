@@ -1,4 +1,3 @@
-
 export const forumCategory = [
   {
     title: "Touhou",
@@ -8,7 +7,7 @@ export const forumCategory = [
   {
     title: "Nowości",
     dbTarget: "news",
-    summary: "Na nowości w świecie touhou i nie tylko ",
+    summary: "Na nowości w świecie touhou i nie tylko",
   },
   {
     title: "Twórczość Własna",
@@ -18,6 +17,16 @@ export const forumCategory = [
   {
     title: "Misty Lake",
     dbTarget: "others",
-    summary: "Na wszytko inne ",
+    summary: "Na wszytko inne",
+  },
+  {
+    title: "Blog",
+    dbTarget: "blog",
+    summary: "Blog",
+  },
+  {
+    title: "Poradniki",
+    dbTarget: "guides",
+    summary: "Poradniki",
   },
 ];

@@ -6,7 +6,7 @@ import { FaPlus } from "react-icons/fa6";
 export default async function Forum() {
   return (
     <div className="flex flex-col items-end gap-5">
-      <form
+            <form
         action={async () => {
           "use server";
           revalidatePath("/forum");
