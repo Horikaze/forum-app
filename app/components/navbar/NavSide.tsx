@@ -44,7 +44,7 @@ const sideNavLinks = [
   },
   {
     title: "Blog",
-    href: "/mdxtestpage",
+    href: "/blog",
     icon: FaPen,
   },
   {
@@ -74,17 +74,17 @@ export default function NavSide() {
   return (
     <aside
       className={cn(
-        "z-60 absolute flex h-full flex-col justify-between border-r border-base-300 bg-base-200 transition-all md:relative",
+        "absolute z-30 flex h-full flex-col justify-between border-r border-base-300 bg-base-200 transition-all md:relative",
         isOpen ? "w-64" : "w-0 md:w-16",
       )}
     >
       <button
         onClick={openCloseNav}
-        className="group absolute -right-16 top-0 z-30 grid size-16 cursor-pointer place-items-center"
+        className="group absolute -right-16 top-0 grid size-16 cursor-pointer place-items-center"
       >
         <FaArrowLeft
           className={cn(
-            "z-30 size-6 transition-all group-hover:opacity-80",
+            "size-6 transition-all group-hover:opacity-80",
             isOpen ? "rotate-0" : "rotate-180",
           )}
         />
@@ -161,7 +161,7 @@ export default function NavSide() {
         </div>
         <ul
           tabIndex={0}
-          className="menu dropdown-content z-30 w-52 gap-1 rounded-box bg-base-100 p-2 shadow"
+          className="menu dropdown-content w-52 gap-1 rounded-box bg-base-100 p-2 shadow"
         >
           {themes.map((theme) => (
             <div

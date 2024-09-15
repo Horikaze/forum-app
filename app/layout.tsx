@@ -48,7 +48,7 @@ export default function RootLayout({
             <div className="flex flex-1 flex-col overflow-hidden">
               <NavBarTop />
               <main className="flex h-[calc(100vh-4rem)] justify-center gap-5 overflow-auto px-1 py-5">
-                <div className="min-h-full max-w-7xl flex-1 [height:max-content] flex flex-col">
+                <div className="flex min-h-full max-w-7xl flex-1 flex-col [height:max-content]">
                   {children}
                 </div>
                 <RecentPanel />

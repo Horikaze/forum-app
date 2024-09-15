@@ -3,8 +3,9 @@ import { auth } from "@/auth";
 import db from "@/lib/db";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
-import SSRMDXRenderer from "../../../../components/SSRMDXRenderer";
-import AddComment from "../../../../components/forumComponents/AddComment";
+import SSRMDXRenderer from "../../../components/SSRMDXRenderer";
+import AddComment from "../../../components/forumComponents/AddComment";
+import { PostDataProps } from "@/app/types/prismaTypes";
 type Props = {
   params: { post: string };
 };
@@ -91,6 +92,12 @@ export default async function PostPage({ params }: Props) {
           },
         },
       },
+      _count: {
+        select: {
+          comments: true,
+          reactions: true,
+        },
+      },
       comments: {
         include: {
           reactions: {
@@ -157,21 +164,20 @@ export default async function PostPage({ params }: Props) {
   return (
     <div className="flex flex-col">
       <PostCard
-        //@ts-ignore
         post={post}
         renderer={SSRMDXRenderer}
         hideReply={true}
         isPost
+        isBlog
         currentUserId={session?.user.id}
       />
       {post.comments.map((c) => (
         <PostCard
           key={c.id}
-          //@ts-ignore we have additional title, subTitle
-          post={c}
+          post={c as any as PostDataProps}
           renderer={SSRMDXRenderer}
           //@ts-ignore we have additional title, subTitle
-          replays={c.replies}
+          replays={c.replies as any as PostDataProps}
           currentUserId={session?.user.id}
         />
       ))}

@@ -21,7 +21,7 @@ export default function PhantasmCell({ extra, phantasm }: PhantasmCellProps) {
   return (
     <td
       className={cn(
-        "group/ph relative table-cell p-0",
+        "group/ph relative isolate table-cell p-0",
         cellColor[extra.CC || 0],
       )}
       onClick={() => setIsExtra((p) => !p)}

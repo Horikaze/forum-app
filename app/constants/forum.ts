@@ -30,3 +30,5 @@ export const forumCategory = [
     summary: "Poradniki",
   },
 ];
+export const userForumDb = forumCategory.slice(0, 4);
+export const adminForumDb = forumCategory.slice(4);

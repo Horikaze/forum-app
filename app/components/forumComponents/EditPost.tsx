@@ -2,6 +2,7 @@
 
 import { deletePostAction } from "@/app/(routes)/forum/forumActions";
 import { PostDataProps } from "@/app/types/prismaTypes";
+import { cn } from "@/app/utils/twUtils";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -11,8 +12,14 @@ type EditPostProps = {
   post: PostDataProps;
   targetId: string;
   isPost: boolean;
+  isBlog?: boolean;
 };
-export default function EditPost({ post, targetId, isPost }: EditPostProps) {
+export default function EditPost({
+  post,
+  targetId,
+  isPost,
+  isBlog,
+}: EditPostProps) {
   const [isOpen, setIsOpen] = useState(false);
   const pathaname = usePathname();
 
@@ -24,7 +31,12 @@ export default function EditPost({ post, targetId, isPost }: EditPostProps) {
     <>
       {isOpen ? (
         <Suspense>
-          <div className="relative col-start-1 col-end-2 row-start-1 row-end-2 mt-5">
+          <div
+            className={cn(
+              "relative col-start-1 col-end-2 row-start-1 row-end-2 mt-5",
+              isBlog ? "mt-0" : "",
+            )}
+          >
             <EditPostEditor
               post={post}
               closeWindow={() => setIsOpen(false)}

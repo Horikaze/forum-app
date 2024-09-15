@@ -21,7 +21,6 @@ export default function CCTable({ table }: { table: Table }) {
     if (key === "userId") {
       return;
     }
-    // BigInt.prototype.toJSON = function() { return this.toString() }
     // @ts-expect-error
     const rankingData = JSON.parse(table[key]);
     forrmatedObject[key] = rankingData as ScoreObject;

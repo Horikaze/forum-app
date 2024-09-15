@@ -3,6 +3,8 @@ import MDXRenderer from "@/app/components/MDXRenderer";
 import { useEffect, useRef, useState } from "react";
 import { changeDescriptionAction } from "../profileActions";
 import toast from "react-hot-toast";
+import { PostDataProps } from "@/app/types/prismaTypes";
+import { PreviewDescription } from "@/app/components/MDXPreview";
 
 type ChangeSignatureDynamicProps = {
   isOpen: boolean;
@@ -73,12 +75,5 @@ export default function ChangeDescriptionDynamic({
         <button />
       </form>
     </dialog>
-  );
-}
-export function PreviewDescription({ markdown }: { markdown: string }) {
-  return (
-    <div className="max-h-72 flex-1 overflow-hidden p-2 lg:p-4">
-      <MDXRenderer markdown={markdown} />
-    </div>
   );
 }

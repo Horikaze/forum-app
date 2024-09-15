@@ -1,23 +1,25 @@
 import db from "@/lib/db";
-import { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
 import { Suspense } from "react";
 import { FaCalendar } from "react-icons/fa6";
 import { formatDatePost } from "../utils/formatDate";
-import SSRMDXRenderer from "./SSRMDXRenderer";
-import { unstable_cache } from "next/cache";
 import { getCCstring } from "../utils/replayUtils";
+import SSRMDXRenderer from "./SSRMDXRenderer";
+import RecentPanelController from "./RecentPanelController";
 export const experimental_ppr = true;
 
 export default function RecentPanel() {
   return (
-    <aside className="sticky top-0 hidden w-[400px] shrink-0 flex-col items-start gap-5 overflow-auto xl:flex">
-      <Suspense fallback={<LoadingSkeleton />}>
-        <RecentPosts />
-        <RecentComments />
-        <RecentReplays />
-      </Suspense>
-    </aside>
+    <RecentPanelController>
+      <div className="flex w-[406] flex-col gap-5">
+        <Suspense fallback={<LoadingSkeleton />}>
+          <RecentPosts />
+          <RecentComments />
+          <RecentReplays />
+        </Suspense>
+      </div>
+    </RecentPanelController>
   );
 }
 
@@ -35,6 +37,7 @@ const getRecentPosts = unstable_cache(
   async () => {
     console.log("cache post");
     return await db.post.findMany({
+      relationLoadStrategy: "join",
       orderBy: { createdAt: "desc" },
       select: {
         author: { select: { nickname: true } },
@@ -61,8 +64,8 @@ const RecentPosts = async () => {
       {posts.map((post) => (
         <Link
           key={post.slug}
-          href={`/forum/${post.category}/${post.slug}`}
-          className="line-clamp-2 flex flex-col gap-px rounded-md bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
+          href={`${post?.category === "blog" ? "" : "/forum"}/${post.category}/${post.slug}`}
+          className="line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
         >
           <span className="line-clamp-2 font-semibold">{post.title}</span>
           <span className="line-clamp-2 text-xs opacity-80">
@@ -87,6 +90,7 @@ const getRecentComments = unstable_cache(
   async () => {
     console.log("cache com");
     return await db.postComment.findMany({
+      relationLoadStrategy: "join",
       orderBy: { createdAt: "desc" },
       select: {
         author: { select: { nickname: true } },
@@ -127,8 +131,8 @@ const RecentComments = async () => {
       {recentComments.map((com) => (
         <Link
           key={com.id}
-          href={`/forum/${com.post?.category || com.parentComment?.post?.category}/${com.post?.slug || com.parentComment?.post?.slug}`}
-          className="line-clamp-2 flex flex-col gap-px rounded-md bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
+          href={`${com.post?.category === "blog" || com.parentComment?.post?.category === "blog" ? "" : "/forum"}/${com.post?.category || com.parentComment?.post?.category}/${com.post?.slug || com.parentComment?.post?.slug}`}
+          className="line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
         >
           <div className="line-clamp-2">
             <SSRMDXRenderer markdown={com.content.substring(0, 30)} isPreview />
@@ -151,6 +155,7 @@ const getRecentReplays = unstable_cache(
   async () => {
     console.log("cache replay");
     return await db.replay.findMany({
+      relationLoadStrategy: "join",
       orderBy: { createdAt: "desc" },
       select: {
         character: true,
@@ -175,6 +180,11 @@ const getRecentReplays = unstable_cache(
     tags: ["recent"],
   },
 );
+// @ts-ignore fix  Do not know how to serialize a BigInt
+BigInt.prototype.toJSON = function () {
+  const int = Number.parseInt(this.toString());
+  return int ?? this.toString();
+};
 const RecentReplays = async () => {
   const recentReplays = await getRecentReplays();
   return (
@@ -184,11 +194,17 @@ const RecentReplays = async () => {
         <Link
           key={rpy.replayId}
           href={`/replay/${rpy.replayId}`}
-          className="line-clamp-2 flex flex-col gap-px rounded-md bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
+          className="line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
         >
           <p>
-            Touhou: {rpy.game}, {rpy.score.toLocaleString()},{" "}
-            {rpy.character + rpy.shotType + " " + getCCstring(rpy.achievement)}
+            Touhou: {rpy.game},{" "}
+            {rpy.score.toLocaleString() +
+              " " +
+              rpy.character +
+              " " +
+              rpy.shotType +
+              " " +
+              getCCstring(rpy.achievement)}
           </p>
           <div className="mt-2 flex justify-between text-xs opacity-80">
             <p>

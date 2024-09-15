@@ -1,4 +1,4 @@
-import React, { LegacyRef, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactCrop, {
   Crop,
   PixelCrop,
@@ -10,14 +10,12 @@ import "react-image-crop/dist/ReactCrop.css";
 type ImageCropperProps = {
   aspect: number;
   onCropChange: (croppedImage: File | null) => void;
-  preview?: React.ElementType<{ ref: LegacyRef<HTMLCanvasElement> }>;
 };
 
-const ImageCropper = ({
+export default function ImageCropper({
   aspect,
   onCropChange,
-  preview: Preview = DefaultPreview,
-}: ImageCropperProps) => {
+}: ImageCropperProps) {
   const [imgSrc, setImgSrc] = useState<string>("");
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<PixelCrop>();
@@ -58,21 +56,21 @@ const ImageCropper = ({
   };
 
   useEffect(() => {
-    if (
-      completedCrop?.width &&
-      completedCrop?.height &&
-      imgRef.current &&
-      previewCanvasRef.current
-    ) {
-      canvasPreview(
-        imgRef.current,
-        previewCanvasRef.current,
-        completedCrop,
-        scale,
-        rotate,
+    if (completedCrop?.width && completedCrop?.height && imgRef.current) {
+      const image = imgRef.current;
+      const canvas = document.createElement("canvas");
+      canvasPreview(image, canvas, completedCrop, scale, rotate);
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            onCropChange(new File([blob], "avatar.png", { type: blob.type }));
+          }
+        },
+        "image/jpeg",
+        0.95,
       );
     }
-  }, [completedCrop, scale, rotate]);
+  }, [completedCrop, scale, rotate, onCropChange]);
 
   const canvasPreview = (
     image: HTMLImageElement,
@@ -135,7 +133,7 @@ const ImageCropper = ({
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-1">
       <div className="flex flex-col gap-1">
         <input
           type="file"
@@ -191,20 +189,7 @@ const ImageCropper = ({
             </ReactCrop>
           )}
         </div>
-        <div className="flex flex-1 flex-col items-center justify-center">
-          {completedCrop && (
-            <>
-              <span className="mb-2 text-xl font-semibold">Podgląd</span>
-              <Preview ref={previewCanvasRef} />
-            </>
-          )}
-        </div>
       </div>
     </div>
   );
-};
-
-export default ImageCropper;
-const DefaultPreview = ({ ref }: { ref: LegacyRef<HTMLCanvasElement> }) => {
-  return <canvas ref={ref} className="size-full rounded-box object-contain" />;
-};
+}

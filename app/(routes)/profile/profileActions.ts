@@ -186,7 +186,6 @@ export const sendReplayAction = async (
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
     const newReplay = await db.replay.create({
       data: {
         replayId: nanoid(10),

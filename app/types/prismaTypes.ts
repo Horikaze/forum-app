@@ -39,8 +39,15 @@ export type PostDataProps = Prisma.PostGetPayload<{
     createdAt: true;
     updatedAt: true;
     id: true;
-    title?: true;
-    subTitle?: true;
+    title: true;
+    subTitle: true;
+    featuredImage: true;
+    _count: {
+      select: {
+        comments: true;
+        reactions: true;
+      };
+    };
     reactions: {
       include: {
         user: {

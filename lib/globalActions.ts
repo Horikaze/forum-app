@@ -14,7 +14,7 @@ export default async function redirectHard(uri: string) {
 export const getUserSessionCreate = async (isAdmin: boolean = false) => {
   const session = await auth();
   if (!session) {
-    throw new Error("Niezalogowano");
+    throw new Error("Nie zalogowano");
   }
   const user = await db.user.findFirst({
     where: { id: session.user.id },

@@ -26,7 +26,7 @@ export default async function CategoryPage({
 
   const totalPages = Math.max(1, Math.ceil(allPostCount / postsPerPage));
   return (
-    <div className="flex min-h-full flex-col items-end gap-5">
+    <div className="flex grow flex-col items-end gap-5">
       <Link
         href={`/forum/new/?forumTarget=${category.dbTarget}`}
         className="btn btn-primary"

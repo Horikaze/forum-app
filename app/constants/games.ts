@@ -45,11 +45,12 @@ export const achievementRankValues: Record<string, number> = {
   NNNN: 6,
 };
 export const gameCodeRecord: Record<string, number> = {
-  hrtp: 6,
-  soew: 6,
-  podd: 6,
-  lls: 6,
-  ms: 6,
+  hrtp: 1,
+  soew: 2,
+  podd: 3,
+  lls: 4,
+  ms: 5,
+  eosd: 6,
   pcb: 7,
   in: 8,
   pofv: 9,

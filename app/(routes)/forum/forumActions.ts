@@ -1,5 +1,6 @@
 "use server";
 import { segregateReactionsByType } from "@/app/components/forumComponents/PostCard";
+import { adminForumDb, forumCategory } from "@/app/constants/forum";
 import { getFormattedDate } from "@/app/utils/formatDate";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
@@ -7,6 +8,8 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
 import * as z from "zod";
+
+const posiibleForumTarget = forumCategory.map((c) => c.dbTarget);
 
 const newPostSchema = z.object({
   title: z
@@ -33,29 +36,32 @@ const newPostSchema = z.object({
         message: `Post nie może mieć więcej niż 5000 znaków.(${value.length})`,
       }),
     ),
-  dbTarget: z.string(),
+  dbTarget: z.string().refine((value) => posiibleForumTarget.includes(value), {
+    message: "Nie istnieje takie forum",
+  }),
 });
-export const newPostAction = async (prevState: any, formData: FormData) => {
-  let dbTarget = "";
-  let title = "";
-  let subTitle = "";
-  let content = "";
+
+type NewPost = {
+  dbTarget: string;
+  title: string;
+  subTitle: string;
+  content: string;
+  isSketch: boolean;
+};
+
+export const newPostAction = async (
+  newPost: NewPost,
+): Promise<{
+  success: boolean;
+  message: string;
+}> => {
   let slugUrl = "";
   let errorOccurred = false;
   try {
-    const { session } = await getUserSessionCreate();
-    const formDataEntries = Object.fromEntries(formData.entries());
-    dbTarget = formDataEntries.dbTarget as string;
-    title = formDataEntries.title as string;
-    subTitle = formDataEntries.subTitle as string;
-    content = formDataEntries.content as string;
-    console.log(content.length);
-    for (const [key, value] of Object.entries(formDataEntries)) {
-      if (value === "on") {
-        dbTarget = key;
-        break;
-      }
-    }
+    const { content, dbTarget, isSketch, subTitle, title } = newPost;
+    const { session } = await getUserSessionCreate(
+      adminForumDb.some((e) => e.dbTarget === dbTarget),
+    );
     const newPostObject = {
       title,
       subTitle,
@@ -77,37 +83,32 @@ export const newPostAction = async (prevState: any, formData: FormData) => {
       replacement: "-",
     });
     slug += "-" + getFormattedDate();
-    slugUrl = `/forum/${dbTarget.toLowerCase()}/${slug}`;
+    slugUrl = `${dbTarget === "blog" ? "" : "/forum"}/${dbTarget.toLowerCase()}/${slug}`;
     await db.post.create({
       data: {
         title,
         subTitle,
         slug,
         content,
-        status: "PUBLISHED",
+        status: isSketch ? "DRAFT" : "PUBLISHED",
         category: dbTarget,
         authorId: session.user.id,
       },
     });
     revalidateTag("recent");
+    return {
+      success: true,
+      message: slugUrl,
+    };
   } catch (error) {
     errorOccurred = true;
     if (error instanceof Error) {
-      return {
-        prevState: {
-          title,
-          subTitle,
-          dbTarget,
-          content,
-        },
-        success: false,
-        message: `${error.message || error}`,
-      };
+      error = error.message;
     }
-  } finally {
-    if (!errorOccurred) {
-      redirect(slugUrl);
-    }
+    return {
+      success: false,
+      message: `${error}`,
+    };
   }
 };
 

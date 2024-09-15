@@ -26,6 +26,7 @@ export default async function TopicList({
       relationLoadStrategy: "join",
       where: {
         category: dbTarget,
+        status: "PUBLISHED",
       },
       select: {
         title: true,

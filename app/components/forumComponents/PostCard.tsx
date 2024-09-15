@@ -7,6 +7,8 @@ import AddReaction from "./AddReaction";
 import AddReplyToComment from "./AddReplyToComment";
 import EditPost from "./EditPost";
 import ReplyComponent from "./ReplyComponent";
+import BlogListCard from "./BlogListCard";
+import { cn } from "@/app/utils/twUtils";
 
 type ReactionWithUserNickname = Reaction & {
   user: {
@@ -42,8 +44,9 @@ export const segregateReactionsByType = (
 export type PostCardProps = {
   post: PostDataProps;
   renderer: React.ElementType<{ markdown: string }>;
-  hideReply?: boolean;
   hideReactions?: boolean;
+  hideReply?: boolean;
+  isBlog?: boolean;
   replays?: PostDataProps[];
   isPost?: boolean;
   currentUserId?: string;
@@ -53,6 +56,7 @@ export default function PostCard({
   renderer: Renderer,
   hideReply,
   hideReactions,
+  isBlog,
   replays,
   isPost,
   currentUserId,
@@ -60,10 +64,42 @@ export default function PostCard({
   const reactionsSorted = segregateReactionsByType(post.reactions, isPost);
   return (
     <>
+      {!isBlog ? (
+        <>
+          <h2 className="text-2xl font-semibold">{post.title}</h2>
+          {post.subTitle ? (
+            <p className="text-sm opacity-80">{post.subTitle}</p>
+          ) : null}
+        </>
+      ) : (
+        <BlogListCard
+          title={post.title}
+          subTitle={post.subTitle!}
+          isPreview
+          featuredImage={post.featuredImage!}
+          commentsCount={post._count.comments}
+          reactionsCount={post._count.reactions}
+        />
+      )}
       <div className="group relative grid grid-cols-1">
-        <div className="col-start-1 col-end-2 row-start-1 row-end-2 mt-5 flex flex-col rounded-box bg-base-200 p-2 lg:flex-row lg:gap-2 lg:p-4">
-          <div className="flex shrink-0 flex-row gap-1 lg:w-52 lg:flex-col lg:items-end">
-            <div className="size-16 overflow-hidden lg:size-24">
+        <div
+          className={cn(
+            "col-start-1 col-end-2 row-start-1 row-end-2 mt-5 flex flex-col rounded-box bg-base-200 p-2 lg:gap-2 lg:p-4",
+            isBlog ? "mt-0 rounded-t-none" : "lg:flex-row",
+          )}
+        >
+          <div
+            className={cn(
+              "flex shrink-0 flex-row gap-1",
+              isBlog ? "items-center" : "lg:w-52 lg:flex-col lg:items-end",
+            )}
+          >
+            <div
+              className={cn(
+                "size-16 overflow-hidden",
+                isBlog ? "" : "size-16 overflow-hidden",
+              )}
+            >
               <Image
                 src={post.author.profileImage || "/images/placeholder.png"}
                 alt={post.author.nickname}
@@ -75,39 +111,72 @@ export default function PostCard({
             </div>
             <Link
               href={`/user/${post.author.id}`}
-              className="link-hover text-end font-semibold text-warning"
+              className={cn(
+                "link-hover text-end font-semibold text-warning",
+                isBlog ? "ml-4 text-lg" : "",
+              )}
             >
               {post.author.nickname}
             </Link>
-            <div className="ml-auto flex flex-col opacity-80">
-              <span className="text-end text-xs">
-                {post.author.role.toLowerCase()}
-              </span>
-              <span className="text-end text-xs font-semibold">
-                Posty:{" "}
-                <span className="font-normal">{post.author._count.posts}</span>
-              </span>
-              <span className="text-end text-xs font-semibold">
-                Karma: <span className="font-normal">{post.author.karma}</span>
-              </span>
-              <span className="text-end text-xs font-semibold">
-                Rejestracja:{" "}
-                <span className="font-normal">
-                  {formatDatePost(post.author.createdAt)}
+            {!isBlog ? (
+              <div
+                className={cn(
+                  "ml-auto flex flex-col opacity-80",
+                  isBlog ? "hidden" : "",
+                )}
+              >
+                <span className="text-end text-xs">
+                  {post.author.role.toLowerCase()}
                 </span>
-              </span>
-            </div>
+                <span className="text-end text-xs font-semibold">
+                  Posty:{" "}
+                  <span className="font-normal">
+                    {post.author._count.posts}
+                  </span>
+                </span>
+                <span className="text-end text-xs font-semibold">
+                  Karma:{" "}
+                  <span className="font-normal">{post.author.karma}</span>
+                </span>
+                <span className="text-end text-xs font-semibold">
+                  Rejestracja:{" "}
+                  <span className="font-normal">
+                    {formatDatePost(post.author.createdAt)}
+                  </span>
+                </span>
+              </div>
+            ) : null}
+            {isBlog ? (
+              <>
+                <div className="divider divider-horizontal" />
+                <div className="flex items-center gap-1 text-end font-semibold opacity-80">
+                  <p>{formatDatePost(post.createdAt)}</p>
+                  {!areDatesEqual(post.createdAt, post.updatedAt) ? (
+                    <p className="text-xs opacity-60">
+                      (Edytowano: {formatDatePost(post.updatedAt)})
+                    </p>
+                  ) : null}
+                </div>
+              </>
+            ) : null}
           </div>
-          <div className="divider my-0 lg:divider-horizontal" />
+          <div
+            className={cn(
+              "divider my-0",
+              isBlog ? "" : "lg:divider-horizontal",
+            )}
+          />
           <div className="flex flex-1 flex-col gap-1">
-            <div className="flex gap-1 text-end text-sm opacity-80">
-              <p>{formatDatePost(post.createdAt)}</p>
-              {!areDatesEqual(post.createdAt, post.updatedAt) ? (
-                <p className="text-xs opacity-60">
-                  (Edytowano: {formatDatePost(post.createdAt)})
-                </p>
-              ) : null}
-            </div>
+            {!isBlog ? (
+              <div className="flex gap-1 text-end text-sm opacity-80">
+                <p>{formatDatePost(post.createdAt)}</p>
+                {!areDatesEqual(post.createdAt, post.updatedAt) ? (
+                  <p className="text-xs opacity-60">
+                    (Edytowano: {formatDatePost(post.updatedAt)})
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
             <Renderer markdown={post.content} />
             <div className="mr-12 mt-auto flex flex-col items-end justify-center">
               {!hideReactions ? (
@@ -125,6 +194,7 @@ export default function PostCard({
             <EditPost
               targetId={post.id}
               post={post}
+              isBlog={isBlog}
               isPost={reactionsSorted.isPost}
             />
           </>

@@ -1,20 +1,53 @@
 import { emoticons } from "@/app/constants/emotes";
 import { Emoticon } from "@/mdx-components";
+import { useSession } from "next-auth/react";
 import React, { ChangeEvent, useId, useState } from "react";
-import { FaRegFaceSmile } from "react-icons/fa6";
-import PreviewPost from "./PreviewPost";
+import { FaArrowsUpDown, FaRegFaceSmile } from "react-icons/fa6";
+import { PostDataProps } from "../types/prismaTypes";
+import { cn } from "../utils/twUtils";
+import { PreviewPost } from "./MDXPreview";
 type MDXEditorProps = {
   setRawMDXValue: (mdx: string) => void;
   getRawMDXValue: string;
-  preview?: React.ElementType<{ markdown: string }>;
+  preview?: React.ElementType<{ post: PostDataProps }>;
 };
+
 export default function MDXEditor({
   getRawMDXValue,
   setRawMDXValue,
   preview: Preview = PreviewPost,
 }: MDXEditorProps) {
   const radioId = useId();
+  const [isReversed, setIsReversed] = useState(true);
 
+  const { data: session } = useSession();
+  const date = new Date();
+  const defpost: PostDataProps = {
+    id: "1",
+    content: getRawMDXValue,
+    createdAt: date,
+    subTitle: "",
+    featuredImage: "",
+    title: "",
+    updatedAt: date,
+    reactions: [],
+    _count: {
+      comments: 9,
+      reactions: 23,
+    },
+    author: {
+      id: "",
+      nickname: session?.user.name || "Cirno",
+      profileImage: session?.user.image || "/images/placeholder.png",
+      role: "USER",
+      createdAt: date,
+      karma: 999,
+      _count: {
+        posts: 9,
+      },
+    },
+  };
+  const [post, setPost] = useState(defpost);
   return (
     <div className="w-full">
       <div role="tablist" className="tabs tabs-lifted">
@@ -46,9 +79,9 @@ export default function MDXEditor({
         />
         <div
           role="tabpanel"
-          className="tab-content rounded-box border-base-300 bg-base-200"
+          className="tab-content rounded-box border-x-0 border-base-300"
         >
-          <Preview markdown={getRawMDXValue} />
+          <Preview post={post} />
         </div>
         <input
           type="radio"
@@ -59,17 +92,32 @@ export default function MDXEditor({
         />
         <div
           role="tabpanel"
-          className="tab-content rounded-box border-base-300 bg-base-200"
+          className="tab-content rounded-box border-x-0 border-base-300"
         >
-          <div className="p-2">
-            <UserInput
-              onChange={(e) => {
-                setRawMDXValue(e.target.value);
-              }}
-              value={getRawMDXValue}
-            />
+          <div
+            className={cn(
+              "isolate flex",
+              isReversed ? "flex-col-reverse" : "flex-col",
+            )}
+          >
+            <div className="rounded-box bg-base-200 p-2">
+              <UserInput
+                onChange={(e) => {
+                  setRawMDXValue(e.target.value);
+                  setPost((p) => ({ ...p, content: e.target.value }));
+                }}
+                value={getRawMDXValue}
+              />
+            </div>
+            <div className="divider">
+              <div className="z-20" onClick={() => setIsReversed((p) => !p)}>
+                <FaArrowsUpDown className="size-10 cursor-pointer rounded-full p-2 opacity-50 transition-all hover:opacity-100" />
+              </div>
+            </div>
+            <div>
+              <Preview post={post} />
+            </div>
           </div>
-          <Preview markdown={getRawMDXValue} />
         </div>
       </div>
     </div>
