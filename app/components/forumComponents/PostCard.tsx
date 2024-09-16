@@ -149,7 +149,7 @@ export default function PostCard({
             {isBlog ? (
               <>
                 <div className="divider divider-horizontal" />
-                <div className="flex items-center gap-1 text-end font-semibold opacity-80">
+                <div className="flex items-center gap-1 font-semibold opacity-80 text-center">
                   <p>{formatDatePost(post.createdAt)}</p>
                   {!areDatesEqual(post.createdAt, post.updatedAt) ? (
                     <p className="text-xs opacity-60">

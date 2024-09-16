@@ -36,7 +36,7 @@ export default function LoginModal({
           </button>
         </div>
         <form method="dialog" className="modal-backdrop">
-          <button>close</button>
+          <button>Zamknij</button>
         </form>
       </dialog>
     </div>

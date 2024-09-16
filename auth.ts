@@ -178,6 +178,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       //@ts-ignore delete email, it shouldn't break ye?
       delete session.user.email;
       session.user.role = token.user.role;
+      session.user.name = token.user.nickname;
       session.user.image = token.user.profileImage || undefined;
       return session;
     },

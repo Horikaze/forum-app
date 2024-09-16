@@ -29,7 +29,7 @@ export default function CCTable({ table }: { table: Table }) {
     <div className="group relative rounded-box bg-base-300 p-2 lg:p-4">
       <p className="text-center text-2xl font-semibold">Osiągniecia w grach</p>
       <div className="divider" />
-      <div className="overflow-x-auto" id="profileTable">
+      <div className="relative w-full overflow-x-auto">
         <table className="table text-center">
           <thead>
             <tr>

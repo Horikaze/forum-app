@@ -37,11 +37,11 @@ export default async function Profile() {
     redirect("/");
   }
   return (
-    <div className="flex min-h-screen flex-col gap-5 overflow-x-hidden">
+    <div className="flex min-h-screen w-full flex-col gap-5">
       <div
         className={cn(
-          "relative flex rounded-box bg-base-300 p-2",
-          user.bannerImage ? "lg:min-h-[300px] lg:p-4 2xl:min-h-[600px]" : "",
+          "relative flex rounded-box bg-base-300",
+          user.bannerImage ? "lg:min-h-[300px] 2xl:min-h-[450px]" : "",
         )}
       >
         <div className="group relative z-10 flex flex-1 flex-col">
@@ -51,17 +51,13 @@ export default async function Profile() {
               <FaImage />
             </span>
           </ChangeImage>
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 gap-1 self-start rounded-box bg-base-200/60 p-2 lg:p-4">
             <div className="flex flex-col">
               <div className="group/fpf relative size-32 overflow-hidden rounded-box">
                 <Image
                   src={user.profileImage || "/images/placeholder.png"}
                   alt={user.nickname}
-                  width="0"
-                  height="0"
-                  loading="lazy"
-                  sizes="100vw"
-                  className="h-auto w-full"
+                  fill
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-base-300/50 opacity-0 backdrop-blur-sm transition-all group-hover/fpf:opacity-100">
                   <ChangeImage aspect={1} target="profileImage">
@@ -108,11 +104,11 @@ export default async function Profile() {
               </span>
             </div>
           </div>
-          <div className="mt-auto">
+          <div className="mt-auto p-2 lg:p-4">
             {user.description ? (
               <>
                 <div className="divider" />
-                <div className="flex max-h-72 w-full flex-col overflow-hidden rounded-sm bg-base-200/40 p-2">
+                <div className="flex max-h-72 w-full flex-col overflow-hidden rounded-sm bg-base-200/60 p-2">
                   <SSRMDXRenderer markdown={user.description} />
                 </div>
               </>
@@ -120,7 +116,7 @@ export default async function Profile() {
           </div>
         </div>
         {user.bannerImage ? (
-          <div className="absolute inset-0 overflow-hidden rounded-box opacity-40">
+          <div className="absolute inset-0 overflow-hidden rounded-box">
             <Image
               src={user.bannerImage}
               alt="banner"

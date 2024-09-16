@@ -7,12 +7,13 @@ import { formatDatePost } from "../utils/formatDate";
 import { getCCstring } from "../utils/replayUtils";
 import SSRMDXRenderer from "./SSRMDXRenderer";
 import RecentPanelController from "./RecentPanelController";
+import Image from "next/image";
 export const experimental_ppr = true;
 
 export default function RecentPanel() {
   return (
     <RecentPanelController>
-      <div className="flex w-[406] flex-col gap-5">
+      <div className="flex w-[406] flex-col gap-5 font-semibold">
         <Suspense fallback={<LoadingSkeleton />}>
           <RecentPosts />
           <RecentComments />
@@ -45,6 +46,7 @@ const getRecentPosts = unstable_cache(
         slug: true,
         subTitle: true,
         title: true,
+        featuredImage: true,
         createdAt: true,
       },
       take: 3,
@@ -59,22 +61,29 @@ const getRecentPosts = unstable_cache(
 const RecentPosts = async () => {
   const posts = await getRecentPosts();
   return (
-    <div className="flex w-full flex-col rounded-box bg-base-200 p-4">
+    <div className="isolate flex w-full flex-col rounded-box bg-base-200 p-4">
       <h2 className="mb-2 text-xl font-bold">Ostatnie posty</h2>
       {posts.map((post) => (
         <Link
           key={post.slug}
           href={`${post?.category === "blog" ? "" : "/forum"}/${post.category}/${post.slug}`}
-          className="line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
+          className="group relative line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
         >
-          <span className="line-clamp-2 font-semibold">{post.title}</span>
-          <span className="line-clamp-2 text-xs opacity-80">
+          {post.featuredImage ? (
+            <Image
+              src={post.featuredImage}
+              alt="cover"
+              fill
+              className="absolute object-cover opacity-60 transition-all group-hover:scale-110"
+            />
+          ) : null}
+          <span className="z-10 line-clamp-2">{post.title}</span>
+          <span className="z-10 line-clamp-2 text-xs opacity-90">
             {post.subTitle}
           </span>
-          <div className="mt-2 flex justify-between text-xs opacity-80">
+          <div className="z-10 mt-2 flex justify-between text-xs opacity-90">
             <p>
-              <span className="font-semibold">Przez:</span>{" "}
-              {post.author.nickname}
+              <span className="">Przez:</span> {post.author.nickname}
             </p>
             <div className="flex items-center gap-1">
               <FaCalendar /> {formatDatePost(post.createdAt)}
@@ -85,7 +94,6 @@ const RecentPosts = async () => {
     </div>
   );
 };
-
 const getRecentComments = unstable_cache(
   async () => {
     console.log("cache com");
@@ -101,6 +109,7 @@ const getRecentComments = unstable_cache(
           select: {
             slug: true,
             category: true,
+            title: true,
           },
         },
         parentComment: {
@@ -137,11 +146,11 @@ const RecentComments = async () => {
           <div className="line-clamp-2">
             <SSRMDXRenderer markdown={com.content.substring(0, 30)} isPreview />
           </div>
+          <p className="line-clamp-1 whitespace-nowrap text-xs opacity-90">
+            W: {com.post?.title}
+          </p>
           <div className="mt-2 flex justify-between text-xs opacity-80">
-            <p>
-              <span className="font-semibold">Przez:</span>{" "}
-              {com.author.nickname}
-            </p>
+            <p>Przez: {com.author.nickname}</p>
             <div className="flex items-center gap-1">
               <FaCalendar /> {formatDatePost(com.createdAt)}
             </div>
@@ -208,8 +217,7 @@ const RecentReplays = async () => {
           </p>
           <div className="mt-2 flex justify-between text-xs opacity-80">
             <p>
-              <span className="font-semibold">Przez:</span>{" "}
-              {rpy.profile?.nickname}
+              <span>Przez:</span> {rpy.profile?.nickname}
             </p>
             <div className="flex items-center gap-1">
               <FaCalendar /> {formatDatePost(rpy.createdAt)}

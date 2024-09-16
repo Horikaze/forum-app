@@ -1,20 +1,20 @@
 "use server";
-import { saveFile } from "@/app/utils/testingFunctions";
-import db from "@/lib/db";
-import { revalidatePath } from "next/cache";
-import * as z from "zod";
-import axios from "axios";
+import { validFileExtensions } from "@/app/constants/forum";
+import { achievementRankValues } from "@/app/constants/games";
 import { ReplayApiInfo, ScoreObject } from "@/app/types/gameTypes";
 import {
   getCharacterFromData,
   getGameNumberFromReplayName,
   getGameString,
 } from "@/app/utils/replayUtils";
-import { achievementRankValues } from "@/app/constants/games";
-import { File as FileBuffer } from "buffer";
-import { Replay } from "@prisma/client";
+import { saveFile } from "@/app/utils/testingFunctions";
+import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
+import { Replay } from "@prisma/client";
+import axios from "axios";
 import { nanoid } from "nanoid";
+import { revalidatePath } from "next/cache";
+import * as z from "zod";
 const registerSchema = z.object({
   nickname: z
     .string()
@@ -61,9 +61,29 @@ export const changeNicknameAction = async (nickname: string) => {
   }
 };
 
+const profileImageSchema = z.object({
+  file: z.any().refine(
+    (file: any) => {
+      return validFileExtensions.some((ext) =>
+        file.name.toLowerCase().endsWith(ext),
+      );
+    },
+    {
+      message: "Dozwolone rozszerzenia to: .png, .gif, .jpeg",
+    },
+  ),
+});
 export const changeProfileImageAction = async (file: File, target: string) => {
   try {
     const { session } = await getUserSessionCreate();
+    const result = profileImageSchema.safeParse({ file });
+    if (!result.success) {
+      let errorMessage = "";
+      result.error.issues.forEach((issue) => {
+        errorMessage = errorMessage + issue.message + " ";
+      });
+      throw new Error(errorMessage);
+    }
     const res = await saveFile(file);
     await db.user.update({
       where: {
@@ -116,7 +136,6 @@ export const changeDescriptionAction = async (description: string) => {
         description,
       },
     });
-    console.log("123");
     revalidatePath(`/profile`, "page");
     return {
       success: true,
@@ -218,29 +237,54 @@ export const sendReplayAction = async (
   }
 };
 
+const updateUserCC = async (userId: string, increment: boolean) => {
+  await db.user.update({
+    where: { id: userId },
+    data: { cc: { [increment ? "increment" : "decrement"]: 1 } },
+  });
+};
+
+const updateRanking = async (
+  userId: string,
+  gameString: string,
+  newScoreObj: ScoreObject,
+) => {
+  await db.table.update({
+    where: { userId },
+    data: { [gameString]: JSON.stringify(newScoreObj) },
+  });
+};
+
+const findSameReplay = async (newReplay: Replay) => {
+  return db.replay.findFirst({
+    where: {
+      game: newReplay.game,
+      rank: newReplay.rank,
+      userId: newReplay.userId,
+      replayId: { not: newReplay.replayId },
+    },
+    orderBy: [{ achievement: "desc" }, { score: "desc" }],
+  });
+};
+
+const getCurrentRanking = async (userId: string, gameString: string) => {
+  const currentRanking = await db.table.findFirst({
+    where: { userId },
+    select: { [gameString]: true },
+  });
+
+  if (!currentRanking) throw new Error("Ranking not found");
+  return JSON.parse(currentRanking[gameString]) as ScoreObject;
+};
+
 const changeRanking = async (newReplay: Replay) => {
   try {
-    const sameReplay = await db.replay.findFirst({
-      where: {
-        game: newReplay.game,
-        rank: newReplay.rank,
-        userId: newReplay.userId,
-        replayId: { not: newReplay.replayId },
-      },
-      orderBy: [{ achievement: "desc" }, { score: "desc" }],
-    });
-
+    const sameReplay = await findSameReplay(newReplay);
     const gameString = getGameString(
       getGameNumberFromReplayName(newReplay.rpyName),
     );
-    const currentRanking = await db.table.findFirst({
-      where: { userId: newReplay.userId },
-      select: { [gameString]: true },
-    });
+    const rankingObject = await getCurrentRanking(newReplay.userId, gameString);
 
-    if (!currentRanking) throw new Error("Nie masz tabelki");
-
-    const rankingObject: ScoreObject = JSON.parse(currentRanking[gameString]);
     const newScoreObj: ScoreObject = {
       ...rankingObject,
       [newReplay.rank.toUpperCase()]: {
@@ -252,10 +296,7 @@ const changeRanking = async (newReplay: Replay) => {
     };
 
     if (!sameReplay) {
-      await db.user.update({
-        where: { id: newReplay.userId },
-        data: { cc: { increment: 1 } },
-      });
+      await updateUserCC(newReplay.userId, true);
     }
 
     const shouldUpdateRanking =
@@ -264,13 +305,10 @@ const changeRanking = async (newReplay: Replay) => {
       sameReplay.score <= newReplay.score;
 
     if (shouldUpdateRanking) {
-      await db.table.update({
-        where: { userId: newReplay.userId },
-        data: { [gameString]: JSON.stringify(newScoreObj) },
-      });
+      await updateRanking(newReplay.userId, gameString, newScoreObj);
     }
   } catch (error) {
-    throw new Error(`${error}`);
+    throw new Error(`Failed to change ranking: ${error}`);
   }
 };
 
@@ -287,35 +325,30 @@ export const deleteReplayAction = async ({
       select: { userId: true, rpyName: true },
     });
 
-    if (!replayToDelete) throw new Error("Nie znaleziono rpy");
+    if (!replayToDelete) throw new Error("Replay not found");
 
     if (
       user.role !== "ADMIN" &&
       user.role !== "MODERATOR" &&
       session.user.id !== replayToDelete.userId
     ) {
-      throw new Error("Nie masz uprawneń do tego rpy");
+      throw new Error("Insufficient permissions");
     }
 
     const deletedReplay = await db.replay.delete({ where: { replayId } });
     const gameString = getGameString(
       getGameNumberFromReplayName(deletedReplay.rpyName),
     );
-
-    const currentRanking = await db.table.findFirst({
-      where: { userId: deletedReplay.userId },
-      select: { [gameString]: true },
-    });
-
-    if (!currentRanking) throw new Error("Nie masz tabelki");
-
-    const rankingObject: ScoreObject = JSON.parse(currentRanking[gameString]);
+    const rankingObject = await getCurrentRanking(
+      deletedReplay.userId,
+      gameString,
+    );
 
     if (
-      rankingObject[deletedReplay.rank.toUpperCase()]!.id !==
+      rankingObject[deletedReplay.rank.toUpperCase()]?.id !==
       deletedReplay.replayId
     ) {
-      return { success: true, message: "ok" };
+      return { success: true, message: "Replay deleted" };
     }
 
     const newScoreObj: ScoreObject = {
@@ -323,15 +356,8 @@ export const deleteReplayAction = async ({
       [deletedReplay.rank.toUpperCase()]: { score: 0, id: "", CC: 0, char: "" },
     };
 
-    await db.table.update({
-      where: { userId: deletedReplay.userId },
-      data: { [gameString]: JSON.stringify(newScoreObj) },
-    });
-
-    await db.user.update({
-      where: { id: deletedReplay.userId },
-      data: { cc: { decrement: 1 } },
-    });
+    await updateRanking(deletedReplay.userId, gameString, newScoreObj);
+    await updateUserCC(deletedReplay.userId, false);
 
     const replayToReplace = await db.replay.findFirst({
       where: {
@@ -345,10 +371,10 @@ export const deleteReplayAction = async ({
     if (replayToReplace) {
       await changeRanking(replayToReplace);
     }
+
     revalidatePath("/profile", "page");
-    return { success: true, message: "ok" };
+    return { success: true, message: "Replay deleted and ranking updated" };
   } catch (error) {
-    error instanceof Error ? error.message : error;
-    return { success: false, message: `${error}` };
+    return { success: false, message: `Failed to delete replay: ${error}` };
   }
 };

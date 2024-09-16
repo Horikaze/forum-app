@@ -11,6 +11,7 @@ export function PreviewDescription({ post }: { post: PostDataProps }) {
   );
 }
 export function PreviewBlog({ post }: { post: PostDataProps }) {
+  // console.log(object);
   return (
     <PostCard
       post={post}
@@ -26,21 +27,23 @@ export function PreviewPost({ post }: { post: PostDataProps }) {
   return (
     <>
       <div className="pointer-events-none">
-        <TopicListCard
-          slug={""}
-          category={""}
-          comments={[
-            {
-              author: {
-                nickname: "CommenterUser",
-                id: "",
+        {post.title ? (
+          <TopicListCard
+            slug={""}
+            category={""}
+            comments={[
+              {
+                author: {
+                  nickname: "Remirzena Szkarłat",
+                  id: "",
+                },
+                createdAt: post.createdAt,
               },
-              createdAt: post.createdAt,
-            },
-          ]}
-          {...post}
-        />
-        <div className="mb-5"></div>
+            ]}
+            {...post}
+          />
+        ) : null}
+        <div className="mb-5" />
         <PostCard
           post={post}
           renderer={MDXRenderer}

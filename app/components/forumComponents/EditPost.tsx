@@ -42,6 +42,7 @@ export default function EditPost({
               closeWindow={() => setIsOpen(false)}
               targetId={targetId}
               isPost={isPost}
+              isBlog={isBlog}
             />
           </div>
         </Suspense>

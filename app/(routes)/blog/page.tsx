@@ -28,6 +28,7 @@ export default async function Blog({
         subTitle: true,
         createdAt: true,
         id: true,
+        featuredImage: true,
         slug: true,
         _count: {
           select: {
@@ -54,8 +55,9 @@ export default async function Blog({
           title={p.title}
           href={`/${dbTarget}/` + p.slug}
           commentsCount={p._count.comments}
-          reactionsCount={p._count.comments}
+          reactionsCount={p._count.reactions}
           subTitle={p.subTitle!}
+          featuredImage={p.featuredImage || undefined}
         />
       ))}
       <div className="join mt-auto self-center">

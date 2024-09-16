@@ -26,6 +26,9 @@ export default function NewPost({
   const [featuredImage, setFeaturedImage] = useState<string | undefined>(
     undefined,
   );
+  const [featuredImageFile, setFeaturedImageFile] = useState<File | undefined>(
+    undefined,
+  );
   const [dbTarget, setDbTarget] = useState(
     searchParams.forumTarget || forumCategory[0].dbTarget,
   );
@@ -40,8 +43,10 @@ export default function NewPost({
         content: inputValue,
         isSketch,
       };
-      const res = await newPostAction(newPostObject);
-      console.log(res);
+      const res = await newPostAction(
+        newPostObject,
+        dbTarget === "blog" ? featuredImageFile : undefined,
+      );
       if (!res?.success) throw new Error(res?.message);
       await redirectHard(res.message);
     } catch (error) {
@@ -141,7 +146,11 @@ export default function NewPost({
             </div>
             <div className="flex justify-evenly">
               {dbTarget === "blog" ? (
-                <ChangeImage aspect={3 / 1} onImageChange={changeImageFn}>
+                <ChangeImage
+                  aspect={3 / 1}
+                  onImageChange={changeImageFn}
+                  onImageChangeFile={setFeaturedImageFile}
+                >
                   <button className="btn">Zmień obrazek</button>
                 </ChangeImage>
               ) : null}
@@ -150,7 +159,7 @@ export default function NewPost({
                   formAction(true);
                 }}
                 disabled={isPending}
-                className="btn"
+                className="btn btn-secondary"
                 type="button"
               >
                 {isPending ? (
@@ -175,7 +184,6 @@ export default function NewPost({
           </div>
         </div>
       </div>
-
       <MDXEditor
         setRawMDXValue={(e) => {
           setInputValue(e);

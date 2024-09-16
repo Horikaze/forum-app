@@ -6,6 +6,7 @@ import ReactCrop, {
   makeAspectCrop,
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { validFileExtensions } from "../constants/forum";
 
 type ImageCropperProps = {
   aspect: number;
@@ -138,7 +139,7 @@ export default function ImageCropper({
         <input
           type="file"
           className="file-input"
-          accept="image/*"
+          accept={validFileExtensions.join(",")}
           onChange={onSelectFile}
         />
         <label htmlFor="scale-input">Skala:</label>
@@ -168,27 +169,24 @@ export default function ImageCropper({
           }
         />
       </div>
-      <div className="flex h-full flex-col gap-2 lg:flex-row">
-        <div className="flex flex-1 items-center justify-center overflow-hidden rounded-box">
-          {imgSrc && (
-            <ReactCrop
-              crop={crop}
-              onChange={(_, percentCrop) => setCrop(percentCrop)}
-              onComplete={(c) => setCompletedCrop(c)}
-              aspect={aspect}
-              minHeight={20}
-              className="max-h-[600px]"
-            >
-              <img
-                ref={imgRef}
-                alt="Crop me"
-                src={imgSrc}
-                style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
-                onLoad={onImageLoad}
-              />
-            </ReactCrop>
-          )}
-        </div>
+      <div className="flex flex-1 rounded-box">
+        {imgSrc && (
+          <ReactCrop
+            crop={crop}
+            onChange={(_, percentCrop) => setCrop(percentCrop)}
+            onComplete={(c) => setCompletedCrop(c)}
+            aspect={aspect}
+            minHeight={20}
+          >
+            <img
+              ref={imgRef}
+              alt="Crop me"
+              src={imgSrc}
+              style={{ transform: `scale(${scale}) rotate(${rotate}deg)` }}
+              onLoad={onImageLoad}
+            />
+          </ReactCrop>
+        )}
       </div>
     </div>
   );

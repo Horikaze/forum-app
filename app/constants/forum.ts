@@ -32,3 +32,5 @@ export const forumCategory = [
 ];
 export const userForumDb = forumCategory.slice(0, 4);
 export const adminForumDb = forumCategory.slice(4);
+
+export const validFileExtensions = [".png", ".gif", ".jpeg", ".jpg"];

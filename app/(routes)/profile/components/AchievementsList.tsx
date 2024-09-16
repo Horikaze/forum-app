@@ -15,7 +15,6 @@ const AchievementsList = ({
       <div className="relative min-h-32 rounded-box bg-base-300 p-2 lg:p-4">
         <p className="text-center text-2xl font-semibold">Osiągnięcia</p>
         <div className="divider" />
-        <div className="flex flex-wrap gap-1"></div>
         {info ? (
           <div className="relative mb-2 flex w-full items-center gap-2 rounded-sm bg-base-100 p-1 text-xs md:text-sm">
             <FaX
@@ -30,17 +29,23 @@ const AchievementsList = ({
             <span className="ml-auto whitespace-nowrap">ID: {info.id}</span>
           </div>
         ) : null}
-        <div className="flex flex-wrap gap-1 overflow-hidden p-px">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] justify-items-center gap-1">
           {achievements.map((a, idx) => (
             <div
+              key={idx}
               onClick={() => setInfo(a)}
               onMouseOver={() => {
-                info ? setInfo(a) : null;
+                if (info) setInfo(a);
               }}
-              key={idx}
-              className="cursor-pointer transition-all hover:scale-105"
+              className="h-[50px] w-[50px] cursor-pointer transition-all hover:scale-105"
             >
-              <Image src={a.image} height={50} width={50} alt={a.name} />
+              <Image
+                src={a.image}
+                layout="responsive"
+                width={50}
+                height={50}
+                alt={a.name}
+              />
             </div>
           ))}
         </div>

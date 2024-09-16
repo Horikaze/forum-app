@@ -2,6 +2,7 @@
 import { segregateReactionsByType } from "@/app/components/forumComponents/PostCard";
 import { adminForumDb, forumCategory } from "@/app/constants/forum";
 import { getFormattedDate } from "@/app/utils/formatDate";
+import { saveFile } from "@/app/utils/testingFunctions";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -9,7 +10,7 @@ import { redirect } from "next/navigation";
 import slugify from "slugify";
 import * as z from "zod";
 
-const posiibleForumTarget = forumCategory.map((c) => c.dbTarget);
+const posibleForumTarget = forumCategory.map((c) => c.dbTarget);
 
 const newPostSchema = z.object({
   title: z
@@ -36,9 +37,22 @@ const newPostSchema = z.object({
         message: `Post nie może mieć więcej niż 5000 znaków.(${value.length})`,
       }),
     ),
-  dbTarget: z.string().refine((value) => posiibleForumTarget.includes(value), {
+  dbTarget: z.string().refine((value) => posibleForumTarget.includes(value), {
     message: "Nie istnieje takie forum",
   }),
+  file: z
+    .any()
+    .refine(
+      (file) => file.size <= 2000 * 1024,
+      (file: any) => ({
+        message: `Plik musi być mniejszy niż 2MB. (${Number(file.size / 1024).toFixed()}KB)`,
+      }),
+    )
+    .refine((file) => file.name.endsWith(".png"), {
+      message: "Dozwolone rozszerzenie to: .png",
+    })
+    .optional()
+    .or(z.literal(null)),
 });
 
 type NewPost = {
@@ -51,12 +65,12 @@ type NewPost = {
 
 export const newPostAction = async (
   newPost: NewPost,
+  featuredImageFile?: File,
 ): Promise<{
   success: boolean;
   message: string;
 }> => {
   let slugUrl = "";
-  let errorOccurred = false;
   try {
     const { content, dbTarget, isSketch, subTitle, title } = newPost;
     const { session } = await getUserSessionCreate(
@@ -67,6 +81,7 @@ export const newPostAction = async (
       subTitle,
       dbTarget,
       content,
+      file: featuredImageFile,
     };
     const result = newPostSchema.safeParse(newPostObject);
     if (!result.success) {
@@ -74,9 +89,13 @@ export const newPostAction = async (
       result.error.issues.forEach((issue) => {
         errorMessage = errorMessage + issue.message + " ";
       });
-      errorOccurred = true;
       throw new Error(errorMessage);
     }
+    let featuredImage = undefined;
+    if (dbTarget === "blog" && featuredImageFile) {
+      featuredImage = await saveFile(featuredImageFile);
+    }
+
     let slug = slugify(title, {
       lower: true,
       remove: /[^a-zA-Z0-9\s-]/g,
@@ -89,6 +108,7 @@ export const newPostAction = async (
         title,
         subTitle,
         slug,
+        featuredImage: featuredImage,
         content,
         status: isSketch ? "DRAFT" : "PUBLISHED",
         category: dbTarget,
@@ -101,7 +121,6 @@ export const newPostAction = async (
       message: slugUrl,
     };
   } catch (error) {
-    errorOccurred = true;
     if (error instanceof Error) {
       error = error.message;
     }
@@ -349,7 +368,7 @@ const editPostSchema = z.object({
       }),
     )
     .optional()
-    .or(z.literal(null)),
+    .or(z.literal("")),
   subTitle: z
     .string()
     .refine(
@@ -359,7 +378,7 @@ const editPostSchema = z.object({
       }),
     )
     .optional()
-    .or(z.literal(null)),
+    .or(z.literal("")),
   content: z
     .string()
     .min(2, { message: "Zawartość musi mieć co najmniej 2 znaków" })
@@ -369,6 +388,19 @@ const editPostSchema = z.object({
         message: `Post/komentarz nie może mieć więcej niż 5000 znaków.(${value.length})`,
       }),
     )
+    .optional()
+    .or(z.literal("")),
+  file: z
+    .any()
+    .refine(
+      (file) => file.size <= 2000 * 1024,
+      (file: any) => ({
+        message: `Plik musi być mniejszy niż 2MB. (${Number(file.size / 1024).toFixed()}KB)`,
+      }),
+    )
+    .refine((file) => file.name.endsWith(".png"), {
+      message: "Dozwolone rozszerzenie to: .png",
+    })
     .optional()
     .or(z.literal(null)),
 });
@@ -382,6 +414,7 @@ export const editPostAction = async (
     title?: string;
     subTitle?: string;
   },
+  featuredImageFile?: File,
 ) => {
   try {
     const { session } = await getUserSessionCreate();
@@ -394,13 +427,17 @@ export const editPostAction = async (
       });
       throw new Error(errorMessage);
     }
+    let featuredImage = undefined;
+    if (featuredImageFile) {
+      featuredImage = await saveFile(featuredImageFile);
+    }
     if (isPost) {
       await db.post.update({
         where: {
           id: targetId,
           authorId: session.user.id,
         },
-        data: dataToUpdate,
+        data: { ...dataToUpdate, featuredImage },
       });
     } else {
       await db.postComment.update({

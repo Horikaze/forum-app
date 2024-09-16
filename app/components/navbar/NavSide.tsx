@@ -3,16 +3,12 @@ import { cn } from "@/app/utils/twUtils";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FaInfo } from "react-icons/fa";
-import { FaUsers } from "react-icons/fa6";
+import { useState } from "react";
 import {
-  FaArrowLeft,
-  FaBookOpen,
-  FaHouse,
+  FaArrowLeft, FaHouse,
   FaPaintRoller,
   FaPen,
-  FaRankingStar,
+  FaRankingStar, FaUsers
 } from "react-icons/fa6";
 import { MdOutlineForum } from "react-icons/md";
 import { PiTestTubeBold } from "react-icons/pi";
@@ -23,25 +19,25 @@ const sideNavLinks = [
     icon: FaHouse,
   },
   {
-    title: "Użytkownicy",
-    href: "/user",
-    icon: FaUsers,
-  },
-  {
     title: "Forum",
     href: "/forum",
     icon: MdOutlineForum,
+  },
+  {
+    title: "Użytkownicy",
+    href: "/user",
+    icon: FaUsers,
   },
   {
     title: "Rankingi",
     href: "/ranking",
     icon: FaRankingStar,
   },
-  {
-    title: "Poradniki",
-    href: "/guides",
-    icon: FaBookOpen,
-  },
+  // {
+  //   title: "Poradniki",
+  //   href: "/guides",
+  //   icon: FaBookOpen,
+  // },
   {
     title: "Blog",
     href: "/blog",
@@ -63,7 +59,7 @@ const themes = [
   "light",
 ];
 export default function NavSide() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const pathname = usePathname();
 

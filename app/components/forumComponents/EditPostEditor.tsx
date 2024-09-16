@@ -1,15 +1,18 @@
-import { usePathname } from "next/navigation";
-import { useState, useTransition } from "react";
-import MDXEditor from "../MDXEditor";
 import { editPostAction } from "@/app/(routes)/forum/forumActions";
-import toast from "react-hot-toast";
 import { PostDataProps } from "@/app/types/prismaTypes";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import MDXEditor from "../MDXEditor";
+import { PreviewBlog } from "../MDXPreview";
+import ChangeImage from "@/app/(routes)/profile/components/ChangeImage";
 
 type EditPostEditorProps = {
   closeWindow: () => void;
   post: PostDataProps;
   targetId: string;
   isPost: boolean;
+  isBlog?: boolean;
 };
 
 export default function EditPostEditor({
@@ -17,35 +20,41 @@ export default function EditPostEditor({
   post,
   targetId,
   isPost,
+  isBlog,
 }: EditPostEditorProps) {
   const [content, setContent] = useState(post.content);
+  const [title, setTitle] = useState(post.title || "");
+  const [subTitle, setSubTitle] = useState(post.subTitle || "");
   const pathname = usePathname();
   const [isPending, setIsPending] = useState(false);
-
-  const updatePost = async (e: React.FormEvent<HTMLFormElement>) => {
+  const [featuredImage, setFeaturedImage] = useState<string | undefined>(
+    post.featuredImage || undefined,
+  );
+  const [featuredImageFile, setFeaturedImageFile] = useState<File | undefined>(
+    undefined,
+  );
+  const updatePost = async () => {
     try {
       setIsPending(true);
-      e.preventDefault();
-      const form = e.target as HTMLFormElement;
-      const formData = new FormData(form);
-      const title = formData.get("title") as string;
-      const subTitle = formData.get("subTitle") as string;
-      const dataToUpdate: Record<string, string> = {};
-      if (title !== post.title && post.title != null) {
+      const dataToUpdate: Record<string, string | File> = {};
+      if (title && title !== post.title && post.title !== null) {
         dataToUpdate.title = title;
       }
-      if (subTitle !== post.subTitle && post.subTitle != null) {
+      if (subTitle && subTitle !== post.subTitle && post.subTitle) {
         dataToUpdate.subTitle = subTitle;
       }
-      if (content !== post.content && post.content != null) {
+      if (content && content !== post.content && post.content !== null) {
         dataToUpdate.content = content;
       }
-      console.log(dataToUpdate);
+      if (featuredImageFile && featuredImageFile?.size! > 2000 * 1024) {
+        throw new Error("Obrazek może mieć maksymalnie 2MB");
+      }
       const res = await editPostAction(
         targetId,
         isPost,
         pathname,
         dataToUpdate,
+        featuredImageFile ?? undefined,
       );
       if (!res.success) throw new Error(`${res.message}`);
       setContent("");
@@ -56,38 +65,82 @@ export default function EditPostEditor({
       setIsPending(false);
     }
   };
-
+  const changeImageFn = (url: string) => {
+    if (featuredImage && url !== featuredImage) {
+      try {
+        URL.revokeObjectURL(featuredImage); // Revoke previous image URL
+      } catch (error) {
+        console.error("Error revoking object URL:", error);
+      }
+    }
+    setFeaturedImage(url);
+  };
   return (
-    <form
-      onSubmit={updatePost}
-      className="flex min-h-full flex-col rounded-box bg-base-200"
-    >
+    <div className="flex min-h-full flex-col rounded-box bg-base-200">
       {isPost ? (
         <div className="flex flex-col gap-2 p-2">
           <input
-            defaultValue={post.title}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             type="text"
             name="title"
             className="input input-sm input-bordered"
           />
           <input
-            defaultValue={post.subTitle!}
+            value={subTitle}
+            onChange={(e) => setSubTitle(e.target.value)}
             type="text"
             name="subTitle"
             className="input input-sm input-bordered"
           />
         </div>
       ) : null}
-      <MDXEditor getRawMDXValue={content} setRawMDXValue={setContent} />
+      <MDXEditor
+        getRawMDXValue={content}
+        setRawMDXValue={setContent}
+        preview={
+          isBlog
+            ? (p) => (
+                <PreviewBlog
+                  post={{
+                    ...p,
+                    ...post,
+                    content:content,
+                    title: title!,
+                    subTitle: subTitle!,
+                    featuredImage: featuredImage!,
+                  }}
+                />
+              )
+            : undefined
+        }
+      />
       <div className="z-30 flex items-center justify-end gap-5 bg-base-200 p-2">
-        <button type="button" onClick={closeWindow} className="btn btn-ghost">
+        {isBlog ? (
+          <ChangeImage
+            aspect={3 / 1}
+            onImageChange={changeImageFn}
+            onImageChangeFile={setFeaturedImageFile}
+          >
+            <button className="btn">Zmień obrazek</button>
+          </ChangeImage>
+        ) : null}
+        <button
+          type="button"
+          onClick={closeWindow}
+          className="btn btn-ghost ml-auto"
+        >
           Anuluj
         </button>
-        <button className="btn btn-primary" disabled={isPending}>
+        <button
+          onClick={updatePost}
+          className="btn btn-primary"
+          disabled={isPending}
+        >
           {isPending ? <span className="loading loading-spinner" /> : null}
           Zapisz
         </button>
       </div>
-    </form>
+    </div>
   );
 }

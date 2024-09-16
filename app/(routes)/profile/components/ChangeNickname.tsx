@@ -19,6 +19,7 @@ export default function ChangeNickname({ nickname }: { nickname: string }) {
         setError(res.message!);
         return;
       }
+      console.log(nickname);
       update({ nickname: nickname });
       ref.current?.close();
     } catch (error) {

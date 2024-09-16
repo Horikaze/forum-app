@@ -11,6 +11,7 @@ type ChangeImageProps = {
   aspect: number;
   target?: "bannerImage" | "profileImage";
   onImageChange?: (url: string) => void;
+  onImageChangeFile?: (file: File) => void;
 };
 
 export default function ChangeImage({
@@ -18,6 +19,7 @@ export default function ChangeImage({
   aspect,
   target,
   onImageChange,
+  onImageChangeFile,
 }: ChangeImageProps) {
   const { update } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -38,16 +40,18 @@ export default function ChangeImage({
       setCroppedImageUrl(url);
       if (onImageChange) {
         onImageChange(url);
+        if (onImageChangeFile) {
+          onImageChangeFile(croppedImage);
+        }
         return;
       }
-      URL.revokeObjectURL(url);
+      return () => {
+        URL.revokeObjectURL(url);
+      };
     }
   }, [croppedImage]);
 
-  const handleBackdropClick = () => {
-    if (ref.current) {
-      ref.current.close();
-    }
+  const onCloseModal = () => {
     setIsOpen(false);
     setCroppedImage(null);
     setCroppedImageUrl(null);
@@ -61,9 +65,7 @@ export default function ChangeImage({
 
     setIsPending(true);
     try {
-      // we dont send instantly to server
-      if (onImageChange) return;
-      if (!target) return;
+      if (!target || onImageChange) return;
       const res = await changeProfileImageAction(croppedImage, target);
       if (!res.success) throw new Error(res.message);
 
@@ -90,13 +92,13 @@ export default function ChangeImage({
   return (
     <>
       <div onClick={() => setIsOpen(true)}>{children}</div>
-      <dialog ref={ref} className="modal" onClose={handleBackdropClick}>
-        <div className="modal-box flex w-full max-w-7xl flex-col items-end gap-2">
-          <div className="size-full">
+      <dialog ref={ref} className="modal" onClose={onCloseModal}>
+        <div className="modal-box flex w-full max-w-6xl flex-col items-center gap-2">
+          <div className="w-full max-w-2xl">
             <ImageCropper aspect={aspect} onCropChange={setCroppedImage} />
           </div>
           {croppedImageUrl && !onImageChange ? (
-            <div className="mx-auto my-4 w-full max-w-xs">
+            <div className="mx-auto my-4 w-full max-w-2xl">
               <img
                 src={croppedImageUrl}
                 alt="Podgląd przyciętego obrazu"
@@ -104,10 +106,10 @@ export default function ChangeImage({
               />
             </div>
           ) : null}
-          <div className="flex gap-2">
-            <button className="btn btn-ghost" onClick={handleBackdropClick}>
-              Zamknij
-            </button>
+          <div className="flex justify-center gap-2 self-end">
+            <form method="dialog">
+              <button className="btn btn-ghost">Zamknij</button>
+            </form>
             {!onImageChange && (
               <button
                 disabled={isPending}

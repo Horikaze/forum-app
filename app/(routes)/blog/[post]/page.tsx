@@ -21,6 +21,7 @@ export async function generateMetadata(
       title: true,
       subTitle: true,
       category: true,
+      featuredImage: true,
       author: {
         select: {
           nickname: true,
@@ -52,7 +53,7 @@ export async function generateMetadata(
       authors: [post.author.nickname],
       siteName: "Gensokyawka",
       images: {
-        url: `/api/embeddedimage?comments=${post._count.comments}&reactions=${post._count.reactions}&nickname=${post.author.nickname}&profileImage=${post.author.profileImage || ""}&title=${encodeURIComponent(post.title)}&subTitle=${encodeURIComponent(post.subTitle || "")}`,
+        url: `/api/embeddedimage?slug=${params.post}`,
         width: 1200,
         height: 600,
         alt: post.title,
