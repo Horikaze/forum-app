@@ -10,10 +10,10 @@ datasource db {
 }
 
 model Account {
-  id             String        @id @unique @default(cuid())
-  user           User          @relation(fields: [id], references: [id], onDelete: Cascade)
+  id             String  @id @unique @default(cuid())
+  user           User    @relation(fields: [id], references: [id], onDelete: Cascade)
   hashedPassword String?
-  loginProvider  LoginProvider
+  loginProvider  String
 }
 
 model User {
@@ -24,7 +24,7 @@ model User {
   description  String?
   karma        Int           @default(0)
   cc           Int           @default(0)
-  role         UserRole      @default(USER)
+  role         String        @default("user")
   account      Account?
   achievements Achievement[]
   posts        Post[]        @relation("UserPosts")
@@ -44,10 +44,9 @@ model Post {
   isPinned      Boolean       @default(false)
   content       String
   featuredImage String?
-  tags          String[]
   category      String
   bumpDate      DateTime      @default(now())
-  status        PostStatus
+  status        String        @default("published")
   comments      PostComment[]
   reactions     Reaction[]
   author        User          @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
@@ -141,23 +140,4 @@ model Table {
   um      String
   userId  String @unique
   profile User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-enum PostStatus {
-  DRAFT
-  PUBLISHED
-}
-
-enum LoginProvider {
-  DISCORD
-  GITHUB
-  CREDENTIALS
-}
-
-enum UserRole {
-  USER
-  BLOCKED
-  SUPPORTER
-  MODERATOR
-  ADMIN
 }

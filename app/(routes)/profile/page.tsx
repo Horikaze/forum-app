@@ -47,7 +47,7 @@ export default async function Profile() {
         <div className="group relative z-10 flex flex-1 flex-col">
           <ChangeDescription description="124" />
           <ChangeImage aspect={2.5} target="bannerImage">
-            <span className="absolute right-6 top-0 cursor-pointer opacity-0 transition-all hover:text-accent group-hover:opacity-80">
+            <span className="absolute right-8 top-2 cursor-pointer opacity-0 transition-all hover:text-accent group-hover:opacity-80">
               <FaImage />
             </span>
           </ChangeImage>

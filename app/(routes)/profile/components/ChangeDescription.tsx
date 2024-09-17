@@ -15,7 +15,7 @@ export default function ChangeDescription({
     <>
       <span
         onClick={() => setIsOpen((p) => !p)}
-        className="absolute right-0 top-0 cursor-pointer opacity-0 transition-all hover:text-accent group-hover:opacity-80"
+        className="absolute right-2 top-2 cursor-pointer opacity-0 transition-all hover:text-accent group-hover:opacity-80"
       >
         <FaPen />
       </span>

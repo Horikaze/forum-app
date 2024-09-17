@@ -9,7 +9,7 @@ export async function saveFile(imageFile: File): Promise<string> {
 
   const uniqueName = `${nanoid()}-${imageFile.name}`;
   const filePath = path.join(process.cwd(), "public", "files", uniqueName);
-
+  console.log(filePath);
   try {
     // Sprawdź, czy folder istnieje, jeśli nie, to go utwórz
     const folderPath = path.dirname(filePath);
@@ -30,7 +30,9 @@ export async function deleteFile(fileName: string) {
   if (!fileName) {
     throw new Error("Invalid file name");
   }
-  const filePath = path.join(process.cwd(), "public", "files", fileName);
+  console.log(fileName);
+  const filePath = path.join(process.cwd(), "public", fileName);
+  console.log(filePath);
   try {
     await fs.unlink(filePath);
     console.log(`File ${fileName} deleted successfully`);

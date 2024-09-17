@@ -5,10 +5,10 @@ import {
   adminForumDb,
   forumCategory,
   userForumDb,
+  UserRole,
 } from "@/app/constants/forum";
 import { cn } from "@/app/utils/twUtils";
 import redirectHard from "@/lib/globalActions";
-import { UserRole } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import toast from "react-hot-toast";

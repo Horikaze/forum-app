@@ -1,5 +1,5 @@
 "use server";
-import { validFileExtensions } from "@/app/constants/forum";
+import { UserRole, validFileExtensions } from "@/app/constants/forum";
 import { achievementRankValues } from "@/app/constants/games";
 import { ReplayApiInfo, ScoreObject } from "@/app/types/gameTypes";
 import {
@@ -7,7 +7,7 @@ import {
   getGameNumberFromReplayName,
   getGameString,
 } from "@/app/utils/replayUtils";
-import { saveFile } from "@/app/utils/testingFunctions";
+import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
 import { Replay } from "@prisma/client";
@@ -84,20 +84,35 @@ export const changeProfileImageAction = async (file: File, target: string) => {
       });
       throw new Error(errorMessage);
     }
-    const res = await saveFile(file);
-    await db.user.update({
-      where: {
-        id: session.user.id,
-      },
-      data: {
-        [target]: res,
-      },
+
+    const message = await db.$transaction(async (tx) => {
+      const prevImage = await tx.user.findFirst({
+        where: {
+          id: session.user.id,
+        },
+        select: {
+          [target]: true,
+        },
+      });
+      if (prevImage && typeof prevImage[target] === "string") {
+        await deleteFile(prevImage[target]);
+      }
+      const res = await saveFile(file);
+      await tx.user.update({
+        where: {
+          id: session.user.id,
+        },
+        data: {
+          [target]: res,
+        },
+      });
+      return res;
     });
 
     revalidatePath(`/profile`, "page");
     return {
       success: true,
-      message: res,
+      message: message,
     };
   } catch (error) {
     return {
@@ -328,8 +343,8 @@ export const deleteReplayAction = async ({
     if (!replayToDelete) throw new Error("Replay not found");
 
     if (
-      user.role !== "ADMIN" &&
-      user.role !== "MODERATOR" &&
+      user.role !== UserRole.ADMIN &&
+      user.role !== UserRole.MODERATOR &&
       session.user.id !== replayToDelete.userId
     ) {
       throw new Error("Insufficient permissions");

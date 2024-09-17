@@ -1,8 +1,8 @@
 "use server";
 import { segregateReactionsByType } from "@/app/components/forumComponents/PostCard";
-import { adminForumDb, forumCategory } from "@/app/constants/forum";
+import { adminForumDb, forumCategory, PostStatus } from "@/app/constants/forum";
 import { getFormattedDate } from "@/app/utils/formatDate";
-import { saveFile } from "@/app/utils/testingFunctions";
+import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -110,7 +110,7 @@ export const newPostAction = async (
         slug,
         featuredImage: featuredImage,
         content,
-        status: isSketch ? "DRAFT" : "PUBLISHED",
+        status: isSketch ? PostStatus.DRAFT : PostStatus.PUBLISHED,
         category: dbTarget,
         authorId: session.user.id,
       },
@@ -429,7 +429,21 @@ export const editPostAction = async (
     }
     let featuredImage = undefined;
     if (featuredImageFile) {
-      featuredImage = await saveFile(featuredImageFile);
+      await db.$transaction(async (tx) => {
+        const prevImage = await tx.post.findFirst({
+          where: {
+            id: targetId,
+          },
+          select: {
+            featuredImage: true,
+          },
+        });
+        if (prevImage && prevImage.featuredImage) {
+        await  deleteFile(prevImage.featuredImage);
+        }
+        const res = await saveFile(featuredImageFile);
+        featuredImage = res;
+      });
     }
     if (isPost) {
       await db.post.update({
@@ -471,11 +485,16 @@ export const deletePostAction = async (
   try {
     const { session } = await getUserSessionCreate();
     if (isPost) {
-      await db.post.delete({
-        where: {
-          id: targetId,
-          authorId: session.user.id,
-        },
+      await db.$transaction(async (tx) => {
+        const res = await tx.post.delete({
+          where: {
+            id: targetId,
+            authorId: session.user.id,
+          },
+        });
+        if (res.featuredImage) {
+          await deleteFile(res.featuredImage);
+        }
       });
     } else {
       await db.postComment.delete({

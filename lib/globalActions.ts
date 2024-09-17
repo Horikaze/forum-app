@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import db from "./db";
+import { UserRole } from "@/app/constants/forum";
 
 export const setCookie = async (key: string, value: string) => {
   cookies().set(key, value);
@@ -24,10 +25,10 @@ export const getUserSessionCreate = async (isAdmin: boolean = false) => {
     throw new Error("Nie znaleziono użytkownika");
   }
   const { role } = user;
-  if (role === "BLOCKED") {
+  if (role === UserRole.BLOCKED) {
     throw new Error("Nie masz uprawnień");
   }
-  if (isAdmin && role !== "ADMIN" && role !== "MODERATOR") {
+  if (isAdmin && role !== UserRole.ADMIN && role !== UserRole.MODERATOR) {
     throw new Error("Nie masz uprawnień do operacji administracyjnych");
   }
   return { session, user };

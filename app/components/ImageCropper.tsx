@@ -120,16 +120,6 @@ export default function ImageCropper({
       image.naturalWidth,
       image.naturalHeight,
     );
-
-    canvas.toBlob(
-      (blob) => {
-        if (blob) {
-          onCropChange(new File([blob], "avatar.png", { type: blob.type }));
-        }
-      },
-      "image/jpeg",
-      0.95,
-    );
     ctx.restore();
   };
 

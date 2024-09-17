@@ -34,3 +34,21 @@ export const userForumDb = forumCategory.slice(0, 4);
 export const adminForumDb = forumCategory.slice(4);
 
 export const validFileExtensions = [".png", ".gif", ".jpeg", ".jpg"];
+
+export enum PostStatus {
+  DRAFT = "draft",
+  PUBLISHED = "published",
+}
+
+export enum LoginProvider {
+  DISCORD = "discord",
+  GITHUB = "github",
+  CREDENTIALS = "credentials",
+}
+export enum UserRole {
+  USER = "user",
+  BLOCKED = "blocked",
+  SUPPORTER = "supporter",
+  MODERATOR = "moderator",
+  ADMIN = "admin",
+}

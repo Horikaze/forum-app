@@ -95,10 +95,7 @@ export default function PostCard({
             )}
           >
             <div
-              className={cn(
-                "size-16 overflow-hidden",
-                isBlog ? "" : "size-16 overflow-hidden",
-              )}
+              className={cn("size-28 overflow-hidden", isBlog ? "size-16" : "")}
             >
               <Image
                 src={post.author.profileImage || "/images/placeholder.png"}
@@ -149,7 +146,7 @@ export default function PostCard({
             {isBlog ? (
               <>
                 <div className="divider divider-horizontal" />
-                <div className="flex items-center gap-1 font-semibold opacity-80 text-center">
+                <div className="flex items-center gap-1 text-center font-semibold opacity-80">
                   <p>{formatDatePost(post.createdAt)}</p>
                   {!areDatesEqual(post.createdAt, post.updatedAt) ? (
                     <p className="text-xs opacity-60">

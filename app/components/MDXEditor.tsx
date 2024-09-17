@@ -6,6 +6,7 @@ import { FaArrowsUpDown, FaRegFaceSmile } from "react-icons/fa6";
 import { PostDataProps } from "../types/prismaTypes";
 import { cn } from "../utils/twUtils";
 import { PreviewPost } from "./MDXPreview";
+import { UserRole } from "../constants/forum";
 type MDXEditorProps = {
   setRawMDXValue: (mdx: string) => void;
   getRawMDXValue: string;
@@ -39,7 +40,7 @@ export default function MDXEditor({
       id: "",
       nickname: session?.user.name || "Cirno",
       profileImage: session?.user.image || "/images/placeholder.png",
-      role: "USER",
+      role: UserRole.USER,
       createdAt: date,
       karma: 999,
       _count: {
@@ -158,6 +159,7 @@ const UserInput = ({ onChange, value }: UserInputProps) => {
   return (
     <div className="relative size-full">
       <textarea
+        placeholder="Tu pisz..."
         onChange={onChange}
         onClick={handleCursorChange}
         onKeyUp={handleCursorChange}

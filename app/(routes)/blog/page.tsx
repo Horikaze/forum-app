@@ -1,4 +1,5 @@
 import BlogListCard from "@/app/components/forumComponents/BlogListCard";
+import { PostStatus } from "@/app/constants/forum";
 import db from "@/lib/db";
 import Link from "next/link";
 
@@ -21,7 +22,7 @@ export default async function Blog({
       relationLoadStrategy: "join",
       where: {
         category: dbTarget,
-        status: "PUBLISHED",
+        status: PostStatus.PUBLISHED,
       },
       select: {
         title: true,

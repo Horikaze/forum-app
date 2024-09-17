@@ -1,4 +1,4 @@
-import { LoginProvider, User, UserRole } from "@prisma/client";
+import { User } from "@prisma/client";
 import bcryptjs from "bcryptjs";
 import NextAuth, { AuthError } from "next-auth";
 import { JWT } from "next-auth/jwt";
@@ -10,6 +10,7 @@ import {
   emptyScoreObject,
   emptyScoreObjectNewUser,
 } from "./app/constants/games";
+import { LoginProvider } from "./app/constants/forum";
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
@@ -124,7 +125,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         },
       });
       let hashedPassword = null;
-      if (provider === "CREDENTIALS") {
+      if (provider === LoginProvider.CREDENTIALS) {
         if (user?.isLogin && !isUserExist) {
           throw new AuthError("Użytkownik nie istnieje");
         }

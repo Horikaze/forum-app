@@ -7,8 +7,7 @@
     "dev": "next dev --turbo",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint",
-    "seed": "npx tsx prisma/seed.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "@next/mdx": "^14.2.6",
@@ -16,13 +15,13 @@
     "@tailwindcss/typography": "^0.5.14",
     "@types/mdx": "^2.0.13",
     "axios": "^1.7.7",
-    "babel-plugin-react-compiler": "0.0.0-experimental-334f00b-20240725",
+    "babel-plugin-react-compiler": "0.0.0-experimental-23b8160-20240916",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
     "nanoid": "^5.0.7",
-    "next": "15.0.0-canary.138",
+    "next": "15.0.0-canary.157",
     "next-auth": "5.0.0-beta.18",
-    "react": "19.0.0-rc-f994737d14-20240522",
+    "react": "19.0.0-rc-f2df5694-20240916",
     "react-dom": "19.0.0-rc-f994737d14-20240522",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^5.3.0",
