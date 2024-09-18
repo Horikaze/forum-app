@@ -37,7 +37,6 @@ const LoginButton = () => {
   );
 };
 const DropDownMenu = (session: Session) => {
-  console.log(session);
   return (
     <div className="dropdown dropdown-end">
       <div tabIndex={0} role="button" className="avatar btn btn-ghost">

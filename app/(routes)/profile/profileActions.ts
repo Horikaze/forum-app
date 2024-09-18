@@ -8,6 +8,7 @@ import {
   getGameString,
 } from "@/app/utils/replayUtils";
 import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
+import { auth } from "@/auth";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
 import { Replay } from "@prisma/client";
@@ -62,16 +63,24 @@ export const changeNicknameAction = async (nickname: string) => {
 };
 
 const profileImageSchema = z.object({
-  file: z.any().refine(
-    (file: any) => {
-      return validFileExtensions.some((ext) =>
-        file.name.toLowerCase().endsWith(ext),
-      );
-    },
-    {
-      message: "Dozwolone rozszerzenia to: .png, .gif, .jpeg",
-    },
-  ),
+  file: z
+    .any()
+    .refine(
+      (file) => file.size <= 2000 * 1024,
+      (file: any) => ({
+        message: `Plik musi być mniejszy niż 2MB. (${Number(file.size / 1024).toFixed()}KB)`,
+      }),
+    )
+    .refine(
+      (file: any) => {
+        return validFileExtensions.some((ext) =>
+          file.name.toLowerCase().endsWith(ext),
+        );
+      },
+      {
+        message: `Dozwolone rozszerzenia to: ${validFileExtensions.join(", ")}`,
+      },
+    ),
 });
 export const changeProfileImageAction = async (file: File, target: string) => {
   try {
@@ -150,6 +159,42 @@ export const changeDescriptionAction = async (description: string) => {
       data: {
         description,
       },
+    });
+    revalidatePath(`/profile`, "page");
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `${error}`,
+    };
+  }
+};
+
+export const removeProfileImageAction = async (target: string) => {
+  try {
+    const { session } = await getUserSessionCreate();
+    await db.$transaction(async (tx) => {
+      const imageToDelete = await tx.user.findFirst({
+        where: {
+          id: session.user.id,
+        },
+        select: {
+          [target]: true,
+        },
+      });
+      await tx.user.update({
+        where: {
+          id: session.user.id,
+        },
+        data: {
+          [target]: null,
+        },
+      });
+      if (imageToDelete && typeof imageToDelete[target] === "string") {
+        await deleteFile(imageToDelete[target]);
+      }
     });
     revalidatePath(`/profile`, "page");
     return {

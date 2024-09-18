@@ -94,6 +94,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return token;
       }
       if (trigger === "update" && session?.profileImage) {
+        if (session?.profileImage === "delete") {
+          token.user.profileImage = null;
+          return token;
+        }
         token.user.profileImage = session.profileImage;
         return token;
       }

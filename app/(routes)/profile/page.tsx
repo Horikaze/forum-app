@@ -51,7 +51,12 @@ export default async function Profile() {
               <FaImage />
             </span>
           </ChangeImage>
-          <div className="flex shrink-0 gap-1 self-start rounded-box bg-base-200/60 p-2 lg:p-4">
+          <div
+            className={cn(
+              "flex shrink-0 gap-1 self-start rounded-br-box p-2 lg:p-4",
+              user.bannerImage ? "bg-base-200/60" : "",
+            )}
+          >
             <div className="flex flex-col">
               <div className="group/fpf relative size-32 overflow-hidden rounded-box">
                 <Image

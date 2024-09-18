@@ -47,6 +47,7 @@ model Post {
   category      String
   bumpDate      DateTime      @default(now())
   status        String        @default("published")
+  images        String?
   comments      PostComment[]
   reactions     Reaction[]
   author        User          @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
@@ -65,6 +66,7 @@ model PostComment {
   postId          String?
   authorId        String
   parentCommentId String?
+  images          String?
   parentComment   PostComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
   replies         PostComment[] @relation("CommentReplies")
   createdAt       DateTime      @default(now())

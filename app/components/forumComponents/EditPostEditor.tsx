@@ -1,11 +1,12 @@
 import { editPostAction } from "@/app/(routes)/forum/forumActions";
+import ChangeImage from "@/app/(routes)/profile/components/ChangeImage";
 import { PostDataProps } from "@/app/types/prismaTypes";
+import { PostImage } from "@/app/types/types";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import MDXEditor from "../MDXEditor";
 import { PreviewBlog } from "../MDXPreview";
-import ChangeImage from "@/app/(routes)/profile/components/ChangeImage";
 
 type EditPostEditorProps = {
   closeWindow: () => void;
@@ -22,7 +23,8 @@ export default function EditPostEditor({
   isPost,
   isBlog,
 }: EditPostEditorProps) {
-  const [content, setContent] = useState(post.content);
+  const [inputValue, setInputValue] = useState(post.content);
+  const [images, setImages] = useState<PostImage[]>([]);
   const [title, setTitle] = useState(post.title || "");
   const [subTitle, setSubTitle] = useState(post.subTitle || "");
   const pathname = usePathname();
@@ -43,8 +45,8 @@ export default function EditPostEditor({
       if (subTitle && subTitle !== post.subTitle && post.subTitle) {
         dataToUpdate.subTitle = subTitle;
       }
-      if (content && content !== post.content && post.content !== null) {
-        dataToUpdate.content = content;
+      if (inputValue && inputValue !== post.content && post.content !== null) {
+        dataToUpdate.content = inputValue;
       }
       if (featuredImageFile && featuredImageFile?.size! > 2000 * 1024) {
         throw new Error("Obrazek może mieć maksymalnie 2MB");
@@ -57,7 +59,7 @@ export default function EditPostEditor({
         featuredImageFile ?? undefined,
       );
       if (!res.success) throw new Error(`${res.message}`);
-      setContent("");
+      setInputValue("");
       closeWindow();
     } catch (error) {
       toast.error(`${error}`);
@@ -96,8 +98,8 @@ export default function EditPostEditor({
         </div>
       ) : null}
       <MDXEditor
-        getRawMDXValue={content}
-        setRawMDXValue={setContent}
+        mdxContent={[inputValue, setInputValue]}
+        postImages={[images, setImages]}
         preview={
           isBlog
             ? (p) => (
@@ -105,7 +107,7 @@ export default function EditPostEditor({
                   post={{
                     ...p,
                     ...post,
-                    content:content,
+                    content: inputValue,
                     title: title!,
                     subTitle: subTitle!,
                     featuredImage: featuredImage!,

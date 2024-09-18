@@ -2,7 +2,10 @@
 
 import { useSession } from "next-auth/react";
 import React, { useState, useEffect, useRef } from "react";
-import { changeProfileImageAction } from "../profileActions";
+import {
+  changeProfileImageAction,
+  removeProfileImageAction,
+} from "../profileActions";
 import ImageCropper from "@/app/components/ImageCropper";
 import toast from "react-hot-toast";
 
@@ -88,6 +91,20 @@ export default function ChangeImage({
       setIsPending(false);
     }
   };
+  const deleteImage = async () => {
+    try {
+      const res = await removeProfileImageAction(target!);
+      if (!res.success) throw new Error(res.message);
+      if (target === "profileImage") {
+        update({ profileImage: "delete" });
+      }
+      if (ref.current) {
+        ref.current.close();
+      }
+    } catch (error) {
+      toast.error(`${error}`);
+    }
+  };
 
   return (
     <>
@@ -106,7 +123,12 @@ export default function ChangeImage({
               />
             </div>
           ) : null}
-          <div className="flex justify-center gap-2 self-end">
+          <div className="flex w-full justify-end gap-2">
+            {target ? (
+              <button onClick={deleteImage} className="btn btn-warning mr-auto">
+                Usuń obrazek
+              </button>
+            ) : null}
             <form method="dialog">
               <button className="btn btn-ghost">Zamknij</button>
             </form>
@@ -117,7 +139,7 @@ export default function ChangeImage({
                 onClick={changeImage}
               >
                 {isPending ? (
-                  <span className="loading loading-spinner"></span>
+                  <span className="loading loading-spinner" />
                 ) : null}
                 Zapisz
               </button>

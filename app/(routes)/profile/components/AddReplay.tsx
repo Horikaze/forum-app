@@ -123,7 +123,7 @@ export default function AddReplay() {
             <textarea
               maxLength={300}
               name="comment"
-              className="textarea textarea-xs h-full resize-none"
+              className="textarea textarea-xs h-full resize-none rounded-sm"
               placeholder="Czy replay ma problem z odtwarzaniem, desync etc."
             />
             <div className="flex flex-wrap">

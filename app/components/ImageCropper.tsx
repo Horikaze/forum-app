@@ -64,7 +64,7 @@ export default function ImageCropper({
       canvas.toBlob(
         (blob) => {
           if (blob) {
-            onCropChange(new File([blob], "avatar.png", { type: blob.type }));
+            onCropChange(new File([blob], "image.png", { type: blob.type }));
           }
         },
         "image/jpeg",

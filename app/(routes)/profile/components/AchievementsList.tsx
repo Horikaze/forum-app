@@ -39,13 +39,7 @@ const AchievementsList = ({
               }}
               className="h-[50px] w-[50px] cursor-pointer transition-all hover:scale-105"
             >
-              <Image
-                src={a.image}
-                layout="responsive"
-                width={50}
-                height={50}
-                alt={a.name}
-              />
+              <Image src={a.image} width={50} height={50} alt={a.name} />
             </div>
           ))}
         </div>

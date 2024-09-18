@@ -1,10 +1,9 @@
 import MDXEditor from "@/app/components/MDXEditor";
-import MDXRenderer from "@/app/components/MDXRenderer";
-import { useEffect, useRef, useState } from "react";
-import { changeDescriptionAction } from "../profileActions";
-import toast from "react-hot-toast";
-import { PostDataProps } from "@/app/types/prismaTypes";
 import { PreviewDescription } from "@/app/components/MDXPreview";
+import { PostImage } from "@/app/types/types";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
+import { changeDescriptionAction } from "../profileActions";
 
 type ChangeSignatureDynamicProps = {
   isOpen: boolean;
@@ -18,6 +17,7 @@ export default function ChangeDescriptionDynamic({
   const ref = useRef<HTMLDialogElement>(null);
   const [inputValue, setInputValue] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [images, setImages] = useState<PostImage[]>([]);
   useEffect(() => {
     if (isOpen && ref.current) {
       ref.current.showModal();
@@ -48,8 +48,8 @@ export default function ChangeDescriptionDynamic({
       <div className="modal-box flex w-full max-w-5xl flex-col items-end gap-2">
         <span className="self-start font-semibold">Zmień opis</span>
         <MDXEditor
-          setRawMDXValue={setInputValue}
-          getRawMDXValue={inputValue}
+             mdxContent={[inputValue, setInputValue]}
+             postImages={[images, setImages]}
           preview={PreviewDescription}
         />
         <div className="flex gap-2">

@@ -15,12 +15,13 @@ import toast from "react-hot-toast";
 import ChangeImage from "../../profile/components/ChangeImage";
 import { newPostAction } from "../forumActions";
 import { PostDataProps } from "@/app/types/prismaTypes";
+import { PostImage } from "@/app/types/types";
 export default function NewPost({
   searchParams,
 }: {
   searchParams: { forumTarget: string };
 }) {
-  const [title, setTitle] = useState("Mój epicki post");
+  const [title, setTitle] = useState(":3");
   const [subTitle, setSubTitle] = useState("");
   const [inputValue, setInputValue] = useState<string>("");
   const [featuredImage, setFeaturedImage] = useState<string | undefined>(
@@ -29,6 +30,7 @@ export default function NewPost({
   const [featuredImageFile, setFeaturedImageFile] = useState<File | undefined>(
     undefined,
   );
+  const [images, setImages] = useState<PostImage[]>([]);
   const [dbTarget, setDbTarget] = useState(
     searchParams.forumTarget || forumCategory[0].dbTarget,
   );
@@ -46,8 +48,12 @@ export default function NewPost({
       const res = await newPostAction(
         newPostObject,
         dbTarget === "blog" ? featuredImageFile : undefined,
+        images,
       );
       if (!res?.success) throw new Error(res?.message);
+      images.forEach((element) => {
+        URL.revokeObjectURL(element.url);
+      });
       await redirectHard(res.message);
     } catch (error) {
       toast.error(`${error}`);
@@ -55,6 +61,7 @@ export default function NewPost({
       setIsPending(false);
     }
   };
+  <p className="text-center text-2xl text-warning">xD</p>;
   const { data: session } = useSession();
 
   const changeImageFn = (url: string) => {
@@ -96,7 +103,7 @@ export default function NewPost({
               type="text"
               placeholder="Tytuł..."
               name="title"
-              className="input input-bordered w-full"
+              className="input input-sm input-bordered w-full"
               maxLength={130}
               onChange={(e) => setTitle(e.target.value)}
             />
@@ -105,7 +112,7 @@ export default function NewPost({
             <div className="label flex justify-center">
               <span className="text-xl">Opis</span>
             </div>
-            <label className="input input-bordered flex items-center gap-2">
+            <label className="input input-sm input-bordered flex items-center gap-2">
               <input
                 type="text"
                 placeholder="Opis..."
@@ -141,9 +148,6 @@ export default function NewPost({
           </div>
 
           <div className="flex w-full flex-col">
-            <div className="label flex justify-center">
-              <span className="text-xl">Publikacja</span>
-            </div>
             <div className="flex justify-evenly">
               {dbTarget === "blog" ? (
                 <ChangeImage
@@ -151,7 +155,7 @@ export default function NewPost({
                   onImageChange={changeImageFn}
                   onImageChangeFile={setFeaturedImageFile}
                 >
-                  <button className="btn">Zmień obrazek</button>
+                  <button className="btn">Zmień banner</button>
                 </ChangeImage>
               ) : null}
               <button
@@ -185,10 +189,8 @@ export default function NewPost({
         </div>
       </div>
       <MDXEditor
-        setRawMDXValue={(e) => {
-          setInputValue(e);
-        }}
-        getRawMDXValue={inputValue}
+        mdxContent={[inputValue, setInputValue]}
+        postImages={[images, setImages]}
         preview={previewPost}
       />
     </div>

@@ -1,5 +1,6 @@
 import { addCommentAction } from "@/app/(routes)/forum/forumActions";
 import MDXEditor from "@/app/components/MDXEditor";
+import { PostImage } from "@/app/types/types";
 import { Session } from "next-auth";
 import { notFound, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -19,20 +20,21 @@ export default function AddCommentEditor({
   isReply,
   closeWindow,
 }: AddCommentEditorProps) {
-  const [isPending, startTransition] = useTransition();
-  const [content, setContent] = useState("");
   if (!session) return notFound();
+  const [isPending, startTransition] = useTransition();
+  const [inputValue, setInputValue] = useState("");
+  const [images, setImages] = useState<PostImage[]>([]);
 
   const sendComment = async () => {
     try {
       startTransition(async () => {
         const res = await addCommentAction(
-          content,
+          inputValue,
           targetId,
           isReply ? isReply : false,
         );
         if (!res.success) throw new Error(`${res.message}`);
-        setContent("");
+        setInputValue("");
         closeWindow();
       });
     } catch (error) {
@@ -41,7 +43,10 @@ export default function AddCommentEditor({
   };
   return (
     <>
-      <MDXEditor getRawMDXValue={content} setRawMDXValue={setContent} />
+      <MDXEditor
+        mdxContent={[inputValue, setInputValue]}
+        postImages={[images, setImages]}
+      />
       <div className="flex w-full items-center justify-end p-2">
         <button
           onClick={sendComment}

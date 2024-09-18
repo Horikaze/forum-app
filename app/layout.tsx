@@ -35,6 +35,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} flex h-screen antialiased`}
         >
           <Toaster
+            containerStyle={{ zIndex: 1000 }}
             toastOptions={{
               style: {
                 backgroundColor: "oklch(var(--a))",

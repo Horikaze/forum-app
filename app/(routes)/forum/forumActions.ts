@@ -1,6 +1,12 @@
 "use server";
 import { segregateReactionsByType } from "@/app/components/forumComponents/PostCard";
-import { adminForumDb, forumCategory, PostStatus } from "@/app/constants/forum";
+import {
+  adminForumDb,
+  forumCategory,
+  PostStatus,
+  validFileExtensions,
+} from "@/app/constants/forum";
+import { PostImage } from "@/app/types/types";
 import { getFormattedDate } from "@/app/utils/formatDate";
 import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
 import db from "@/lib/db";
@@ -48,9 +54,16 @@ const newPostSchema = z.object({
         message: `Plik musi być mniejszy niż 2MB. (${Number(file.size / 1024).toFixed()}KB)`,
       }),
     )
-    .refine((file) => file.name.endsWith(".png"), {
-      message: "Dozwolone rozszerzenie to: .png",
-    })
+    .refine(
+      (file: any) => {
+        return validFileExtensions.some((ext) =>
+          file.name.toLowerCase().endsWith(ext),
+        );
+      },
+      {
+        message: `Dozwolone rozszerzenia to: ${validFileExtensions.join(", ")}`,
+      },
+    )
     .optional()
     .or(z.literal(null)),
 });
@@ -66,11 +79,12 @@ type NewPost = {
 export const newPostAction = async (
   newPost: NewPost,
   featuredImageFile?: File,
+  images?: PostImage[],
 ): Promise<{
   success: boolean;
   message: string;
 }> => {
-  let slugUrl = "";
+  let newImages = [];
   try {
     const { content, dbTarget, isSketch, subTitle, title } = newPost;
     const { session } = await getUserSessionCreate(
@@ -91,6 +105,14 @@ export const newPostAction = async (
       });
       throw new Error(errorMessage);
     }
+    let newContent = content;
+    if (images) {
+      for (const element of images) {
+        const res = await saveFile(element.file);
+        newImages.push(res);
+        newContent = newContent.replace(element.url, res);
+      }
+    }
     let featuredImage = undefined;
     if (dbTarget === "blog" && featuredImageFile) {
       featuredImage = await saveFile(featuredImageFile);
@@ -102,6 +124,7 @@ export const newPostAction = async (
       replacement: "-",
     });
     slug += "-" + getFormattedDate();
+    let slugUrl = "";
     slugUrl = `${dbTarget === "blog" ? "" : "/forum"}/${dbTarget.toLowerCase()}/${slug}`;
     await db.post.create({
       data: {
@@ -109,7 +132,8 @@ export const newPostAction = async (
         subTitle,
         slug,
         featuredImage: featuredImage,
-        content,
+        images: newImages.join("+") || undefined,
+        content: newContent,
         status: isSketch ? PostStatus.DRAFT : PostStatus.PUBLISHED,
         category: dbTarget,
         authorId: session.user.id,
@@ -121,6 +145,11 @@ export const newPostAction = async (
       message: slugUrl,
     };
   } catch (error) {
+    if (newImages) {
+      for (const element of newImages) {
+        await deleteFile(element);
+      }
+    }
     if (error instanceof Error) {
       error = error.message;
     }
@@ -146,7 +175,8 @@ const commentSchema = z.object({
 export const addCommentAction = async (
   content: string,
   postId: string,
-  isReplay: boolean,
+  isReply: boolean,
+  images?: PostImage[],
 ) => {
   try {
     const { session } = await getUserSessionCreate();
@@ -158,7 +188,8 @@ export const addCommentAction = async (
       });
       throw new Error(errorMessage);
     }
-    if (isReplay) {
+
+    if (isReply) {
       await db.postComment.create({
         data: {
           parentCommentId: postId,
@@ -439,7 +470,7 @@ export const editPostAction = async (
           },
         });
         if (prevImage && prevImage.featuredImage) {
-        await  deleteFile(prevImage.featuredImage);
+          await deleteFile(prevImage.featuredImage);
         }
         const res = await saveFile(featuredImageFile);
         featuredImage = res;
