@@ -50,7 +50,7 @@ export default function BlogListCard({
         {!featuredImage?.startsWith("blob") ? (
           <Image
             fill
-            src={featuredImage ?? "/files/testBanner.jpg"}
+            src={featuredImage ?? "/images/placeholder_banner.jpg"}
             className="object-cover transition-all group-hover/img:scale-110"
             alt="preview"
           />

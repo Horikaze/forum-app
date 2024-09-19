@@ -1,17 +1,16 @@
 "use server";
 import fs from "fs/promises";
 import path from "path";
-import { nanoid } from "nanoid";
-export async function saveFile(imageFile: File): Promise<string> {
+export async function saveFile(
+  imageFile: File,
+  folder: string = "files",
+): Promise<string> {
   if (!imageFile || !imageFile.name) {
     throw new Error("Invalid file");
   }
-
-  const uniqueName = `${nanoid()}-${imageFile.name}`;
-  const filePath = path.join(process.cwd(), "public", "files", uniqueName);
+  const filePath = path.join(process.cwd(), "public", folder, imageFile.name);
   console.log(filePath);
   try {
-    // Sprawdź, czy folder istnieje, jeśli nie, to go utwórz
     const folderPath = path.dirname(filePath);
     await fs.mkdir(folderPath, { recursive: true });
 
@@ -20,24 +19,30 @@ export async function saveFile(imageFile: File): Promise<string> {
 
     await fs.writeFile(filePath, buffer);
 
-    return `/files/${uniqueName}`;
+    return `/${folder}/${imageFile.name}`;
   } catch (error) {
     console.error("Error saving image:", error);
     throw new Error("Failed to save image");
   }
 }
+
 export async function deleteFile(fileName: string) {
   if (!fileName) {
     throw new Error("Invalid file name");
   }
-  console.log(fileName);
+
   const filePath = path.join(process.cwd(), "public", fileName);
-  console.log(filePath);
+  const folderPath = path.dirname(filePath);
+
   try {
     await fs.unlink(filePath);
-    console.log(`File ${fileName} deleted successfully`);
+    const filesInFolder = await fs.readdir(folderPath);
+    if (filesInFolder.length === 0) {
+      await fs.rmdir(folderPath);
+      console.log(`Folder ${folderPath} deleted as it was empty`);
+    }
   } catch (error) {
-    console.error("Error deleting image:", error);
-    throw new Error("Failed to delete image");
+    console.error("Error deleting image or folder:", error);
+    throw new Error("Failed to delete image or folder");
   }
 }

@@ -146,9 +146,11 @@ const RecentComments = async () => {
           <div className="line-clamp-2">
             <SSRMDXRenderer markdown={com.content.substring(0, 30)} isPreview />
           </div>
-          <p className="line-clamp-1 whitespace-nowrap text-xs opacity-90">
-            W: {com.post?.title}
-          </p>
+          {com.post?.title ? (
+            <p className="line-clamp-1 whitespace-nowrap text-xs opacity-90">
+              W: {com.post?.title}
+            </p>
+          ) : null}
           <div className="mt-2 flex justify-between text-xs opacity-80">
             <p>Przez: {com.author.nickname}</p>
             <div className="flex items-center gap-1">

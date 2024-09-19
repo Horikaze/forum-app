@@ -75,7 +75,6 @@ export function useMDXComponents(components?: MDXComponents): MDXComponents {
       return <li {...props}>{EmoticonWrapper(props)}</li>;
     },
     img: (props) => {
-      console.log(props);
       const imageName = props.src?.split("/").pop();
       if (!props.src) return;
       return (
@@ -83,7 +82,7 @@ export function useMDXComponents(components?: MDXComponents): MDXComponents {
           alt={imageName!}
           {...props}
           loading="lazy"
-          className={cn(props.className!, "rounded-md")}
+          className={cn("rounded-md", props.className!)}
         />
       );
     },

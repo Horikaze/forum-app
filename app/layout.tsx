@@ -40,6 +40,21 @@ export default function RootLayout({
               style: {
                 backgroundColor: "oklch(var(--a))",
                 color: "oklch(var(--ac))",
+                borderRadius: "var(--rounded-box, 1em)",
+              },
+              iconTheme: {
+                primary: "oklch(var(--ac))",
+                secondary: "oklch(var(--a))",
+              },
+              error: {
+                style: {
+                  backgroundColor: "oklch(var(--er))",
+                  color: "oklch(var(--erc))",
+                },
+                iconTheme: {
+                  primary: "oklch(var(--erc))",
+                  secondary: "oklch(var(--er))",
+                },
               },
             }}
           />

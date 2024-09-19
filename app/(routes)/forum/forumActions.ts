@@ -84,7 +84,6 @@ export const newPostAction = async (
   success: boolean;
   message: string;
 }> => {
-  let newImages = [];
   try {
     const { content, dbTarget, isSketch, subTitle, title } = newPost;
     const { session } = await getUserSessionCreate(
@@ -105,18 +104,6 @@ export const newPostAction = async (
       });
       throw new Error(errorMessage);
     }
-    let newContent = content;
-    if (images) {
-      for (const element of images) {
-        const res = await saveFile(element.file);
-        newImages.push(res);
-        newContent = newContent.replace(element.url, res);
-      }
-    }
-    let featuredImage = undefined;
-    if (dbTarget === "blog" && featuredImageFile) {
-      featuredImage = await saveFile(featuredImageFile);
-    }
 
     let slug = slugify(title, {
       lower: true,
@@ -126,30 +113,62 @@ export const newPostAction = async (
     slug += "-" + getFormattedDate();
     let slugUrl = "";
     slugUrl = `${dbTarget === "blog" ? "" : "/forum"}/${dbTarget.toLowerCase()}/${slug}`;
-    await db.post.create({
-      data: {
-        title,
-        subTitle,
-        slug,
-        featuredImage: featuredImage,
-        images: newImages.join("+") || undefined,
-        content: newContent,
-        status: isSketch ? PostStatus.DRAFT : PostStatus.PUBLISHED,
-        category: dbTarget,
-        authorId: session.user.id,
-      },
+
+    await db.$transaction(async (tx) => {
+      const newPostDb = await tx.post.create({
+        data: {
+          title,
+          subTitle,
+          slug,
+          content: "",
+          status: isSketch ? PostStatus.DRAFT : PostStatus.PUBLISHED,
+          category: dbTarget,
+          authorId: session.user.id,
+        },
+        select: {
+          id: true,
+        },
+      });
+      const newImages = [];
+      let newContent = content;
+      if (images) {
+        for (const element of images) {
+          if (element.file) {
+            const res = await saveFile(
+              element.file,
+              `images/post/${newPostDb.id}`,
+            );
+            newContent = newContent.replace(element.url, res);
+            newImages.push(res);
+          }
+        }
+      }
+      let featuredImage = undefined;
+      if (dbTarget === "blog" && featuredImageFile) {
+        featuredImage = await saveFile(
+          featuredImageFile,
+          `images/post/${newPostDb.id}`,
+        );
+      }
+
+      await tx.post.update({
+        where: {
+          id: newPostDb.id,
+        },
+        data: {
+          featuredImage: featuredImage,
+          images: newImages.join("+") || undefined,
+          content: newContent,
+        },
+      });
     });
+
     revalidateTag("recent");
     return {
       success: true,
       message: slugUrl,
     };
   } catch (error) {
-    if (newImages) {
-      for (const element of newImages) {
-        await deleteFile(element);
-      }
-    }
     if (error instanceof Error) {
       error = error.message;
     }
@@ -189,42 +208,87 @@ export const addCommentAction = async (
       throw new Error(errorMessage);
     }
 
-    if (isReply) {
-      await db.postComment.create({
-        data: {
-          parentCommentId: postId,
-          content: content,
-          authorId: session.user.id,
-        },
-      });
-    } else {
-      await db.$transaction(async (tx) => {
-        await tx.postComment.create({
+    await db.$transaction(async (tx) => {
+      let newPostId: string;
+      let mainPost = "";
+      if (isReply) {
+        const newPostDb = await tx.postComment.create({
           data: {
-            postId: postId,
-            content: content,
+            parentCommentId: postId,
+            content: "",
             authorId: session.user.id,
           },
+          select: {
+            id: true,
+            parentComment: {
+              select: {
+                post: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+          },
         });
-        const oldUpdateDate = await tx.post.findFirst({
-          where: {
-            id: postId,
+        mainPost = newPostDb.parentComment?.post?.id!;
+        newPostId = newPostDb.id;
+      } else {
+        const newPostDb = await tx.postComment.create({
+          data: {
+            postId,
+            content: "",
+            authorId: session.user.id,
           },
           select: {
-            updatedAt: true,
+            id: true,
           },
         });
+        newPostId = newPostDb.id;
+
+        const post = await tx.post.findUnique({
+          where: { id: postId },
+          select: { updatedAt: true },
+        });
+
+        if (!post) {
+          throw new Error(`Post with id ${postId} not found`);
+        }
+
         await tx.post.update({
-          where: {
-            id: postId,
-          },
+          where: { id: postId },
           data: {
             bumpDate: new Date(),
-            updatedAt: oldUpdateDate?.updatedAt,
+            updatedAt: post.updatedAt,
           },
         });
+      }
+
+      let newImages: string[] = [];
+      let newContent = content;
+
+      if (images && images.length > 0) {
+        for (const element of images) {
+          if (element.file) {
+            const res = await saveFile(
+              element.file,
+              `images/post/${isReply ? mainPost : postId}`,
+            );
+            console.log(res);
+            newImages.push(res);
+            newContent = newContent.replace(element.url, res);
+          }
+        }
+      }
+
+      await tx.postComment.update({
+        where: { id: newPostId },
+        data: {
+          content: newContent,
+          images: newImages.length > 0 ? newImages.join("+") : undefined,
+        },
       });
-    }
+    });
     revalidateTag("recent");
     return {
       success: true,
@@ -436,77 +500,149 @@ const editPostSchema = z.object({
     .or(z.literal(null)),
 });
 
-export const editPostAction = async (
-  targetId: string,
-  isPost: boolean,
-  currentUrl: string,
+type editPostActionProps = {
+  targetId: string;
+  isPost: boolean;
+  currentUrl: string;
   dataToUpdate: {
     content?: string;
     title?: string;
     subTitle?: string;
-  },
-  featuredImageFile?: File,
-) => {
+  };
+  images?: PostImage[];
+  featuredImageFile?: File;
+};
+
+export const editPostAction = async ({
+  currentUrl,
+  dataToUpdate,
+  isPost,
+  targetId,
+  featuredImageFile,
+  images,
+}: editPostActionProps) => {
   try {
     const { session } = await getUserSessionCreate();
     const result = editPostSchema.safeParse(dataToUpdate);
-    console.log(dataToUpdate);
+
     if (!result.success) {
-      let errorMessage = "";
-      result.error.issues.forEach((issue) => {
-        errorMessage = errorMessage + issue.message + " ";
-      });
+      const errorMessage = result.error.issues
+        .map((issue) => issue.message)
+        .join(" ");
       throw new Error(errorMessage);
     }
-    let featuredImage = undefined;
-    if (featuredImageFile) {
-      await db.$transaction(async (tx) => {
-        const prevImage = await tx.post.findFirst({
-          where: {
-            id: targetId,
-          },
+
+    await db.$transaction(async (tx) => {
+      let mainPostId: string;
+      const newImages = images?.map((i) => i.url) || [];
+
+      let updateResult: { id: string; images: string | null };
+
+      if (isPost) {
+        updateResult = await tx.post.update({
+          where: { id: targetId, authorId: session.user.id },
+          data: { ...dataToUpdate },
+          select: { id: true, images: true },
+        });
+        mainPostId = updateResult.id;
+      } else {
+        const res = await tx.postComment.update({
+          where: { id: targetId, authorId: session.user.id },
+          data: dataToUpdate,
           select: {
-            featuredImage: true,
+            parentComment: {
+              select: {
+                post: {
+                  select: {
+                    id: true,
+                  },
+                },
+              },
+            },
+            images: true,
+            post: { select: { id: true } },
           },
         });
-        if (prevImage && prevImage.featuredImage) {
-          await deleteFile(prevImage.featuredImage);
+        mainPostId = res.post?.id || res.parentComment?.post?.id!;
+        updateResult = { id: targetId, images: res.images };
+      }
+
+      const currentImages = updateResult.images?.split("+") || [];
+      const finalImages: PostImage[] = [];
+      let newContent = dataToUpdate.content;
+
+      // Delete images no longer needed
+      for (const currImage of currentImages) {
+        if (!newImages.includes(currImage) && currImage !== "") {
+          await deleteFile(currImage);
         }
-        const res = await saveFile(featuredImageFile);
-        featuredImage = res;
-      });
-    }
+      }
+
+      // Add new images and update content references
+      for (const newImage of images || []) {
+        if (!currentImages.includes(newImage.url)) {
+          const res = await saveFile(
+            newImage.file!,
+            `images/post/${mainPostId}`,
+          );
+          finalImages.push({
+            name: newImage.file?.name!,
+            url: res,
+            file: newImage.file,
+          });
+          newContent = newContent?.replace(newImage.url, res);
+        } else {
+          finalImages.push(newImage);
+        }
+      }
+
+      const updateData = {
+        images: finalImages.map((e) => e.url).join("+"),
+        content: newContent,
+      };
+
+      if (isPost) {
+        let featuredImage: string | undefined;
+
+        if (featuredImageFile) {
+          const prevImage = await tx.post.findFirst({
+            where: { id: targetId },
+            select: { featuredImage: true },
+          });
+
+          if (prevImage?.featuredImage) {
+            await deleteFile(prevImage.featuredImage);
+          }
+
+          featuredImage = await saveFile(
+            featuredImageFile,
+            `images/post/${targetId}`,
+          );
+        }
+        await tx.post.update({
+          where: { id: targetId },
+          data: { ...updateData, featuredImage },
+        });
+      } else {
+        await tx.postComment.update({
+          where: { id: targetId },
+          data: updateData,
+        });
+      }
+    });
     if (isPost) {
-      await db.post.update({
-        where: {
-          id: targetId,
-          authorId: session.user.id,
-        },
-        data: { ...dataToUpdate, featuredImage },
-      });
+      revalidateTag("recent");
     } else {
-      await db.postComment.update({
-        where: {
-          id: targetId,
-          authorId: session.user.id,
-        },
-        data: dataToUpdate,
-      });
+      revalidatePath(currentUrl, "page");
     }
-    revalidatePath(currentUrl, "page");
-    return {
-      success: true,
-      message: "Post/Comment updated successfully.",
-    };
+    return { success: true, message: "Post/Comment updated successfully." };
   } catch (error) {
     const errorMessage =
-      error instanceof Error ? error.message : "Nieznany błąd";
-    return {
-      success: false,
-      message: errorMessage,
-    };
+      error instanceof Error ? error.message : "Unknown error";
+    return { success: false, message: errorMessage };
   }
 };
+
 export const deletePostAction = async (
   targetId: string,
   isPost: boolean,
@@ -515,26 +651,66 @@ export const deletePostAction = async (
   let isError = false;
   try {
     const { session } = await getUserSessionCreate();
-    if (isPost) {
-      await db.$transaction(async (tx) => {
+    await db.$transaction(async (tx) => {
+      const imagesToDelete: string[] = [];
+      if (isPost) {
         const res = await tx.post.delete({
           where: {
             id: targetId,
             authorId: session.user.id,
           },
+          select: {
+            images: true,
+            featuredImage: true,
+            comments: {
+              select: {
+                images: true,
+                replies: {
+                  select: { images: true },
+                },
+              },
+            },
+          },
         });
         if (res.featuredImage) {
           await deleteFile(res.featuredImage);
         }
-      });
-    } else {
-      await db.postComment.delete({
-        where: {
-          id: targetId,
-          authorId: session.user.id,
-        },
-      });
-    }
+        imagesToDelete.push(...res.images?.split("+")!);
+        imagesToDelete.push(
+          ...res.comments.flatMap((c) => c.images!.split("+")),
+        );
+        imagesToDelete.push(
+          ...res.comments.flatMap((r) => r.replies.map((r) => r.images!)),
+        );
+      } else {
+        const res = await tx.postComment.delete({
+          where: {
+            id: targetId,
+            authorId: session.user.id,
+          },
+          select: {
+            images: true,
+            replies: {
+              select: {
+                images: true,
+              },
+            },
+          },
+        });
+        imagesToDelete.push(...res.images?.split("+")!);
+        res.replies?.forEach((r) => {
+          imagesToDelete.push(...r.images?.split("+")!);
+        });
+        console.error(imagesToDelete);
+        console.error("123");
+      }
+      console.log(imagesToDelete);
+      for (const element of imagesToDelete) {
+        if (element !== "") {
+          await deleteFile(element);
+        }
+      }
+    });
     if (isPost) {
       revalidateTag("recent");
       return;

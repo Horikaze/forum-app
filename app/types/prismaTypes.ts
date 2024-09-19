@@ -42,6 +42,7 @@ export type PostDataProps = Prisma.PostGetPayload<{
     title: true;
     subTitle: true;
     featuredImage: true;
+    images:true,
     _count: {
       select: {
         comments: true;

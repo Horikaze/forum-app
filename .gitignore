@@ -37,4 +37,5 @@ yarn-error.log*
 next-env.d.ts
 
 # testing files
-public/files
+public/images/post
+public/images/userFile

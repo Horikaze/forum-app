@@ -141,6 +141,7 @@ export default function PostCard({
                     {formatDatePost(post.author.createdAt)}
                   </span>
                 </span>
+                {post.id}
               </div>
             ) : null}
             {isBlog ? (

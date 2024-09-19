@@ -43,7 +43,6 @@ export function PreviewPost({ post }: { post: PostDataProps }) {
             {...post}
           />
         ) : null}
-        <div className="mb-5" />
         <PostCard
           post={post}
           renderer={MDXRenderer}

@@ -24,7 +24,12 @@ export default function EditPostEditor({
   isBlog,
 }: EditPostEditorProps) {
   const [inputValue, setInputValue] = useState(post.content);
-  const [images, setImages] = useState<PostImage[]>([]);
+  const [images, setImages] = useState<PostImage[]>(
+    post.images?.split("+")!.map((i) => ({
+      name: "",
+      url: i,
+    })) || [],
+  );
   const [title, setTitle] = useState(post.title || "");
   const [subTitle, setSubTitle] = useState(post.subTitle || "");
   const pathname = usePathname();
@@ -48,16 +53,17 @@ export default function EditPostEditor({
       if (inputValue && inputValue !== post.content && post.content !== null) {
         dataToUpdate.content = inputValue;
       }
-      if (featuredImageFile && featuredImageFile?.size! > 2000 * 1024) {
+      if (featuredImageFile && featuredImageFile.size! > 2000 * 1024) {
         throw new Error("Obrazek może mieć maksymalnie 2MB");
       }
-      const res = await editPostAction(
-        targetId,
-        isPost,
-        pathname,
+      const res = await editPostAction({
+        currentUrl: pathname,
         dataToUpdate,
-        featuredImageFile ?? undefined,
-      );
+        isPost,
+        targetId,
+        featuredImageFile: featuredImageFile || undefined,
+        images: images,
+      });
       if (!res.success) throw new Error(`${res.message}`);
       setInputValue("");
       closeWindow();

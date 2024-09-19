@@ -9,6 +9,7 @@ import { PostDataProps } from "../types/prismaTypes";
 import { PostImage } from "../types/types";
 import { cn } from "../utils/twUtils";
 import { PreviewPost } from "./MDXPreview";
+import { nanoid } from "nanoid";
 
 type MDXEditorProps = {
   mdxContent: [string, React.Dispatch<React.SetStateAction<string>>];
@@ -33,6 +34,7 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
     subTitle: "",
     featuredImage: "",
     title: "",
+    images: "",
     updatedAt: new Date(),
     reactions: [],
     _count: {
@@ -84,11 +86,13 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
   const addImage = (file: File) => {
     if (file && file.type.startsWith("image/")) {
       const imageUrl = URL.createObjectURL(file);
-      const imageName = file.name;
-      if (!images.some((image) => image.name === imageName)) {
+      const renamedFile = new File([file], nanoid(5) + file.name, {
+        type: file.type,
+      });
+      if (!images.some((image) => image.name === file.name)) {
         setImages((prev) => [
           ...prev,
-          { name: imageName, url: imageUrl, file: file },
+          { name: file.name, url: imageUrl, file: renamedFile },
         ]);
       }
       insertText(`<img src="${imageUrl}" />`);
@@ -115,10 +119,9 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
     setContentValue((p) => p.replace(regex, ""));
     setImages((prev) => prev.filter((s) => s.url !== url));
   };
-
   return (
     <div className="mx-auto w-full">
-      {images.length > 0 ? (
+      {images.length > 0 && images[0].url !== "" ? (
         <div className="mb-2 flex flex-col items-center rounded-box bg-base-200 p-2 font-semibold">
           <span>Zdjęcia w poście</span>
           <div className="flex w-full flex-wrap gap-1">
@@ -168,7 +171,7 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
               placeholder="Tu pisz..."
               onChange={(e) => setContentValue(e.target.value)}
               value={contentValue}
-              className="textarea size-full min-h-32 min-w-52 rounded-box border-base-300"
+              className="textarea size-full min-h-44 rounded-box border-base-300"
             />
             <div role="button" className="absolute bottom-3 right-10">
               <input

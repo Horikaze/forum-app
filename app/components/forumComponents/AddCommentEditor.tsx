@@ -21,24 +21,26 @@ export default function AddCommentEditor({
   closeWindow,
 }: AddCommentEditorProps) {
   if (!session) return notFound();
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [images, setImages] = useState<PostImage[]>([]);
 
   const sendComment = async () => {
     try {
-      startTransition(async () => {
-        const res = await addCommentAction(
-          inputValue,
-          targetId,
-          isReply ? isReply : false,
-        );
-        if (!res.success) throw new Error(`${res.message}`);
-        setInputValue("");
-        closeWindow();
-      });
+      setIsPending(true);
+      const res = await addCommentAction(
+        inputValue,
+        targetId,
+        isReply ? isReply : false,
+        images,
+      );
+      if (!res.success) throw new Error(`${res.message}`);
+      setInputValue("");
+      closeWindow();
     } catch (error) {
       toast.error(`${error}`);
+    } finally {
+      setIsPending(false);
     }
   };
   return (

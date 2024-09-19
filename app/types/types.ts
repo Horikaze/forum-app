@@ -5,4 +5,4 @@ export type AchievementList = {
   id: number;
 };
 
-export type PostImage = { name: string; url: string; file: File };
+export type PostImage = { name: string; url: string; file?: File };

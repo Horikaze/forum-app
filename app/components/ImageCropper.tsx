@@ -7,6 +7,7 @@ import ReactCrop, {
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import { validFileExtensions } from "../constants/forum";
+import { nanoid } from "nanoid";
 
 type ImageCropperProps = {
   aspect: number;
@@ -64,7 +65,9 @@ export default function ImageCropper({
       canvas.toBlob(
         (blob) => {
           if (blob) {
-            onCropChange(new File([blob], "image.png", { type: blob.type }));
+            onCropChange(
+              new File([blob], `${nanoid(5)}.png`, { type: blob.type }),
+            );
           }
         },
         "image/jpeg",
