@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/app/utils/twUtils";
-import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -35,10 +34,11 @@ export default function AddReplyToComment({ postId }: AddCommentProps) {
     <div className="flex flex-col items-end">
       <div className="h-0">
         <button
+          data-tip="Odpowiedz"
           disabled={status === "loading"}
           onClick={() => setIsOpen((p) => !p)}
           className={cn(
-            "btn btn-sm relative -top-10 right-2 z-10 lg:-top-12 lg:right-4",
+            "btn btn-sm tooltip relative -top-10 right-2 z-10 lg:-top-12 lg:right-4",
             isOpen ? "btn-primary" : "btn-ghost",
           )}
         >
@@ -56,7 +56,7 @@ export default function AddReplyToComment({ postId }: AddCommentProps) {
                 closeWindow={() => setIsOpen(false)}
               />
 
-              <div className="div pointer-events-none absolute -left-5 bottom-[calc(50%-0.15rem)] -z-10 h-[calc(100%+2rem)] w-full rounded-box rounded-tl-none border-b-4 border-l-4 border-base-300" />
+              {/* <div className="div pointer-events-none absolute -left-5 bottom-[calc(50%-0.15rem)] -z-10 h-[calc(50%+14rem)] w-full rounded-box rounded-tl-none border-b-4 border-l-4 border-base-300" /> */}
             </div>
           </div>
         </Suspense>

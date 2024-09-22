@@ -64,6 +64,14 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
     setPost((prevPost) => ({ ...prevPost, content: contentValue }));
   }, [contentValue]);
 
+  useEffect(() => {
+    return () => {
+      images.forEach((element) => {
+        URL.revokeObjectURL(element.url);
+      });
+    };
+  }, [images]);
+
   const insertText = (insertedText: string) => {
     if (textareaRef.current) {
       const start = textareaRef.current.selectionStart;
@@ -89,11 +97,8 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
       const renamedFile = new File([file], nanoid(5) + file.name, {
         type: file.type,
       });
-      if (!images.some((image) => image.name === file.name)) {
-        setImages((prev) => [
-          ...prev,
-          { name: file.name, url: imageUrl, file: renamedFile },
-        ]);
+      if (!images.some((image) => image.file?.name === file.name)) {
+        setImages((prev) => [...prev, { url: imageUrl, file: renamedFile }]);
       }
       insertText(`<img src="${imageUrl}" />`);
     }
@@ -122,7 +127,7 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
   return (
     <div className="mx-auto w-full">
       {images.length > 0 && images[0].url !== "" ? (
-        <div className="mb-2 flex flex-col items-center rounded-box bg-base-200 p-2 font-semibold">
+        <div className="mb-2 flex gap-2 flex-col items-center rounded-box bg-base-200 p-2 font-semibold">
           <span>Zdjęcia w poście</span>
           <div className="flex w-full flex-wrap gap-1">
             {images.map((i, idx) => (
@@ -143,7 +148,7 @@ const MDXEditor: React.FC<MDXEditorProps> = ({
                     sizes="100vw"
                     className="h-full w-auto rounded-md"
                     src={i.url}
-                    alt={i.name}
+                    alt={i.file?.name! || "postImage"}
                   />
                 </div>
               </div>

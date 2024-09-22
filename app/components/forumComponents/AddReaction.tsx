@@ -41,7 +41,6 @@ export default function AddReaction({
       toast.error(`${error}`);
     }
   };
-
   return (
     <div className="flex items-center gap-1">
       {Object.keys(reactions.segregated).map((r) => {
@@ -86,17 +85,17 @@ export default function AddReaction({
           className="card dropdown-content card-compact z-10 mb-1 items-center justify-center bg-base-300 shadow"
         >
           <div className="flex p-1">
-            {Object.keys(emoticons).map((r) => (
+            {Object.keys(emoticons).map((e) => (
               <div
                 onClick={() => {
-                  addReaction(r);
+                  addReaction(e);
                 }}
-                key={r}
+                key={e}
                 className="size-10 cursor-pointer rounded-full p-2 transition-all hover:bg-base-100"
               >
                 <Emoticon
-                  src={emoticons[r]}
-                  alt={r.toLowerCase()}
+                  src={emoticons[e]}
+                  alt={e.toLowerCase()}
                   className="size-6"
                 />
               </div>

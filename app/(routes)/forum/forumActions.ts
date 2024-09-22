@@ -98,10 +98,9 @@ export const newPostAction = async (
     };
     const result = newPostSchema.safeParse(newPostObject);
     if (!result.success) {
-      let errorMessage = "";
-      result.error.issues.forEach((issue) => {
-        errorMessage = errorMessage + issue.message + " ";
-      });
+      const errorMessage = result.error.issues
+        .map((issue) => issue.message)
+        .join(" ");
       throw new Error(errorMessage);
     }
 
@@ -201,10 +200,9 @@ export const addCommentAction = async (
     const { session } = await getUserSessionCreate();
     const result = commentSchema.safeParse({ content });
     if (!result.success) {
-      let errorMessage = "";
-      result.error.issues.forEach((issue) => {
-        errorMessage = errorMessage + issue.message + " ";
-      });
+      const errorMessage = result.error.issues
+        .map((issue) => issue.message)
+        .join(" ");
       throw new Error(errorMessage);
     }
 
@@ -462,8 +460,7 @@ const editPostSchema = z.object({
         message: `Tytuł nie może mieć więcej niż 130 znaków.(${value.length})`,
       }),
     )
-    .optional()
-    .or(z.literal("")),
+    .optional(),
   subTitle: z
     .string()
     .refine(
@@ -472,8 +469,7 @@ const editPostSchema = z.object({
         message: `Opis nie może mieć więcej niż 130 znaków.(${value.length})`,
       }),
     )
-    .optional()
-    .or(z.literal("")),
+    .optional(),
   content: z
     .string()
     .min(2, { message: "Zawartość musi mieć co najmniej 2 znaków" })
@@ -483,8 +479,7 @@ const editPostSchema = z.object({
         message: `Post/komentarz nie może mieć więcej niż 5000 znaków.(${value.length})`,
       }),
     )
-    .optional()
-    .or(z.literal("")),
+    .optional(),
   file: z
     .any()
     .refine(
@@ -497,7 +492,7 @@ const editPostSchema = z.object({
       message: "Dozwolone rozszerzenie to: .png",
     })
     .optional()
-    .or(z.literal(null)),
+    .or(z.literal(undefined)),
 });
 
 type editPostActionProps = {
@@ -509,7 +504,7 @@ type editPostActionProps = {
     title?: string;
     subTitle?: string;
   };
-  images?: PostImage[];
+  images: PostImage[];
   featuredImageFile?: File;
 };
 
@@ -522,8 +517,12 @@ export const editPostAction = async ({
   images,
 }: editPostActionProps) => {
   try {
+    console.log(dataToUpdate);
     const { session } = await getUserSessionCreate();
-    const result = editPostSchema.safeParse(dataToUpdate);
+    const result = editPostSchema.safeParse({
+      ...dataToUpdate,
+      file: featuredImageFile,
+    });
 
     if (!result.success) {
       const errorMessage = result.error.issues
@@ -531,7 +530,6 @@ export const editPostAction = async ({
         .join(" ");
       throw new Error(errorMessage);
     }
-
     await db.$transaction(async (tx) => {
       let mainPostId: string;
       const newImages = images?.map((i) => i.url) || [];
@@ -570,7 +568,6 @@ export const editPostAction = async ({
       const currentImages = updateResult.images?.split("+") || [];
       const finalImages: PostImage[] = [];
       let newContent = dataToUpdate.content;
-
       // Delete images no longer needed
       for (const currImage of currentImages) {
         if (!newImages.includes(currImage) && currImage !== "") {
@@ -578,15 +575,13 @@ export const editPostAction = async ({
         }
       }
 
-      // Add new images and update content references
-      for (const newImage of images || []) {
+      for (const newImage of images) {
         if (!currentImages.includes(newImage.url)) {
           const res = await saveFile(
             newImage.file!,
             `images/post/${mainPostId}`,
           );
           finalImages.push({
-            name: newImage.file?.name!,
             url: res,
             file: newImage.file,
           });
@@ -595,12 +590,10 @@ export const editPostAction = async ({
           finalImages.push(newImage);
         }
       }
-
       const updateData = {
         images: finalImages.map((e) => e.url).join("+"),
         content: newContent,
       };
-
       if (isPost) {
         let featuredImage: string | undefined;
 
@@ -621,12 +614,12 @@ export const editPostAction = async ({
         }
         await tx.post.update({
           where: { id: targetId },
-          data: { ...updateData, featuredImage },
+          data: { ...updateData, content: newContent, featuredImage },
         });
       } else {
         await tx.postComment.update({
           where: { id: targetId },
-          data: updateData,
+          data: { ...updateData, content: newContent },
         });
       }
     });
@@ -672,16 +665,26 @@ export const deletePostAction = async (
             },
           },
         });
+
+        // Ensure the values are strings before calling split
         if (res.featuredImage) {
           await deleteFile(res.featuredImage);
         }
-        imagesToDelete.push(...res.images?.split("+")!);
-        imagesToDelete.push(
-          ...res.comments.flatMap((c) => c.images!.split("+")),
-        );
-        imagesToDelete.push(
-          ...res.comments.flatMap((r) => r.replies.map((r) => r.images!)),
-        );
+
+        if (res.images) {
+          imagesToDelete.push(...res.images.split("+"));
+        }
+
+        res.comments.forEach((comment) => {
+          if (comment.images) {
+            imagesToDelete.push(...comment.images.split("+"));
+          }
+          comment.replies.forEach((reply) => {
+            if (reply.images) {
+              imagesToDelete.push(...reply.images.split("+"));
+            }
+          });
+        });
       } else {
         const res = await tx.postComment.delete({
           where: {
@@ -697,13 +700,18 @@ export const deletePostAction = async (
             },
           },
         });
-        imagesToDelete.push(...res.images?.split("+")!);
-        res.replies?.forEach((r) => {
-          imagesToDelete.push(...r.images?.split("+")!);
+
+        if (res.images) {
+          imagesToDelete.push(...res.images.split("+"));
+        }
+
+        res.replies?.forEach((reply) => {
+          if (reply.images) {
+            imagesToDelete.push(...reply.images.split("+"));
+          }
         });
-        console.error(imagesToDelete);
-        console.error("123");
       }
+
       console.log(imagesToDelete);
       for (const element of imagesToDelete) {
         if (element !== "") {
@@ -711,10 +719,12 @@ export const deletePostAction = async (
         }
       }
     });
+
     if (isPost) {
       revalidateTag("recent");
       return;
     }
+
     revalidatePath(currentUrl);
   } catch (error) {
     isError = true;

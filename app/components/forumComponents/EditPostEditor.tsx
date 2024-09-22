@@ -26,13 +26,12 @@ export default function EditPostEditor({
   const [inputValue, setInputValue] = useState(post.content);
   const [images, setImages] = useState<PostImage[]>(
     post.images?.split("+")!.map((i) => ({
-      name: "",
+      name: i.split("/").at(-1),
       url: i,
     })) || [],
   );
   const [title, setTitle] = useState(post.title || "");
   const [subTitle, setSubTitle] = useState(post.subTitle || "");
-  const pathname = usePathname();
   const [isPending, setIsPending] = useState(false);
   const [featuredImage, setFeaturedImage] = useState<string | undefined>(
     post.featuredImage || undefined,
@@ -40,17 +39,19 @@ export default function EditPostEditor({
   const [featuredImageFile, setFeaturedImageFile] = useState<File | undefined>(
     undefined,
   );
+  const pathname = usePathname();
+  console.log(images);
   const updatePost = async () => {
     try {
       setIsPending(true);
       const dataToUpdate: Record<string, string | File> = {};
-      if (title && title !== post.title && post.title !== null) {
+      if (title && title !== post.title) {
         dataToUpdate.title = title;
       }
       if (subTitle && subTitle !== post.subTitle && post.subTitle) {
         dataToUpdate.subTitle = subTitle;
       }
-      if (inputValue && inputValue !== post.content && post.content !== null) {
+      if (inputValue && inputValue !== post.content || inputValue === "") {
         dataToUpdate.content = inputValue;
       }
       if (featuredImageFile && featuredImageFile.size! > 2000 * 1024) {

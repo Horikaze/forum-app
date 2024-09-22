@@ -1,3 +1,4 @@
+import { cn } from "@/app/utils/twUtils";
 import { Reaction } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,10 +6,9 @@ import { PostDataProps } from "../../types/prismaTypes";
 import { areDatesEqual, formatDatePost } from "../../utils/formatDate";
 import AddReaction from "./AddReaction";
 import AddReplyToComment from "./AddReplyToComment";
+import BlogListCard from "./BlogListCard";
 import EditPost from "./EditPost";
 import ReplyComponent from "./ReplyComponent";
-import BlogListCard from "./BlogListCard";
-import { cn } from "@/app/utils/twUtils";
 
 type ReactionWithUserNickname = Reaction & {
   user: {
@@ -95,7 +95,10 @@ export default function PostCard({
             )}
           >
             <div
-              className={cn("size-28 overflow-hidden", isBlog ? "size-16" : "")}
+              className={cn(
+                "size-20 overflow-hidden lg:size-28",
+                isBlog ? "size-16" : "",
+              )}
             >
               <Image
                 src={post.author.profileImage || "/images/placeholder.png"}
@@ -141,7 +144,6 @@ export default function PostCard({
                     {formatDatePost(post.author.createdAt)}
                   </span>
                 </span>
-                {post.id}
               </div>
             ) : null}
             {isBlog ? (
@@ -206,6 +208,7 @@ export default function PostCard({
               post={r}
               renderer={Renderer}
               currentUserId={currentUserId}
+              isLast={idx === replays.length - 1}
             />
           ))}
         </div>

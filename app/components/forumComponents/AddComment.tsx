@@ -33,7 +33,7 @@ export default function AddComment({ postId }: AddCommentProps) {
       <button
         disabled={status === "loading"}
         onClick={() => setIsOpen((p) => !p)}
-        className="btn btn-ghost btn-sm"
+        className={cn("btn btn-sm", isOpen ? "btn-primary" : "btn-ghost")}
       >
         Skomentuj
         <FaArrowDown

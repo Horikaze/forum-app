@@ -26,7 +26,7 @@ export default function CCTable({ table }: { table: Table }) {
     forrmatedObject[key] = rankingData as ScoreObject;
   });
   return (
-    <div className="group relative rounded-box bg-base-300 p-2 lg:p-4">
+    <div className="group relative mt-5 rounded-box bg-base-300 p-2 lg:p-4">
       <p className="text-center text-2xl font-semibold">Osiągniecia w grach</p>
       <div className="divider" />
       <div className="relative w-full overflow-x-auto">

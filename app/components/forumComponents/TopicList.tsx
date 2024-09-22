@@ -126,7 +126,7 @@ export default async function TopicList({
           <div className="hidden items-center gap-5 text-center text-xs lg:flex">
             <span className="w-20">ODPOWIEDZI</span>
             <span className="w-20">REAKCJE</span>
-            <span className="w-48 text-start">OSTATNI POST</span>
+            <span className="w-48 text-start">OSTATNI KOMENTARZ</span>
           </div>
         </div>
         <div className="flex flex-col gap-1">

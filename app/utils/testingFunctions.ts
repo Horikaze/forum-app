@@ -5,12 +5,12 @@ export async function saveFile(
   imageFile: File,
   folder: string = "files",
 ): Promise<string> {
-  if (!imageFile || !imageFile.name) {
-    throw new Error("Invalid file");
-  }
-  const filePath = path.join(process.cwd(), "public", folder, imageFile.name);
-  console.log(filePath);
   try {
+    if (!imageFile || !imageFile.name) {
+      throw new Error("Invalid file");
+    }
+    const filePath = path.join(process.cwd(), "public", folder, imageFile.name);
+    console.log(filePath);
     const folderPath = path.dirname(filePath);
     await fs.mkdir(folderPath, { recursive: true });
 
@@ -27,14 +27,13 @@ export async function saveFile(
 }
 
 export async function deleteFile(fileName: string) {
-  if (!fileName) {
-    throw new Error("Invalid file name");
-  }
-
-  const filePath = path.join(process.cwd(), "public", fileName);
-  const folderPath = path.dirname(filePath);
-
   try {
+    if (!fileName) {
+      throw new Error("Invalid file name");
+    }
+
+    const filePath = path.join(process.cwd(), "public", fileName);
+    const folderPath = path.dirname(filePath);
     await fs.unlink(filePath);
     const filesInFolder = await fs.readdir(folderPath);
     if (filesInFolder.length === 0) {

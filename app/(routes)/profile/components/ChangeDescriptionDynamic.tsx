@@ -8,14 +8,16 @@ import { changeDescriptionAction } from "../profileActions";
 type ChangeSignatureDynamicProps = {
   isOpen: boolean;
   onClose: () => void;
+  description?:string
 };
 
 export default function ChangeDescriptionDynamic({
   isOpen,
   onClose,
+  description
 }: ChangeSignatureDynamicProps) {
   const ref = useRef<HTMLDialogElement>(null);
-  const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState(description || "");
   const [isPending, setIsPending] = useState(false);
   const [images, setImages] = useState<PostImage[]>([]);
   useEffect(() => {

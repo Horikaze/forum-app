@@ -23,6 +23,7 @@ export default function ChangeDescription({
         <ChangeSignatureDynamic
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
+          description={description}
         />
       )}
     </>

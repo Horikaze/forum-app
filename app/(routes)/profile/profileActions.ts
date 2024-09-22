@@ -33,10 +33,9 @@ export const changeNicknameAction = async (nickname: string) => {
     const { session } = await getUserSessionCreate();
     const result = registerSchema.safeParse({ nickname });
     if (!result.success) {
-      let errorMessage = "";
-      result.error.issues.forEach((issue) => {
-        errorMessage = errorMessage + issue.message + " ";
-      });
+      const errorMessage = result.error.issues
+        .map((issue) => issue.message)
+        .join(" ");
       throw new Error(errorMessage);
     }
     await db.user.update({
@@ -87,10 +86,9 @@ export const changeProfileImageAction = async (file: File, target: string) => {
     const { session } = await getUserSessionCreate();
     const result = profileImageSchema.safeParse({ file });
     if (!result.success) {
-      let errorMessage = "";
-      result.error.issues.forEach((issue) => {
-        errorMessage = errorMessage + issue.message + " ";
-      });
+      const errorMessage = result.error.issues
+        .map((issue) => issue.message)
+        .join(" ");
       throw new Error(errorMessage);
     }
 
@@ -146,10 +144,9 @@ export const changeDescriptionAction = async (description: string) => {
     const { session } = await getUserSessionCreate();
     const result = descriptionSchema.safeParse({ description });
     if (!result.success) {
-      let errorMessage = "";
-      result.error.issues.forEach((issue) => {
-        errorMessage = errorMessage + issue.message + " ";
-      });
+      const errorMessage = result.error.issues
+        .map((issue) => issue.message)
+        .join(" ");
       throw new Error(errorMessage);
     }
     await db.user.update({

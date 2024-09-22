@@ -41,10 +41,9 @@ export const loginUserAction = async (formData: FormData) => {
     if (!isLogin) {
       const result = registerSchema.safeParse(user);
       if (!result.success) {
-        let errorMessage = "";
-        result.error.issues.forEach((issue) => {
-          errorMessage = errorMessage + issue.message + " ";
-        });
+        const errorMessage = result.error.issues
+          .map((issue) => issue.message)
+          .join(" ");
         throw new Error(errorMessage);
       }
     }

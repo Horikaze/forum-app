@@ -42,7 +42,7 @@ export type PostDataProps = Prisma.PostGetPayload<{
     title: true;
     subTitle: true;
     featuredImage: true;
-    images:true,
+    images: true;
     _count: {
       select: {
         comments: true;
@@ -73,5 +73,58 @@ export type PostDataProps = Prisma.PostGetPayload<{
         };
       };
     };
+  };
+}>;
+
+export type RecentComment = Prisma.PostCommentGetPayload<{
+  select: {
+    author: { select: { nickname: true } };
+    content: true;
+    id: true;
+    createdAt: true;
+    post: {
+      select: {
+        slug: true;
+        category: true;
+        title: true;
+      };
+    };
+    parentComment: {
+      select: {
+        post: {
+          select: {
+            slug: true;
+            category: true;
+          };
+        };
+      };
+    };
+  };
+}>;
+export type RecentReplay = Prisma.ReplayGetPayload<{
+  select: {
+    character: true;
+    shotType: true;
+    score: true;
+    game: true;
+    replayId: true;
+    achievement: true;
+    createdAt: true;
+    profile: {
+      select: {
+        nickname: true;
+      };
+    };
+  };
+}>;
+export type RecentPost = Prisma.PostGetPayload<{
+  select: {
+    author: { select: { nickname: true } };
+    category: true;
+    slug: true;
+    subTitle: true;
+    title: true;
+    featuredImage: true;
+    createdAt: true;
   };
 }>;
