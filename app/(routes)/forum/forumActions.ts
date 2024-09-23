@@ -290,7 +290,7 @@ export const addCommentAction = async (
     revalidateTag("recent");
     return {
       success: true,
-      message: "ok",
+      message: "Dodano komentarz!",
     };
   } catch (error) {
     if (error instanceof Error) {
@@ -628,7 +628,7 @@ export const editPostAction = async ({
     } else {
       revalidatePath(currentUrl, "page");
     }
-    return { success: true, message: "Post/Comment updated successfully." };
+    return { success: true, message: "Zaaktulizowano" };
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";

@@ -7,14 +7,10 @@ import db from "@/lib/db";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { FaImage, FaPlus, FaRegImage } from "react-icons/fa6";
-import AchievementsList from "./components/AchievementsList";
-import AddReplay from "./components/AddReplay";
-import CCTable from "./components/CCTable";
 import ChangeDescription from "./components/ChangeDescription";
 import ChangeImage from "./components/ChangeImage";
 import ChangeNickname from "./components/ChangeNickname";
 import SwitchProfileData from "./components/SwitchProfileData";
-
 export default async function ProfileLayout({
   children,
 }: {
@@ -25,24 +21,20 @@ export default async function ProfileLayout({
     redirect("/");
   }
 
-  const fetchUser = async () => {
-    console.log("object");
-    return await db.user.findFirst({
-      where: {
-        id: session.user.id,
-      },
-      include: {
-        _count: {
-          select: {
-            comments: true,
-            posts: true,
-          },
+  const user = await db.user.findFirst({
+    where: {
+      id: session.user.id,
+    },
+    include: {
+      _count: {
+        select: {
+          comments: true,
+          posts: true,
         },
-        table: true,
       },
-    });
-  };
-  const user = await fetchUser();
+      table: true,
+    },
+  });
 
   if (!user) {
     redirect("/");

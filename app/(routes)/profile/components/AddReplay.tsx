@@ -40,7 +40,7 @@ export default function AddReplay() {
         fileDate: file.lastModified,
       });
       if (!res.success) throw new Error(res.message);
-      toast.success("Wysłano!");
+      toast.success("Wysłano powtórkę!");
       resetAll();
       form.reset();
     } catch (error) {

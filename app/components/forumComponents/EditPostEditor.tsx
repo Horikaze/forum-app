@@ -51,7 +51,7 @@ export default function EditPostEditor({
       if (subTitle && subTitle !== post.subTitle && post.subTitle) {
         dataToUpdate.subTitle = subTitle;
       }
-      if (inputValue && inputValue !== post.content || inputValue === "") {
+      if ((inputValue && inputValue !== post.content) || inputValue === "") {
         dataToUpdate.content = inputValue;
       }
       if (featuredImageFile && featuredImageFile.size! > 2000 * 1024) {
@@ -66,6 +66,7 @@ export default function EditPostEditor({
         images: images,
       });
       if (!res.success) throw new Error(`${res.message}`);
+      toast.success(res.message);
       setInputValue("");
       closeWindow();
     } catch (error) {

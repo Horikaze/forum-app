@@ -35,6 +35,7 @@ export default function AddCommentEditor({
         images,
       );
       if (!res.success) throw new Error(`${res.message}`);
+      toast.success(res.message);
       setInputValue("");
       closeWindow();
     } catch (error) {

@@ -16,6 +16,7 @@ import ChangeImage from "../../profile/components/ChangeImage";
 import { newPostAction } from "../forumActions";
 import { PostDataProps } from "@/app/types/prismaTypes";
 import { PostImage } from "@/app/types/types";
+import { redirect } from "next/navigation";
 export default function NewPost({
   searchParams,
 }: {
@@ -36,6 +37,8 @@ export default function NewPost({
   );
   const [isPending, setIsPending] = useState(false);
   const formAction = async (isSketch = false) => {
+    let isError = false;
+    let rediUrl = "/";
     try {
       setIsPending(true);
       const newPostObject = {
@@ -51,14 +54,19 @@ export default function NewPost({
         images,
       );
       if (!res?.success) throw new Error(res?.message);
+      toast.error("Dodano post!");
+      rediUrl = res.message;
       images.forEach((element) => {
         URL.revokeObjectURL(element.url);
       });
-      await redirectHard(res.message);
     } catch (error) {
+      isError = true;
       toast.error(`${error}`);
     } finally {
       setIsPending(false);
+      if (!isError) {
+        redirect(rediUrl);
+      }
     }
   };
   <p className="text-center text-2xl text-warning">xD</p>;

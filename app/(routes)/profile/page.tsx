@@ -23,6 +23,7 @@ export default async function Profile() {
   if (!user) {
     redirect("/");
   }
+
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AchievementsList achievements={testAchiv} />

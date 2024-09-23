@@ -6,7 +6,7 @@ export default function SwitchProfileData() {
   const pathname = usePathname();
   const router = useRouter();
   const changeRoute = () => {
-    router.push(pathname === "/profile" ? "/profile/data" : "/profile");
+    router.push(pathname === "/profile" ? "/profile/moreinfo" : "/profile");
   };
 
   return (
