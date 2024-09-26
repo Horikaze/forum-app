@@ -58,14 +58,10 @@ export const loginUserAction = async (formData: FormData) => {
       message: "ok",
     };
   } catch (error) {
-    if (`${error}`.startsWith("AuthError")) {
-      error = `${error}`.substring("AuthError:".length).split(".")[0].trim();
-    }
+    console.log(error);
     return {
       success: false,
-      message:
-        // @ts-ignore
-        error.code === "P2002" ? "Użytkownik już istnieje" : `${error}`,
+      message: "Błędne dane",
     };
   }
 };

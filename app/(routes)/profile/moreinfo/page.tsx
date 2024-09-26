@@ -6,37 +6,54 @@ import {
 import {
   fetchMoreCommentsAction,
   fetchMorePostsAction,
-  fetchMorReplaysAction,
+  fetchMoreReplaysAction,
 } from "./dataActions";
 import LoadMoreComments from "./components/LoadMoreComments";
 import LoadMorePosts from "./components/LoadMorePosts";
 import LoadMoreReplays from "./components/LoadMoreReplays";
 import db from "@/lib/db";
 import { auth } from "@/auth";
+import { unstable_cache } from "next/cache";
+import { redirect } from "next/navigation";
 
 export default async function RecentPostsPage() {
   const take = 2;
-  const posts = await fetchMorePostsAction(take, 0);
-  const commenst = await fetchMoreCommentsAction(take, 0);
-  const replays = await fetchMorReplaysAction(take, 0);
   const session = await auth();
-  const itemsCount = await db.user.findFirst({
-    where: {
-      id: session?.user.id,
+  if (!session) redirect("/");
+  const getRecentPosts = unstable_cache(
+    async (userId: string) => {
+      console.log(userId + "recent");
+      return await Promise.all([
+        fetchMorePostsAction(userId, take, 0),
+        fetchMoreCommentsAction(userId, take, 0),
+        fetchMoreReplaysAction(userId, take, 0),
+        db.user.findFirst({
+          where: {
+            id: userId,
+          },
+          select: {
+            _count: {
+              select: {
+                replay: true,
+                posts: true,
+                comments: true,
+              },
+            },
+          },
+        }),
+      ]);
     },
-    select: {
-      _count: {
-        select: {
-          replay: true,
-          posts: true,
-          comments: true,
-        },
-      },
+    [session.user.id + "recent"],
+    {
+      revalidate: 10,
     },
-  });
+  );
+  const [posts, comments, replays, itemsCount] = await getRecentPosts(
+    session.user.id,
+  );
   return (
     <div className="flex flex-col">
-      <div className="relative mt-5 rounded-box bg-base-300 p-2 lg:p-4">
+      <div className="relative rounded-box bg-base-300 p-2 lg:p-4">
         <p className="text-center text-2xl font-semibold">Posty</p>
         <div className="flex flex-col gap-1">
           {posts!.map((p, idx) => (
@@ -51,7 +68,7 @@ export default async function RecentPostsPage() {
       <div className="relative mt-5 rounded-box bg-base-300 p-2 lg:p-4">
         <p className="text-center text-2xl font-semibold">Komentarze</p>
         <div className="flex flex-col gap-1">
-          {commenst!.map((com, idx) => (
+          {comments!.map((com, idx) => (
             <RecentCommentComponent com={com} key={idx} />
           ))}
           <LoadMoreComments

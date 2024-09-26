@@ -51,7 +51,12 @@ export default function ImageCropper({
     aspect: number,
   ): Crop => {
     return centerCrop(
-      makeAspectCrop({ unit: "%", width: 90 }, aspect, mediaWidth, mediaHeight),
+      makeAspectCrop(
+        { unit: "%", width: 100 },
+        aspect,
+        mediaWidth,
+        mediaHeight,
+      ),
       mediaWidth,
       mediaHeight,
     );
@@ -162,7 +167,7 @@ export default function ImageCropper({
           }
         />
       </div>
-      <div className="flex flex-1 rounded-box">
+      <div className="flex flex-1 justify-center rounded-box">
         {imgSrc && (
           <ReactCrop
             crop={crop}

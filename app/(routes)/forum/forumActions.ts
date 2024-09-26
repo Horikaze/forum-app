@@ -9,6 +9,7 @@ import {
 import { PostImage } from "@/app/types/types";
 import { getFormattedDate } from "@/app/utils/formatDate";
 import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
+import { checkImages } from "@/app/utils/zod";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
 import { revalidatePath, revalidateTag } from "next/cache";
@@ -46,7 +47,7 @@ const newPostSchema = z.object({
   dbTarget: z.string().refine((value) => posibleForumTarget.includes(value), {
     message: "Nie istnieje takie forum",
   }),
-  file: z
+  featuredImageFile: z
     .any()
     .refine(
       (file) => file.size <= 2000 * 1024,
@@ -89,12 +90,21 @@ export const newPostAction = async (
     const { session } = await getUserSessionCreate(
       adminForumDb.some((e) => e.dbTarget === dbTarget),
     );
+    if (images) {
+      if (images.length > 10) {
+        return {
+          success: false,
+          message: "Post może mieć maksymalnie 10 obrazów.",
+        };
+      }
+      checkImages(images.map((i) => i.file!));
+    }
     const newPostObject = {
       title,
       subTitle,
       dbTarget,
       content,
-      file: featuredImageFile,
+      featuredImageFile: featuredImageFile,
     };
     const result = newPostSchema.safeParse(newPostObject);
     if (!result.success) {
@@ -517,8 +527,13 @@ export const editPostAction = async ({
   images,
 }: editPostActionProps) => {
   try {
-    console.log(dataToUpdate);
     const { session } = await getUserSessionCreate();
+    if (images) {
+      if (images.length > 10) {
+        throw new Error("Post może mieć maksymalnie 10 obrazów.");
+      }
+      checkImages(images.map((i) => i.file!));
+    }
     const result = editPostSchema.safeParse({
       ...dataToUpdate,
       file: featuredImageFile,
@@ -720,12 +735,7 @@ export const deletePostAction = async (
       }
     });
 
-    if (isPost) {
-      revalidateTag("recent");
-      return;
-    }
-
-    revalidatePath(currentUrl);
+    revalidateTag("recent");
   } catch (error) {
     isError = true;
     console.log(error);

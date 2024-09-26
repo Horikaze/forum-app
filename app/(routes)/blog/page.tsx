@@ -18,6 +18,7 @@ export default async function Blog({
   const postsPerPage = 10;
   const totalPages = Math.max(1, Math.ceil(allPostCount / postsPerPage));
   const fetchPosts = async () => {
+    console.log("cache blog");
     return await db.post.findMany({
       relationLoadStrategy: "join",
       where: {

@@ -26,8 +26,8 @@ export default function BlogListCard({
   return (
     <div
       className={cn(
-        "group/img isolate cursor-pointer overflow-hidden rounded-box",
-        isPreview ? "rounded-b-none" : "",
+        "group/img isolate overflow-hidden rounded-box",
+        isPreview ? "rounded-b-none" : "cursor-pointer",
       )}
     >
       <Link
@@ -51,13 +51,19 @@ export default function BlogListCard({
           <Image
             fill
             src={featuredImage ?? "/images/placeholder_banner.jpg"}
-            className="object-cover transition-all group-hover/img:scale-110"
+            className={cn(
+              "object-cover transition-all",
+              !isPreview && "group-hover/img:scale-110",
+            )}
             alt="preview"
           />
         ) : (
           <img
             src={featuredImage}
-            className="absolute inset-0 h-full w-full object-cover transition-all group-hover/img:scale-110"
+            className={cn(
+              "absolute inset-0 h-full w-full object-cover transition-all group-hover/img:scale-110",
+              !isPreview && "group-hover/img:scale-110",
+            )}
             alt="preview"
           />
         )}

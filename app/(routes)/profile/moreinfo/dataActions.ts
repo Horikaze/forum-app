@@ -3,10 +3,11 @@
 import { auth } from "@/auth";
 import db from "@/lib/db";
 
-export const fetchMorePostsAction = async (take: number, skip: number) => {
-  const session = await auth();
-  if (!session) throw new Error("Not authenticated");
-  const userId = session.user.id;
+export const fetchMorePostsAction = async (
+  userId: string,
+  take: number,
+  skip: number,
+) => {
   const res = await db.user.findFirst({
     where: { id: userId },
     select: {
@@ -29,12 +30,11 @@ export const fetchMorePostsAction = async (take: number, skip: number) => {
   return res?.posts;
 };
 
-export const fetchMoreCommentsAction = async (take: number, skip: number) => {
-  const session = await auth();
-  if (!session) throw new Error("Not authenticated");
-
-  const userId = session.user.id;
-
+export const fetchMoreCommentsAction = async (
+  userId: string,
+  take: number,
+  skip: number,
+) => {
   const moreComments = await db.user.findFirst({
     where: { id: userId },
     select: {
@@ -70,12 +70,11 @@ export const fetchMoreCommentsAction = async (take: number, skip: number) => {
   });
   return moreComments?.comments || [];
 };
-export const fetchMorReplaysAction = async (take: number, skip: number) => {
-  const session = await auth();
-  if (!session) throw new Error("Not authenticated");
-
-  const userId = session.user.id;
-
+export const fetchMoreReplaysAction = async (
+  userId: string,
+  take: number,
+  skip: number,
+) => {
   const moreComments = await db.user.findFirst({
     where: { id: userId },
     select: {

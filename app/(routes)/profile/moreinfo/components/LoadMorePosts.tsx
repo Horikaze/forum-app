@@ -8,6 +8,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaCalendar } from "react-icons/fa6";
 import { fetchMorePostsAction } from "../dataActions";
+import { cn } from "@/app/utils/twUtils";
+import { useSession } from "next-auth/react";
 
 export default function LoadMorePosts({
   take,
@@ -19,10 +21,15 @@ export default function LoadMorePosts({
   const [posts, setPosts] = useState<RecentPost[]>([]);
   const [count, setCount] = useState(1);
   const [isPending, setIsPending] = useState(false);
+  const { data: session } = useSession();
   const fetchMoreComments = async () => {
     try {
       setIsPending(true);
-      const res = await fetchMorePostsAction(take, count * take);
+      const res = await fetchMorePostsAction(
+        session?.user.id!,
+        take,
+        count * take,
+      );
       setPosts((p) => [...p, ...res!]);
       setCount((p) => p + 1);
     } catch (error) {
@@ -38,7 +45,7 @@ export default function LoadMorePosts({
       ))}
       <button
         disabled={posts.length >= postCount - take || isPending}
-        className="btn btn-ghost btn-sm"
+        className="btn btn-ghost btn-sm disabled:btn-ghost"
         onClick={fetchMoreComments}
       >
         {isPending ? <span className="loading loading-spinner"></span> : null}
@@ -55,7 +62,10 @@ const RecentPostComponent = ({ post }: { post: RecentPost }) => {
   return (
     <Link
       href={`${post?.category === "blog" ? "" : "/forum"}/${post.category}/${post.slug}`}
-      className="group relative line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
+      className={cn(
+        "group relative line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100",
+        post.featuredImage ? "text-white" : "",
+      )}
     >
       {post.featuredImage ? (
         <Image

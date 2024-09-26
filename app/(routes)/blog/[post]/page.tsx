@@ -53,7 +53,7 @@ export async function generateMetadata(
       authors: [post.author.nickname],
       siteName: "Gensokyawka",
       images: {
-        url: `/api/embeddedimage?slug=${params.post}`,
+        url: `/api/ogimageblog?slug=${params.post}`,
         width: 1200,
         height: 600,
         alt: post.title,

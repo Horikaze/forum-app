@@ -17,6 +17,7 @@ import { newPostAction } from "../forumActions";
 import { PostDataProps } from "@/app/types/prismaTypes";
 import { PostImage } from "@/app/types/types";
 import { redirect } from "next/navigation";
+import { checkImages } from "@/app/utils/zod";
 export default function NewPost({
   searchParams,
 }: {
@@ -41,6 +42,12 @@ export default function NewPost({
     let rediUrl = "/";
     try {
       setIsPending(true);
+      if (images) {
+        if (images.length > 10) {
+          throw new Error("Post może mieć maksymalnie 10 obrazów.");
+        }
+        checkImages(images.map((i) => i.file!));
+      }
       const newPostObject = {
         title,
         subTitle,
@@ -54,7 +61,7 @@ export default function NewPost({
         images,
       );
       if (!res?.success) throw new Error(res?.message);
-      toast.error("Dodano post!");
+      toast.success("Dodano post!");
       rediUrl = res.message;
       images.forEach((element) => {
         URL.revokeObjectURL(element.url);
@@ -82,18 +89,27 @@ export default function NewPost({
     }
     setFeaturedImage(url);
   };
-
   const previewPost = ({ post }: { post: PostDataProps }) => {
     if (dbTarget === "blog") {
       return (
-        <PreviewBlog
-          post={{
-            ...post,
-            title: title,
-            subTitle: subTitle,
-            featuredImage: featuredImage!,
-          }}
-        />
+        <>
+          {dbTarget === "blog" ? (
+            <ChangeImage
+              aspect={3 / 1}
+              onImageChange={changeImageFn}
+              onImageChangeFile={setFeaturedImageFile}
+            >
+              <PreviewBlog
+                post={{
+                  ...post,
+                  title: title,
+                  subTitle: subTitle,
+                  featuredImage: featuredImage!,
+                }}
+              />
+            </ChangeImage>
+          ) : null}
+        </>
       );
     }
     return <PreviewPost post={{ ...post, title: title, subTitle: subTitle }} />;
@@ -157,15 +173,6 @@ export default function NewPost({
 
           <div className="flex w-full flex-col">
             <div className="flex justify-evenly">
-              {dbTarget === "blog" ? (
-                <ChangeImage
-                  aspect={3 / 1}
-                  onImageChange={changeImageFn}
-                  onImageChangeFile={setFeaturedImageFile}
-                >
-                  <button className="btn">Zmień banner</button>
-                </ChangeImage>
-              ) : null}
               <button
                 onClick={() => {
                   formAction(true);

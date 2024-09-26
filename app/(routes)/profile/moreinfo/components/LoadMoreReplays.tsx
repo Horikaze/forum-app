@@ -7,7 +7,8 @@ import Link from "next/link";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaCalendar } from "react-icons/fa6";
-import { fetchMorReplaysAction } from "../dataActions";
+import { fetchMoreReplaysAction } from "../dataActions";
+import { useSession } from "next-auth/react";
 
 export default function LoadMoreReplays({
   take,
@@ -19,10 +20,15 @@ export default function LoadMoreReplays({
   const [replays, setReplays] = useState<RecentReplay[]>([]);
   const [count, setCount] = useState(take);
   const [isPending, setIsPending] = useState(false);
+  const { data: session } = useSession();
   const fetchMoreReplays = async () => {
     try {
       setIsPending(true);
-      const res = await fetchMorReplaysAction(take, count * take);
+      const res = await fetchMoreReplaysAction(
+        session?.user.id!,
+        take,
+        count * take,
+      );
       setReplays((p) => [...p, ...res!]);
       setCount((prev) => prev + 1);
     } catch (error) {
@@ -38,7 +44,7 @@ export default function LoadMoreReplays({
       ))}
       <button
         disabled={replays.length >= replaysCount - take || isPending}
-        className="btn btn-ghost btn-sm"
+        className="btn btn-ghost btn-sm disabled:btn-ghost"
         onClick={fetchMoreReplays}
       >
         {isPending ? <span className="loading loading-spinner"></span> : null}

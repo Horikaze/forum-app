@@ -5,9 +5,10 @@ import { RecentComment } from "@/app/types/prismaTypes";
 import { formatDatePost } from "@/app/utils/formatDate";
 import Link from "next/link";
 import { useState } from "react";
-import { FaCalendar } from "react-icons/fa6";
-import { fetchMoreCommentsAction } from "../dataActions";
 import toast from "react-hot-toast";
+import { FaCalendar, FaImage } from "react-icons/fa6";
+import { fetchMoreCommentsAction } from "../dataActions";
+import { useSession } from "next-auth/react";
 
 export default function LoadMoreComments({
   take,
@@ -19,10 +20,16 @@ export default function LoadMoreComments({
   const [comments, setComments] = useState<RecentComment[]>([]);
   const [count, setCount] = useState(1);
   const [isPending, setIsPending] = useState(false);
+  const { data: session } = useSession();
+
   const fetchMorePost = async () => {
     try {
       setIsPending(true);
-      const res = await fetchMoreCommentsAction(take, count * take);
+      const res = await fetchMoreCommentsAction(
+        session?.user.id!,
+        take,
+        count * take,
+      );
       setComments((prev) => [...prev, ...res]);
       setCount((prev) => prev + 1);
     } catch (error) {
@@ -38,7 +45,7 @@ export default function LoadMoreComments({
       ))}
       <button
         disabled={comments.length >= commentsCount - take || isPending}
-        className="btn btn-ghost btn-sm"
+        className="btn btn-ghost btn-sm disabled:btn-ghost"
         onClick={fetchMorePost}
       >
         {isPending ? <span className="loading loading-spinner"></span> : null}
@@ -58,7 +65,13 @@ export const RecentCommentComponent = ({ com }: { com: RecentComment }) => {
       className="line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
     >
       <div className="line-clamp-2">
-        <MDXRenderer markdown={com.content.substring(0, 30)} />
+        {com.content.substring(0, 10).includes("<img") ? (
+          <div className="flex items-center gap-1">
+            Obrazek <FaImage />
+          </div>
+        ) : (
+          <MDXRenderer markdown={com.content.substring(0, 30)} />
+        )}
       </div>
       {com.post?.title ? (
         <p className="line-clamp-1 whitespace-nowrap text-xs opacity-90">

@@ -1,15 +1,19 @@
 import Link from "next/link";
-import { FaCalendar } from "react-icons/fa6";
+import { FaCalendar, FaImage } from "react-icons/fa6";
 import { RecentComment, RecentPost, RecentReplay } from "../types/prismaTypes";
 import { formatDatePost } from "../utils/formatDate";
 import { getCCstring } from "../utils/replayUtils";
 import SSRMDXRenderer from "./SSRMDXRenderer";
 import Image from "next/image";
+import { cn } from "../utils/twUtils";
 export const RecentPostComponent = ({ post }: { post: RecentPost }) => {
   return (
     <Link
       href={`${post?.category === "blog" ? "" : "/forum"}/${post.category}/${post.slug}`}
-      className="group relative line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
+      className={cn(
+        "group relative line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100",
+        post.featuredImage ? "text-white" : "",
+      )}
     >
       {post.featuredImage ? (
         <Image
@@ -42,9 +46,14 @@ export const RecentCommentComponent = ({ com }: { com: RecentComment }) => {
       className="line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
     >
       <div className="line-clamp-2">
-        <SSRMDXRenderer markdown={com.content.substring(0, 30)} isPreview />
+        {com.content.substring(0, 10).includes("<img") ? (
+          <div className="flex items-center gap-1">
+            Obrazek <FaImage />
+          </div>
+        ) : (
+          <SSRMDXRenderer markdown={com.content.substring(0, 30)} isPreview />
+        )}
       </div>
-      44444444
       {com.post?.title ? (
         <p className="line-clamp-1 whitespace-nowrap text-xs opacity-90">
           W: {com.post?.title}

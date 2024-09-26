@@ -1,6 +1,5 @@
 "use client";
 
-import GETHandlerImage from "@/app/components/forumComponents/GETHandlerImage";
 
 export default function Testing() {
   return (

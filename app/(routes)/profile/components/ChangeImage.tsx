@@ -42,10 +42,6 @@ export default function ChangeImage({
       const url = URL.createObjectURL(croppedImage);
       setCroppedImageUrl(url);
       if (onImageChange) {
-        onImageChange(url);
-        if (onImageChangeFile) {
-          onImageChangeFile(croppedImage);
-        }
         return;
       }
       return () => {
@@ -55,6 +51,13 @@ export default function ChangeImage({
   }, [croppedImage]);
 
   const onCloseModal = () => {
+    if (onImageChange && croppedImageUrl && croppedImage) {
+      onImageChange(croppedImageUrl);
+      if (onImageChangeFile) {
+        onImageChangeFile(croppedImage);
+      }
+      return;
+    }
     setIsOpen(false);
     setCroppedImage(null);
     setCroppedImageUrl(null);
@@ -110,19 +113,19 @@ export default function ChangeImage({
     <>
       <div onClick={() => setIsOpen(true)}>{children}</div>
       <dialog ref={ref} className="modal" onClose={onCloseModal}>
-        <div className="modal-box flex w-full max-w-6xl flex-col items-center gap-2">
-          <div className="w-full max-w-2xl">
+        <div className="modal-box flex max-w-6xl flex-col items-center gap-2">
+          <div className="flex w-full max-w-2xl flex-col gap-2">
             <ImageCropper aspect={aspect} onCropChange={setCroppedImage} />
+            {croppedImageUrl && !onImageChange ? (
+              <div className="flex justify-center">
+                <img
+                  src={croppedImageUrl}
+                  alt="Podgląd przyciętego obrazu"
+                  className="h-auto w-full max-w-sm rounded-box object-cover"
+                />
+              </div>
+            ) : null}
           </div>
-          {croppedImageUrl && !onImageChange ? (
-            <div className="mx-auto my-4 w-full max-w-2xl">
-              <img
-                src={croppedImageUrl}
-                alt="Podgląd przyciętego obrazu"
-                className="h-auto w-full rounded-box object-cover"
-              />
-            </div>
-          ) : null}
           <div className="flex w-full justify-end gap-2">
             {target ? (
               <button onClick={deleteImage} className="btn btn-warning mr-auto">

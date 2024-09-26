@@ -17,23 +17,24 @@ model Account {
 }
 
 model User {
-  id           String        @id @unique @default(cuid())
-  nickname     String        @unique
-  profileImage String?
-  bannerImage  String?
-  description  String?
-  karma        Int           @default(0)
-  cc           Int           @default(0)
-  role         String        @default("user")
-  account      Account?
-  achievements Achievement[]
-  posts        Post[]        @relation("UserPosts")
-  comments     PostComment[] @relation("UserComments")
-  reactions    Reaction[]
-  replay       Replay[]
-  table        Table?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id                   String        @id @unique @default(cuid())
+  nickname             String        @unique
+  profileImage         String?
+  bannerImage          String?
+  description          String?
+  karma                Int           @default(0)
+  cc                   Int           @default(0)
+  role                 String        @default("user")
+  pinnedAchievementsiD String?
+  account              Account?
+  achievements         Achievement[]
+  posts                Post[]        @relation("UserPosts")
+  comments             PostComment[] @relation("UserComments")
+  reactions            Reaction[]
+  replay               Replay[]
+  table                Table?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 }
 
 model Post {

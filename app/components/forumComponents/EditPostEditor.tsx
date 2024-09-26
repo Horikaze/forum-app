@@ -7,6 +7,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import MDXEditor from "../MDXEditor";
 import { PreviewBlog } from "../MDXPreview";
+import { checkImages } from "@/app/utils/zod";
 
 type EditPostEditorProps = {
   closeWindow: () => void;
@@ -40,7 +41,6 @@ export default function EditPostEditor({
     undefined,
   );
   const pathname = usePathname();
-  console.log(images);
   const updatePost = async () => {
     try {
       setIsPending(true);
@@ -56,6 +56,12 @@ export default function EditPostEditor({
       }
       if (featuredImageFile && featuredImageFile.size! > 2000 * 1024) {
         throw new Error("Obrazek może mieć maksymalnie 2MB");
+      }
+      if (images) {
+        if (images.length > 10) {
+          throw new Error("Post może mieć maksymalnie 10 obrazów.");
+        }
+        checkImages(images.map((i) => i.file!));
       }
       const res = await editPostAction({
         currentUrl: pathname,

@@ -102,7 +102,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return token;
       }
       if (!user) return token;
-
       let provider;
       switch (account?.provider) {
         case "github":
