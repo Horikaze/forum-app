@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import NavNavigator from "./NavNavigator";
 import { usePathname } from "next/navigation";
+import { UserRole } from "@/app/constants/forum";
 export default function NavBarTop() {
   const { data: session, status } = useSession();
   return (
@@ -18,7 +19,13 @@ export default function NavBarTop() {
         ) : (
           <>
             {session ? (
-              <DropDownMenu user={session.user} expires={session.expires} />
+              <DropdownMenu
+                session={session}
+                isAdmin={
+                  session!.user.role === UserRole.ADMIN ||
+                  session!.user.role === UserRole.MODERATOR
+                }
+              />
             ) : (
               <LoginButton />
             )}
@@ -36,7 +43,11 @@ const LoginButton = () => {
     </Link>
   );
 };
-const DropDownMenu = (session: Session) => {
+type DropdownMenuProps = {
+  session: Session;
+  isAdmin?: boolean;
+};
+const DropdownMenu = ({ session, isAdmin }: DropdownMenuProps) => {
   return (
     <div className="dropdown dropdown-end">
       <div tabIndex={0} role="button" className="avatar btn btn-ghost">
@@ -61,9 +72,11 @@ const DropDownMenu = (session: Session) => {
             Profil
           </Link>
         </li>
-        <li>
-          <a>Ustawienia</a>
-        </li>
+        {isAdmin ? (
+          <li>
+            <Link href={"/admin"}>Moderowanie</Link>
+          </li>
+        ) : null}
         <form
           action={async () => {
             await signOut();

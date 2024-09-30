@@ -50,6 +50,7 @@ export default function BlogListCard({
         {!featuredImage?.startsWith("blob") ? (
           <Image
             fill
+            sizes="(max-width: 600px) 480px, (max-width: 900px) 800px, 1200px"
             src={featuredImage ?? "/images/placeholder_banner.jpg"}
             className={cn(
               "object-cover transition-all",

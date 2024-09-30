@@ -35,7 +35,7 @@ export const fetchMoreCommentsAction = async (
   take: number,
   skip: number,
 ) => {
-  const moreComments = await db.user.findFirst({
+  const moreData = await db.user.findFirst({
     where: { id: userId },
     select: {
       comments: {
@@ -57,6 +57,7 @@ export const fetchMoreCommentsAction = async (
                 select: {
                   slug: true,
                   category: true,
+                  title: true,
                 },
               },
             },
@@ -68,14 +69,14 @@ export const fetchMoreCommentsAction = async (
       },
     },
   });
-  return moreComments?.comments || [];
+  return moreData?.comments || [];
 };
 export const fetchMoreReplaysAction = async (
   userId: string,
   take: number,
   skip: number,
 ) => {
-  const moreComments = await db.user.findFirst({
+  const moreData = await db.user.findFirst({
     where: { id: userId },
     select: {
       replay: {
@@ -98,5 +99,5 @@ export const fetchMoreReplaysAction = async (
       },
     },
   });
-  return moreComments?.replay || [];
+  return moreData?.replay || [];
 };

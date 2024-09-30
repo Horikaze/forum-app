@@ -163,7 +163,7 @@ export default async function PostPage({ params }: Props) {
   if (!post) return notFound();
   const session = await auth();
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full">
       <PostCard
         post={post}
         renderer={SSRMDXRenderer}

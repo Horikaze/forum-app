@@ -1,19 +1,12 @@
 import db from "@/lib/db";
 import { unstable_cache } from "next/cache";
-import Link from "next/link";
 import { Suspense } from "react";
-import { FaCalendar } from "react-icons/fa6";
-import { formatDatePost } from "../utils/formatDate";
-import { getCCstring } from "../utils/replayUtils";
-import SSRMDXRenderer from "./SSRMDXRenderer";
-import RecentPanelController from "./RecentPanelController";
-import Image from "next/image";
-import { RecentComment, RecentPost, RecentReplay } from "../types/prismaTypes";
 import {
   RecentCommentComponent,
   RecentPostComponent,
   RecentReplayComponent,
 } from "./RecentItems";
+import RecentPanelController from "./RecentPanelController";
 export const experimental_ppr = true;
 
 export default function RecentPanel() {
@@ -100,6 +93,7 @@ const getRecentComments = unstable_cache(
               select: {
                 slug: true,
                 category: true,
+                title: true,
               },
             },
           },

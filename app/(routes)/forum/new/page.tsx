@@ -7,17 +7,16 @@ import {
   userForumDb,
   UserRole,
 } from "@/app/constants/forum";
+import { PostDataProps } from "@/app/types/prismaTypes";
+import { PostImage } from "@/app/types/types";
 import { cn } from "@/app/utils/twUtils";
-import redirectHard from "@/lib/globalActions";
+import { checkImages } from "@/app/utils/zod";
 import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import ChangeImage from "../../profile/components/ChangeImage";
 import { newPostAction } from "../forumActions";
-import { PostDataProps } from "@/app/types/prismaTypes";
-import { PostImage } from "@/app/types/types";
-import { redirect } from "next/navigation";
-import { checkImages } from "@/app/utils/zod";
 export default function NewPost({
   searchParams,
 }: {
@@ -82,7 +81,7 @@ export default function NewPost({
   const changeImageFn = (url: string) => {
     if (featuredImage && url !== featuredImage) {
       try {
-        URL.revokeObjectURL(featuredImage); // Revoke previous image URL
+        URL.revokeObjectURL(featuredImage);
       } catch (error) {
         console.error("Error revoking object URL:", error);
       }
@@ -92,7 +91,7 @@ export default function NewPost({
   const previewPost = ({ post }: { post: PostDataProps }) => {
     if (dbTarget === "blog") {
       return (
-        <>
+        <div className="cursor-pointer">
           {dbTarget === "blog" ? (
             <ChangeImage
               aspect={3 / 1}
@@ -109,7 +108,7 @@ export default function NewPost({
               />
             </ChangeImage>
           ) : null}
-        </>
+        </div>
       );
     }
     return <PreviewPost post={{ ...post, title: title, subTitle: subTitle }} />;

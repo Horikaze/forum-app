@@ -17,14 +17,18 @@ type PhantasmCellProps = {
   phantasm: CellProps;
 };
 export default function PhantasmCell({ extra, phantasm }: PhantasmCellProps) {
-  const [isExtra, setIsExtra] = useState(true);
+  const [isExtra, setIsExtra] = useState(extra.CC !== 0);
   return (
     <td
       className={cn(
         "group/ph relative isolate table-cell p-0",
         cellColor[extra.CC || 0],
       )}
-      onClick={() => setIsExtra((p) => !p)}
+      onClick={() => {
+        if (extra.CC !== 0) {
+          setIsExtra((p) => !p);
+        }
+      }}
     >
       <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none text-2xl font-semibold opacity-60">
         {isExtra ? "Extra" : "Phantasm"}

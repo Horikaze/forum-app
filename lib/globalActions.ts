@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import db from "./db";
 import { UserRole } from "@/app/constants/forum";
+import { revalidateTag, unstable_cache } from "next/cache";
 
 export const setCookie = async (key: string, value: string) => {
   cookies().set(key, value);
@@ -33,3 +34,51 @@ export const getUserSessionCreate = async (isAdmin: boolean = false) => {
   }
   return { session, user };
 };
+
+export const sendRequestAction = async (message: string) => {
+  try {
+    const { session } = await getUserSessionCreate();
+    await db.request.create({
+      data: {
+        userId: session?.user.id,
+        message,
+      },
+    });
+    revalidateTag(session.user.id + "recent");
+    return {
+      success: true,
+      message: `Wysłano`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: `${error}`,
+    };
+  }
+};
+export async function getProfileUserData(userId: string) {
+  return await unstable_cache(
+    async () => {
+      return await db.user.findFirst({
+        where: {
+          id: userId,
+        },
+        include: {
+          _count: {
+            select: {
+              comments: true,
+              posts: true,
+            },
+          },
+          table: true,
+          replay: true,
+        },
+      });
+    },
+    [userId],
+    {
+      revalidate: 10,
+      tags: [userId],
+    },
+  )();
+}

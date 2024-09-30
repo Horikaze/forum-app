@@ -95,6 +95,7 @@ export type RecentComment = Prisma.PostCommentGetPayload<{
           select: {
             slug: true;
             category: true;
+            title: true;
           };
         };
       };

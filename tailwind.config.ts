@@ -14,9 +14,16 @@ const config: Config = {
   },
   plugins: [require("@tailwindcss/typography"), require("daisyui")],
   daisyui: {
-    themes: ["dim", "dark", "black", "light", "valentine", "cupcake", "retro"],
-    darkTheme: "dim",
+    themes: ["dim", "black", "light", "cupcake", "retro"],
   },
+  darkMode: [
+    "variant",
+    [
+      '&:is([data-theme="dark"] *)',
+      '&:is([data-theme="dim"] *)',
+      '&:is([data-theme="black"] *)',
+    ],
+  ],
 };
 export default config;
 // DEFAULT: theme("colors.accent / 20%"),

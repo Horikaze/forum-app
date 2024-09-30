@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["relationJoins"]
+  previewFeatures = ["relationJoins", "omitApi"]
 }
 
 datasource db {
@@ -27,7 +27,9 @@ model User {
   role                 String        @default("user")
   pinnedAchievementsiD String?
   account              Account?
+  discord              String?
   achievements         Achievement[]
+  requests             Request[]
   posts                Post[]        @relation("UserPosts")
   comments             PostComment[] @relation("UserComments")
   reactions            Reaction[]
@@ -80,6 +82,17 @@ model Achievement {
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
   createdAt     DateTime @default(now())
+}
+
+model Request {
+  id        String   @id @default(cuid())
+  target    String   @default("other")
+  message   String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Reaction {

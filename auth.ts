@@ -58,7 +58,7 @@ type Credentials = {
   isLogin: string;
 };
 
-const PROTECTED_ROUTES = ["/profile", "/forum/new"];
+const PROTECTED_ROUTES = ["/profile:path*", "/forum/new"];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -88,7 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (PROTECTED_ROUTES.includes(pathname)) return !!auth;
       return true;
     },
-    async jwt({ token, user, account, trigger, session }) {
+    async jwt({ token, user, account, trigger, session, profile }) {
       if (trigger === "update" && session?.nickname) {
         token.user.nickname = session.nickname;
         return token;
@@ -103,12 +103,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       if (!user) return token;
       let provider;
+      let discordName;
       switch (account?.provider) {
         case "github":
           provider = LoginProvider.GITHUB;
           break;
         case "discord":
           provider = LoginProvider.DISCORD;
+          user.name! = profile!.global_name as string;
+          discordName = profile!.username as string;
           break;
         default:
           provider = LoginProvider.CREDENTIALS;
@@ -157,6 +160,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
               id: generatedId,
               nickname: user.name!,
               profileImage: user.image || null,
+              discord: discordName || null,
               account: {
                 create: {
                   loginProvider: provider,
@@ -191,5 +195,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   session: { strategy: "jwt" },
-  debug: process.env.NODE_ENV === "development",
+  // debug: process.env.NODE_ENV === "development",
 });

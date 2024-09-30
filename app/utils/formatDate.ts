@@ -1,34 +1,38 @@
 export function formatDatePost(dateInput: string | Date): string {
-  const date = new Date(dateInput);
+  try {
+    const date = new Date(dateInput);
 
-  if (isNaN(date.getTime())) {
-    throw new Error("Invalid date");
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date");
+    }
+
+    const daysOfWeek = ["ndz", "pon", "wt", "śr", "czw", "pt", "sob"];
+    const months = [
+      "sty",
+      "lut",
+      "mar",
+      "kwi",
+      "maj",
+      "cze",
+      "lip",
+      "sie",
+      "wrz",
+      "paź",
+      "lis",
+      "gru",
+    ];
+
+    const dayOfWeek = daysOfWeek[date.getDay()];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    return `${dayOfWeek} ${day} ${month} ${year}, ${hours}:${minutes}`;
+  } catch (error) {
+    return "Brak daty";
   }
-
-  const daysOfWeek = ["ndz", "pon", "wt", "śr", "czw", "pt", "sob"];
-  const months = [
-    "sty",
-    "lut",
-    "mar",
-    "kwi",
-    "maj",
-    "cze",
-    "lip",
-    "sie",
-    "wrz",
-    "paź",
-    "lis",
-    "gru",
-  ];
-
-  const dayOfWeek = daysOfWeek[date.getDay()];
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  const hours = date.getHours();
-  const minutes = date.getMinutes().toString().padStart(2, "0");
-
-  return `${dayOfWeek} ${day} ${month} ${year}, ${hours}:${minutes}`;
 }
 
 export function getFormattedDate(): string {

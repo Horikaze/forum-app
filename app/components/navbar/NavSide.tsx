@@ -5,15 +5,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  FaArrowLeft,
   FaHouse,
   FaPaintRoller,
   FaPen,
+  FaPlay,
   FaRankingStar,
   FaUsers,
 } from "react-icons/fa6";
 import { MdOutlineForum } from "react-icons/md";
 import { PiTestTubeBold } from "react-icons/pi";
+import { TbArrowBarToRight } from "react-icons/tb";
 const sideNavLinks = [
   {
     title: "Strona główna",
@@ -31,6 +32,11 @@ const sideNavLinks = [
     icon: FaUsers,
   },
   {
+    title: "Powtórki",
+    href: "/replay",
+    icon: FaPlay,
+  },
+  {
     title: "Rankingi",
     href: "/ranking",
     icon: FaRankingStar,
@@ -46,15 +52,7 @@ const sideNavLinks = [
     icon: PiTestTubeBold,
   },
 ];
-const themes = [
-  "black",
-  "dark",
-  "dim",
-  "retro",
-  "valentine",
-  "cupcake",
-  "light",
-];
+const themes = ["black", "dim", "retro", "cupcake", "light"];
 export default function NavSide() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -75,10 +73,10 @@ export default function NavSide() {
         onClick={openCloseNav}
         className="group absolute -right-16 top-0 grid size-16 cursor-pointer place-items-center"
       >
-        <FaArrowLeft
+        <TbArrowBarToRight
           className={cn(
             "size-6 transition-all group-hover:opacity-80",
-            isOpen ? "rotate-0" : "rotate-180",
+            isOpen ? "rotate-180" : "rotate-0",
           )}
         />
       </button>

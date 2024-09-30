@@ -1,8 +1,12 @@
 import BlogListCard from "@/app/components/forumComponents/BlogListCard";
 import { PostStatus } from "@/app/constants/forum";
 import db from "@/lib/db";
+import { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import Link from "next/link";
-
+export const metadata: Metadata = {
+  title: "Blog",
+};
 export default async function Blog({
   searchParams,
 }: {
@@ -17,6 +21,7 @@ export default async function Blog({
   });
   const postsPerPage = 10;
   const totalPages = Math.max(1, Math.ceil(allPostCount / postsPerPage));
+
   const fetchPosts = async () => {
     console.log("cache blog");
     return await db.post.findMany({
@@ -39,16 +44,26 @@ export default async function Blog({
           },
         },
       },
-      orderBy: [
-        {
-          bumpDate: "desc",
-        },
-      ],
+      orderBy: {
+        bumpDate: "desc",
+      },
       take: postsPerPage,
       skip: (pageNumber - 1) * postsPerPage,
     });
   };
-  const blogPost = await fetchPosts();
+
+  const getUserData = unstable_cache(
+    async () => {
+      return fetchPosts();
+    },
+    ["blog" + pageNumber],
+    {
+      revalidate: false,
+      tags: ["recent"],
+    },
+  );
+
+  const blogPost = await getUserData();
   return (
     <div className="flex grow flex-col gap-5">
       {blogPost.map((p) => (

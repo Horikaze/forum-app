@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { TbArrowBarToLeft } from "react-icons/tb";
 import { cn } from "../utils/twUtils";
-import { fa } from "@faker-js/faker";
-import { FaArrowLeft } from "react-icons/fa6";
 
 export default function RecentPanelController({
   children,
@@ -14,7 +13,7 @@ export default function RecentPanelController({
   return (
     <aside
       className={cn(
-        "sticky top-0 hidden transition-all lg:flex",
+        "sticky top-0 hidden transition-all xl:flex",
         isOpen ? "w-[430px]" : "w-5",
       )}
     >
@@ -23,9 +22,9 @@ export default function RecentPanelController({
         onClick={() => setIsOpen((p) => !p)}
         className="mr-1 flex h-full w-5 shrink-0 cursor-pointer flex-col items-center justify-center rounded-box bg-transparent transition-all hover:bg-base-200/60"
       >
-        <FaArrowLeft
+        <TbArrowBarToLeft
           className={cn(
-            "z-30 size-3 transition-all group-hover:opacity-80",
+            "z-30 size-5 transition-all group-hover:opacity-80",
             isOpen ? "rotate-180" : "rotate-0",
           )}
         />

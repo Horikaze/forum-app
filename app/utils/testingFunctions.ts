@@ -42,6 +42,5 @@ export async function deleteFile(fileName: string) {
     }
   } catch (error) {
     console.error("Error deleting image or folder:", error);
-    throw new Error("Failed to delete image or folder");
   }
 }

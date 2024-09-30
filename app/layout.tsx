@@ -11,10 +11,10 @@ const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-});
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff",
+//   variable: "--font-geist-mono",
+// });
 
 export const metadata: Metadata = {
   title: "miau",
@@ -31,9 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <SessionWrapper>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} flex h-screen antialiased`}
-        >
+        <body className={`${geistSans.variable} flex h-screen antialiased`}>
           <Toaster
             containerStyle={{ zIndex: 1000 }}
             toastOptions={{

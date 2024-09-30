@@ -8,13 +8,12 @@ import {
   getGameString,
 } from "@/app/utils/replayUtils";
 import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
-import { auth } from "@/auth";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
 import { Replay } from "@prisma/client";
 import axios from "axios";
 import { nanoid } from "nanoid";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import * as z from "zod";
 const registerSchema = z.object({
   nickname: z
@@ -46,7 +45,7 @@ export const changeNicknameAction = async (nickname: string) => {
         nickname,
       },
     });
-    revalidatePath(`/profile`, "page");
+    revalidateTag(session.user.id);
     return {
       success: true,
     };
@@ -116,7 +115,7 @@ export const changeProfileImageAction = async (file: File, target: string) => {
       return res;
     });
 
-    revalidatePath(`/profile`, "page");
+    revalidateTag(session.user.id);
     return {
       success: true,
       message: message,
@@ -157,7 +156,7 @@ export const changeDescriptionAction = async (description: string) => {
         description,
       },
     });
-    revalidatePath(`/profile`, "page");
+    revalidateTag(session.user.id);
     return {
       success: true,
     };
@@ -193,7 +192,7 @@ export const removeProfileImageAction = async (target: string) => {
         await deleteFile(imageToDelete[target]);
       }
     });
-    revalidatePath(`/profile`, "page");
+    revalidateTag(session.user.id);
     return {
       success: true,
     };
@@ -285,7 +284,7 @@ export const sendReplayAction = async (
     });
 
     await changeRanking(newReplay);
-    revalidatePath(`/profile`);
+    revalidateTag(session.user.id);
     return { success: true, message: "Dodano replay!" };
   } catch (error) {
     console.log(error);
@@ -348,7 +347,7 @@ const changeRanking = async (newReplay: Replay) => {
         score: Number(newReplay.score),
         id: newReplay.replayId,
         CC: newReplay.achievement,
-        char: getCharacterFromData(newReplay as any as ReplayApiInfo, true),
+        char: getCharacterFromData(newReplay, true),
       },
     };
 
@@ -429,7 +428,7 @@ export const deleteReplayAction = async ({
       await changeRanking(replayToReplace);
     }
 
-    revalidatePath("/profile", "page");
+    revalidateTag(session.user.id);
     return { success: true, message: "Replay deleted and ranking updated" };
   } catch (error) {
     return { success: false, message: `Failed to delete replay: ${error}` };

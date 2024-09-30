@@ -3,14 +3,19 @@ import { testAchiv } from "@/app/constants/testing";
 import { formatDatePost } from "@/app/utils/formatDate";
 import { cn } from "@/app/utils/twUtils";
 import { auth } from "@/auth";
-import db from "@/lib/db";
+import { getProfileUserData } from "@/lib/globalActions";
+import { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { FaImage, FaPlus, FaRegImage } from "react-icons/fa6";
+import { FaDiscord, FaImage, FaPlus, FaRegImage } from "react-icons/fa6";
 import ChangeDescription from "./components/ChangeDescription";
 import ChangeImage from "./components/ChangeImage";
 import ChangeNickname from "./components/ChangeNickname";
 import SwitchProfileData from "./components/SwitchProfileData";
+export const metadata: Metadata = {
+  title: "Mój profil",
+};
+
 export default async function ProfileLayout({
   children,
 }: {
@@ -21,26 +26,12 @@ export default async function ProfileLayout({
     redirect("/");
   }
 
-  const user = await db.user.findFirst({
-    where: {
-      id: session.user.id,
-    },
-    include: {
-      _count: {
-        select: {
-          comments: true,
-          posts: true,
-        },
-      },
-      table: true,
-    },
-  });
-
+  const user = await getProfileUserData(session.user.id);
   if (!user) {
     redirect("/");
   }
   return (
-    <section>
+    <>
       <div
         className={cn(
           "relative flex flex-col rounded-box bg-base-300",
@@ -65,7 +56,8 @@ export default async function ProfileLayout({
                 <Image
                   src={user.profileImage || "/images/placeholder.png"}
                   alt={user.nickname}
-                  fill
+                  height={150}
+                  width={150}
                 />
                 <div className="absolute inset-0 flex items-center justify-center bg-base-300/50 opacity-0 backdrop-blur-sm transition-all group-hover/fpf:opacity-100">
                   <ChangeImage aspect={1} target="profileImage">
@@ -115,6 +107,12 @@ export default async function ProfileLayout({
                 <span className="opacity-80">Liczba CC: </span>
                 {user.cc}
               </span>
+              {user.discord ? (
+                <div className="flex items-center gap-1 whitespace-nowrap text-xs">
+                  <FaDiscord className="size-4" />
+                  {user.discord}
+                </div>
+              ) : null}
             </div>
           </div>
           {user.description ? (
@@ -132,6 +130,7 @@ export default async function ProfileLayout({
               src={user.bannerImage}
               alt="banner"
               fill
+              sizes="(max-width: 600px) 480px, (max-width: 900px) 800px, 1200px"
               className="object-cover"
               style={{
                 objectPosition: "70% 0%",
@@ -153,7 +152,8 @@ export default async function ProfileLayout({
               <Image
                 src={user.profileImage || "/images/placeholder.png"}
                 alt={user.nickname}
-                fill
+                height={150}
+                width={150}
               />
               <div className="absolute inset-0 flex items-center justify-center bg-base-300/50 opacity-0 backdrop-blur-sm transition-all group-hover/fpf:opacity-100">
                 <ChangeImage aspect={1} target="profileImage">
@@ -210,6 +210,6 @@ export default async function ProfileLayout({
       </div>
       <SwitchProfileData />
       {children}
-    </section>
+    </>
   );
 }

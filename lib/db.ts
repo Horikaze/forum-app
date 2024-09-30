@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { unstable_cache } from "next/cache";
 
 const prismaClientSingleton = () => {
   return new PrismaClient();

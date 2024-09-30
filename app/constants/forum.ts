@@ -1,3 +1,5 @@
+import { FaCheck } from "react-icons/fa";
+
 export const forumCategory = [
   {
     title: "Touhou",
@@ -52,3 +54,32 @@ export enum UserRole {
   MODERATOR = "moderator",
   ADMIN = "admin",
 }
+export enum RequestStatus {
+  PENDING = "pending",
+  REJECTED = "rejected",
+  APPROVED = "approved",
+}
+export const requestCategory = [
+  {
+    title: "Osiągnięcie",
+    target: "achievement",
+    summary:
+      "Jeżeli chcesz otrzymać osiągnięcie, napisz tu jakie ma ID i podaj za co. Możesz podać kilka na raz.",
+  },
+  {
+    title: "Powtórki",
+    target: "replay",
+    summary: "Jeżeli masz jakies zastrzerzenia do powtórki/rankingu",
+  },
+  {
+    title: "Forum",
+    target: "forum",
+    summary:
+      "Jeżeli masz jakies zastrzerzenia do forum, bugi, coś nie działa etc. Wciąż lepiej napisac na discordzie :)",
+  },
+  {
+    title: "Inne",
+    target: "other",
+    summary: "Na wszystko inne",
+  },
+];

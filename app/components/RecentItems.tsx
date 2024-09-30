@@ -11,8 +11,8 @@ export const RecentPostComponent = ({ post }: { post: RecentPost }) => {
     <Link
       href={`${post?.category === "blog" ? "" : "/forum"}/${post.category}/${post.slug}`}
       className={cn(
-        "group relative line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100",
-        post.featuredImage ? "text-white" : "",
+        "group relative line-clamp-2 flex min-h-20 flex-col justify-between gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100",
+        post.featuredImage ? "dark:text-white" : "",
       )}
     >
       {post.featuredImage ? (
@@ -20,6 +20,7 @@ export const RecentPostComponent = ({ post }: { post: RecentPost }) => {
           src={post.featuredImage}
           alt="cover"
           fill
+          sizes="(max-width: 600px) 500px, 500px"
           className="absolute object-cover opacity-60 transition-all group-hover:scale-110"
         />
       ) : null}
@@ -58,7 +59,11 @@ export const RecentCommentComponent = ({ com }: { com: RecentComment }) => {
         <p className="line-clamp-1 whitespace-nowrap text-xs opacity-90">
           W: {com.post?.title}
         </p>
-      ) : null}
+      ) : (
+        <p className="line-clamp-1 whitespace-nowrap text-xs opacity-90">
+          W: {com.parentComment?.post!.title}
+        </p>
+      )}
       <div className="mt-2 flex justify-between text-xs opacity-80">
         <p>Przez: {com.author.nickname}</p>
         <div className="flex items-center gap-1">

@@ -8,13 +8,13 @@ import { changeDescriptionAction } from "../profileActions";
 type ChangeSignatureDynamicProps = {
   isOpen: boolean;
   onClose: () => void;
-  description?:string
+  description?: string;
 };
 
 export default function ChangeDescriptionDynamic({
   isOpen,
   onClose,
-  description
+  description,
 }: ChangeSignatureDynamicProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const [inputValue, setInputValue] = useState(description || "");
@@ -48,10 +48,10 @@ export default function ChangeDescriptionDynamic({
   return (
     <dialog ref={ref} className="modal" onClose={handleBackdropClick}>
       <div className="modal-box flex w-full max-w-5xl flex-col items-end gap-2">
-        <span className="self-start font-semibold">Zmień opis</span>
+        <h3 className="text-lg font-bold self-start">Zmień opis</h3>
         <MDXEditor
-             mdxContent={[inputValue, setInputValue]}
-             postImages={[images, setImages]}
+          mdxContent={[inputValue, setInputValue]}
+          postImages={[images, setImages]}
           preview={PreviewDescription}
         />
         <div className="flex gap-2">

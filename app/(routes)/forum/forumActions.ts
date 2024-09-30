@@ -12,6 +12,7 @@ import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
 import { checkImages } from "@/app/utils/zod";
 import db from "@/lib/db";
 import { getUserSessionCreate } from "@/lib/globalActions";
+import { nanoid } from "nanoid";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import slugify from "slugify";
@@ -119,7 +120,7 @@ export const newPostAction = async (
       remove: /[^a-zA-Z0-9\s-]/g,
       replacement: "-",
     });
-    slug += "-" + getFormattedDate();
+    slug += "-" + nanoid(2);
     let slugUrl = "";
     slugUrl = `${dbTarget === "blog" ? "" : "/forum"}/${dbTarget.toLowerCase()}/${slug}`;
 
@@ -654,7 +655,6 @@ export const editPostAction = async ({
 export const deletePostAction = async (
   targetId: string,
   isPost: boolean,
-  currentUrl: string,
 ) => {
   let isError = false;
   try {

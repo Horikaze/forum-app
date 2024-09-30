@@ -4,7 +4,6 @@ import { deletePostAction } from "@/app/(routes)/forum/forumActions";
 import { PostDataProps } from "@/app/types/prismaTypes";
 import { cn } from "@/app/utils/twUtils";
 import dynamic from "next/dynamic";
-import { usePathname } from "next/navigation";
 import { Suspense, useState } from "react";
 import { FaPen, FaTrash } from "react-icons/fa6";
 const EditPostEditor = dynamic(() => import("./EditPostEditor"));
@@ -21,10 +20,9 @@ export default function EditPost({
   isBlog,
 }: EditPostProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const pathaname = usePathname();
 
   const deletePost = async () => {
-    await deletePostAction(targetId, isPost, pathaname);
+    await deletePostAction(targetId, isPost);
   };
 
   return (
@@ -62,7 +60,7 @@ export default function EditPost({
             >
               <div tabIndex={0} className="card-body">
                 <p className="text-warning">
-                  Na pewno usunąć {isPost ? "post" : "komentarz"}?
+                  Na pewno chcesz usunąć {isPost ? "post" : "komentarz"}?
                 </p>
                 <button onClick={deletePost} className="btn btn-warning btn-sm">
                   Usuń

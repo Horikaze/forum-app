@@ -69,7 +69,7 @@ export default function AddReplay() {
     <div className="relative mt-5 rounded-box bg-base-300 p-2 lg:p-4">
       <p className="text-center text-2xl font-semibold">Dodaj powtórkę</p>
       <div className="divider" />
-      <form onSubmit={sendReplay} className="flex flex-col gap-2">
+      <form onSubmit={sendReplay} className="flex flex-col gap-2" id="sendReplay">
         <div className="flex items-center justify-center gap-2">
           <input
             disabled={isPending}

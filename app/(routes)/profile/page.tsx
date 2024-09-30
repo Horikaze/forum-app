@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import AchievementsList from "./components/AchievementsList";
 import AddReplay from "./components/AddReplay";
 import CCTable from "./components/CCTable";
+import { getProfileUserData } from "@/lib/globalActions";
 
 export default async function Profile() {
   const session = await auth();
@@ -12,20 +13,13 @@ export default async function Profile() {
     redirect("/");
   }
 
-  const user = await db.user.findFirst({
-    where: {
-      id: session.user.id,
-    },
-    select: {
-      table: true,
-    },
-  });
+  const user = await getProfileUserData(session.user.id);
   if (!user) {
     redirect("/");
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex w-full flex-col">
       <AchievementsList achievements={testAchiv} />
       <CCTable table={user.table!} />
       <AddReplay />

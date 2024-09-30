@@ -26,7 +26,7 @@ export const getGameNumberFromReplayName = (replayName: string) => {
   }
 };
 export const getCharacterFromData = (
-  replyData: ReplayApiInfo,
+  replyData: ReplayApiInfo | any,
   includeType: boolean = false,
 ) => {
   try {
