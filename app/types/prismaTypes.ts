@@ -129,3 +129,15 @@ export type RecentPost = Prisma.PostGetPayload<{
     createdAt: true;
   };
 }>;
+export type UserProfile = Prisma.UserGetPayload<{
+  include: {
+    _count: {
+      select: {
+        comments: true;
+        posts: true;
+      };
+    };
+    table: true;
+    replay: true;
+  };
+}>;

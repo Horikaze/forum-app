@@ -59,6 +59,7 @@ export const sendRequestAction = async (message: string) => {
 export async function getProfileUserData(userId: string) {
   return await unstable_cache(
     async () => {
+      console.log(userId + "profile");
       return await db.user.findFirst({
         where: {
           id: userId,

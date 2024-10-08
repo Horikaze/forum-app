@@ -2,11 +2,23 @@
 import { usePathname, useRouter } from "next/navigation";
 import { FaList, FaUser } from "react-icons/fa6";
 
-export default function SwitchProfileData() {
+type SwitchProfileDataProps = {
+  isMine: boolean;
+  userId: string;
+};
+
+export default function SwitchProfileData({
+  isMine,
+  userId,
+}: SwitchProfileDataProps) {
   const pathname = usePathname();
   const router = useRouter();
   const changeRoute = () => {
-    router.replace(pathname === "/profile" ? "/profile/moreinfo" : "/profile");
+    router.replace(
+      pathname === `/profile${isMine ? `/${userId}` : ""}`
+        ? `/profile/moreinfo${isMine ? `/${userId}` : ""}`
+        : `/profile${isMine ? `/${userId}` : ""}`,
+    );
   };
 
   return (
