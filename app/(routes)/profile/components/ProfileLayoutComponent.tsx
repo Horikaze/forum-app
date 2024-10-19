@@ -5,10 +5,10 @@ import { formatDatePost } from "@/app/utils/formatDate";
 import { cn } from "@/app/utils/twUtils";
 import Image from "next/image";
 import { FaDiscord, FaImage, FaPlus, FaRegImage } from "react-icons/fa6";
-import ChangeDescription from "../components/ChangeDescription";
-import ChangeImage from "../components/ChangeImage";
-import ChangeNickname from "../components/ChangeNickname";
-import SwitchProfileData from "../components/SwitchProfileData";
+import ChangeDescription from "./ChangeDescription";
+import ChangeImage from "./ChangeImage";
+import ChangeNickname from "./ChangeNickname";
+import SwitchProfileData from "./SwitchProfileData";
 type ProfileLayoutComponentProps = {
   user: UserProfile;
   isMine: boolean;
@@ -215,7 +215,7 @@ export default function ProfileLayoutComponent({
           </div>
         ) : null}
       </div>
-      <SwitchProfileData  isMine={false} userId="123"/>
+      <SwitchProfileData userId={user.id} />
     </>
   );
 }

@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { FaTrash } from "react-icons/fa";
-import { deleteReplayAction } from "../../profile/profileActions";
+import { deleteReplayAction } from "../../profile/[user]/profileActions";
 
 export default function DeleteReplay({
   userId,

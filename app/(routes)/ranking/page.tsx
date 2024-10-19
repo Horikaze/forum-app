@@ -51,7 +51,7 @@ type UserRankinkElementProps = {
 const UserRankinkElement = ({ user, idx }: UserRankinkElementProps) => {
   return (
     <Link
-      href={`/user/${user.id}`}
+      href={`/profile/${user.id}`}
       key={user.id}
       className={cn(
         "relative isolate flex h-20 shrink-0 items-center gap-2 overflow-hidden rounded-box border-2 border-transparent bg-base-300 p-2 font-semibold shadow-md transition-all hover:bg-base-100",

@@ -9,10 +9,8 @@ import { PostDataProps } from "@/app/types/prismaTypes";
 type Props = {
   params: { post: string };
 };
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata,
-): Promise<Metadata> {
+export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+  const params = await props.params;
   const post = await db.post.findFirst({
     where: {
       slug: params.post,
@@ -62,7 +60,8 @@ export async function generateMetadata(
   };
 }
 
-export default async function PostPage({ params }: Props) {
+export default async function PostPage(props: Props) {
+  const params = await props.params;
   const post = await db.post.findFirst({
     relationLoadStrategy: "join",
     where: {

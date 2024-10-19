@@ -68,7 +68,10 @@ const DropdownMenu = ({ session, isAdmin }: DropdownMenuProps) => {
         className="menu dropdown-content menu-sm z-20 mt-3 w-52 rounded-box border border-base-300 bg-base-100 p-2 shadow"
       >
         <li>
-          <Link href={"/profile"} className="justify-between">
+          <Link
+            href={`/profile/${session.user.id}`}
+            className="justify-between"
+          >
             Profil
           </Link>
         </li>

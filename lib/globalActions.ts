@@ -7,7 +7,7 @@ import { UserRole } from "@/app/constants/forum";
 import { revalidateTag, unstable_cache } from "next/cache";
 
 export const setCookie = async (key: string, value: string) => {
-  cookies().set(key, value);
+  (await cookies()).set(key, value);
 };
 export default async function redirectHard(uri: string) {
   redirect(uri);

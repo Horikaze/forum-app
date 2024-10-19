@@ -82,7 +82,7 @@ export default function CCTable({ table }: { table: Table }) {
                           )}
                         >
                           <Link
-                            href={`replay/${id}`}
+                            href={`/replay/${id}`}
                             className="flex flex-col font-semibold text-white"
                           >
                             <span>{getCCstring(CC || 0)}</span>{" "}

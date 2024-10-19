@@ -33,7 +33,7 @@ export default function TopicListCard({
           <p className="text-xs mt-1">
             <span className="opacity-80">autor: </span>
             <Link
-              href={`/user/${author.id}`}
+              href={`/profile/${author.id}`}
               className="text-warning font-bold link-hover"
             >
               {author.nickname}
@@ -60,7 +60,7 @@ export default function TopicListCard({
               <p>
                 <span className="lg:inline hidden opacity-80">autor: </span>
                 <Link
-                  href={`/user/${comments[0].author.id}`}
+                  href={`/profile/${comments[0].author.id}`}
                   className="text-warning font-bold hover:link link-hover"
                 >
                   {comments[0].author.nickname}

@@ -62,7 +62,10 @@ export default function RootLayout({
             <div className="flex flex-1 flex-col overflow-hidden">
               <NavBarTop />
               <main className="flex h-[calc(100vh-4rem)] justify-center">
-                <div className="flex size-full justify-center gap-5 overflow-auto px-1 py-5">
+                <div
+                  className="flex size-full justify-center gap-5 overflow-auto px-1 py-5"
+                  id="main"
+                >
                   <div className="flex h-max min-h-full max-w-7xl flex-1 flex-col overflow-x-hidden">
                     {children}
                   </div>

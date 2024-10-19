@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import LoginForm from "./LoginForm";
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: { redirectTo: string };
-}) {
+export default async function Page(
+  props: {
+    searchParams: Promise<{ redirectTo: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
 
   const loginFaq = [
     {

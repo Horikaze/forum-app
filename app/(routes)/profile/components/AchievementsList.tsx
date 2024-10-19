@@ -7,8 +7,10 @@ import { FaPlus, FaX } from "react-icons/fa6";
 
 const AchievementsList = ({
   achievements,
+  isMine,
 }: {
   achievements: AchievementList[];
+  isMine: boolean;
 }) => {
   const [info, setInfo] = useState<AchievementList | null>(null);
 
@@ -43,11 +45,13 @@ const AchievementsList = ({
             <Image src={a.image} width={50} height={50} alt={a.name} />
           </div>
         ))}
-        <AddRequest defaultValue="achievement">
-          <div className="flex size-[50px] cursor-pointer flex-col items-center justify-center rounded-box bg-base-200/60 hover:scale-105 hover:bg-base-100">
-            <FaPlus className="size-6" />
-          </div>
-        </AddRequest>
+        {isMine ? (
+          <AddRequest defaultValue="achievement">
+            <div className="flex size-[50px] cursor-pointer flex-col items-center justify-center rounded-box bg-base-200/60 hover:scale-105 hover:bg-base-100">
+              <FaPlus className="size-6" />
+            </div>
+          </AddRequest>
+        ) : null}
       </div>
     </div>
   );

@@ -25,7 +25,6 @@ const nextConfig = {
       },
     ],
   },
-  transpilePackages: ["next-mdx-remote"],
   eslint: {
     ignoreDuringBuilds: true,
   },

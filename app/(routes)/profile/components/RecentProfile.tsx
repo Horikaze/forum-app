@@ -1,26 +1,23 @@
 import {
   RecentCommentComponent,
+  RecentPostComponent,
   RecentReplayComponent,
 } from "@/app/components/RecentItems";
 import { areDatesEqual, formatDatePost } from "@/app/utils/formatDate";
-import { auth } from "@/auth";
 import db from "@/lib/db";
 import { Request } from "@prisma/client";
 import { unstable_cache } from "next/cache";
-import { redirect } from "next/navigation";
 import { FaCheckCircle } from "react-icons/fa";
 import { FaCalendar, FaCircleXmark, FaClock } from "react-icons/fa6";
-import LoadMore, { RecentPostComponent } from "./components/LoadMore";
 import {
   fetchMoreCommentsAction,
   fetchMorePostsAction,
   fetchMoreReplaysAction,
-} from "./dataActions";
+} from "../[user]/dataActions";
+import LoadMore from "./LoadMore";
 
-export default async function RecentPostsPage() {
+export default async function RecentProfile({ userId }: { userId: string }) {
   const take = 2;
-  const session = await auth();
-  if (!session) redirect("/");
   const getRecentPosts = unstable_cache(
     async (userId: string) => {
       return await Promise.all([
@@ -53,15 +50,14 @@ export default async function RecentPostsPage() {
         }),
       ]);
     },
-    [session.user.id + "recent"],
+    [userId + "recent"],
     {
       revalidate: 10,
-      tags: [session.user.id + "recent"],
+      tags: [userId + "recent"],
     },
   );
-  const [posts, comments, replays, requests, itemsCount] = await getRecentPosts(
-    session.user.id,
-  );
+  const [posts, comments, replays, requests, itemsCount] =
+    await getRecentPosts(userId);
   return (
     <div className="flex flex-col">
       <div className="relative rounded-box bg-base-300 p-2 lg:p-4">

@@ -3,21 +3,17 @@ import { usePathname, useRouter } from "next/navigation";
 import { FaList, FaUser } from "react-icons/fa6";
 
 type SwitchProfileDataProps = {
-  isMine: boolean;
   userId: string;
 };
 
-export default function SwitchProfileData({
-  isMine,
-  userId,
-}: SwitchProfileDataProps) {
+export default function SwitchProfileData({ userId }: SwitchProfileDataProps) {
   const pathname = usePathname();
   const router = useRouter();
   const changeRoute = () => {
     router.replace(
-      pathname === `/profile${isMine ? `/${userId}` : ""}`
-        ? `/profile/moreinfo${isMine ? `/${userId}` : ""}`
-        : `/profile${isMine ? `/${userId}` : ""}`,
+      !pathname.includes("moreinfo")
+        ? `/profile/${userId}/moreinfo`
+        : `/profile/${userId}`,
     );
   };
 
@@ -26,7 +22,7 @@ export default function SwitchProfileData({
       <FaUser className="size-5" />
       <input
         onChange={changeRoute}
-        checked={pathname === "/profile" ? false : true}
+        checked={pathname.includes("moreinfo")}
         type="checkbox"
         className="toggle bg-base-content hover:bg-base-content"
       />

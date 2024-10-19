@@ -110,7 +110,7 @@ export default function PostCard({
               />
             </div>
             <Link
-              href={`/user/${post.author.id}`}
+              href={`/profile/${post.author.id}`}
               className={cn(
                 "link-hover text-end font-semibold text-warning",
                 isBlog ? "ml-4 text-lg" : "",

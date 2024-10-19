@@ -18,7 +18,7 @@ import {
   fetchMoreCommentsAction,
   fetchMorePostsAction,
   fetchMoreReplaysAction,
-} from "../dataActions";
+} from "../[user]/dataActions";
 
 export default function LoadMore({
   take,

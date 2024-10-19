@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import { FormEvent, useRef, useState } from "react";
 import { FaRegCircleXmark } from "react-icons/fa6";
-import { changeNicknameAction } from "../profileActions";
+import { changeNicknameAction } from "../[user]/profileActions";
 import toast from "react-hot-toast";
 
 export default function ChangeNickname({ nickname }: { nickname: string }) {

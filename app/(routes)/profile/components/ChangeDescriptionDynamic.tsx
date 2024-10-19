@@ -3,7 +3,7 @@ import { PreviewDescription } from "@/app/components/MDXPreview";
 import { PostImage } from "@/app/types/types";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
-import { changeDescriptionAction } from "../profileActions";
+import { changeDescriptionAction } from "../[user]/profileActions";
 
 type ChangeSignatureDynamicProps = {
   isOpen: boolean;

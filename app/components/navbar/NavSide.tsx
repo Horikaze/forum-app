@@ -28,7 +28,7 @@ const sideNavLinks = [
   },
   {
     title: "Użytkownicy",
-    href: "/user",
+    href: "/profile",
     icon: FaUsers,
   },
   {

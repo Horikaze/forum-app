@@ -13,15 +13,16 @@ import { cn } from "@/app/utils/twUtils";
 import { checkImages } from "@/app/utils/zod";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { useState } from "react";
+import { useState, use } from "react";
 import toast from "react-hot-toast";
 import ChangeImage from "../../profile/components/ChangeImage";
 import { newPostAction } from "../forumActions";
-export default function NewPost({
-  searchParams,
-}: {
-  searchParams: { forumTarget: string };
-}) {
+export default function NewPost(
+  props: {
+    searchParams: Promise<{ forumTarget: string }>;
+  }
+) {
+  const searchParams = use(props.searchParams);
   const [title, setTitle] = useState(":3");
   const [subTitle, setSubTitle] = useState("");
   const [inputValue, setInputValue] = useState<string>("");

@@ -9,7 +9,8 @@ import { FaCircleXmark } from "react-icons/fa6";
 import DownloadReplay from "./DownloadReplay";
 import DeleteReplay from "./DeleteReplay";
 
-export default async function Replay({ params }: { params: { id: string } }) {
+export default async function Replay(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const replay = await db.replay.findUnique({
     where: {
       replayId: params.id,
@@ -43,7 +44,7 @@ export default async function Replay({ params }: { params: { id: string } }) {
         <p>
           Wysłano przez:{" "}
           <Link
-            href={`/user/${replay.profile?.id}`}
+            href={`/profile/${replay.profile?.id}`}
             className="link font-semibold"
           >
             {replay.profile?.nickname}

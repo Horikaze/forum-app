@@ -6,7 +6,7 @@ import {
 } from "@/app/utils/replayUtils";
 import React, { useRef, useState } from "react";
 import { FaX } from "react-icons/fa6";
-import { getRpyDataAction, sendReplayAction } from "../profileActions";
+import { getRpyDataAction, sendReplayAction } from "../[user]/profileActions";
 import toast from "react-hot-toast";
 import { achievementRankValues } from "@/app/constants/games";
 
@@ -69,7 +69,11 @@ export default function AddReplay() {
     <div className="relative mt-5 rounded-box bg-base-300 p-2 lg:p-4">
       <p className="text-center text-2xl font-semibold">Dodaj powtórkę</p>
       <div className="divider" />
-      <form onSubmit={sendReplay} className="flex flex-col gap-2" id="sendReplay">
+      <form
+        onSubmit={sendReplay}
+        className="flex flex-col gap-2"
+        id="sendReplay"
+      >
         <div className="flex items-center justify-center gap-2">
           <input
             disabled={isPending}
@@ -128,13 +132,13 @@ export default function AddReplay() {
             />
             <div className="flex flex-wrap">
               <label className="label flex cursor-pointer gap-1 self-start">
-                <span className="label-text">1CC</span>
                 <input
                   defaultChecked
                   name={"CC"}
                   type="checkbox"
                   className="checkbox"
                 />
+                <span className="label-text">1CC</span>
               </label>
               {Object.keys(achievementRankValues)
                 .slice(1)
@@ -143,7 +147,6 @@ export default function AddReplay() {
                     key={a}
                     className="label flex cursor-pointer gap-1 self-start"
                   >
-                    <span className="label-text">{a}</span>
                     <input
                       onChange={() => {
                         achievement !== a
@@ -154,6 +157,7 @@ export default function AddReplay() {
                       checked={achievement === a}
                       className="checkbox"
                     />
+                    <span className="label-text">{a}</span>
                   </label>
                 ))}
             </div>

@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   changeProfileImageAction,
   removeProfileImageAction,
-} from "../profileActions";
+} from "../[user]/profileActions";
 import ImageCropper from "@/app/components/ImageCropper";
 import toast from "react-hot-toast";
 

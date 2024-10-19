@@ -5,13 +5,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FaPlus } from "react-icons/fa6";
 
-export default async function CategoryPage({
-  params,
-  searchParams,
-}: {
-  params: { category: string };
-  searchParams: { page: string | undefined };
-}) {
+export default async function CategoryPage(
+  props: {
+    params: Promise<{ category: string }>;
+    searchParams: Promise<{ page: string | undefined }>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const category = forumCategory.find((c) => c.dbTarget === params.category);
   if (!category) notFound();
   const postsPerPage = 10;
