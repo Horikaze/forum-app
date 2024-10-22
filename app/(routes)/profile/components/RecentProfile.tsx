@@ -3,12 +3,9 @@ import {
   RecentPostComponent,
   RecentReplayComponent,
 } from "@/app/components/RecentItems";
-import { areDatesEqual, formatDatePost } from "@/app/utils/formatDate";
+import { RequestComponent } from "@/app/components/RequestComponent";
 import db from "@/lib/db";
-import { Request } from "@prisma/client";
 import { unstable_cache } from "next/cache";
-import { FaCheckCircle } from "react-icons/fa";
-import { FaCalendar, FaCircleXmark, FaClock } from "react-icons/fa6";
 import {
   fetchMoreCommentsAction,
   fetchMorePostsAction,
@@ -16,7 +13,15 @@ import {
 } from "../[user]/dataActions";
 import LoadMore from "./LoadMore";
 
-export default async function RecentProfile({ userId }: { userId: string }) {
+type RecentProfileProps = {
+  userId: string;
+  isMine: boolean;
+};
+
+export default async function RecentProfile({
+  userId,
+  isMine,
+}: RecentProfileProps) {
   const take = 2;
   const getRecentPosts = unstable_cache(
     async (userId: string) => {
@@ -102,7 +107,7 @@ export default async function RecentProfile({ userId }: { userId: string }) {
           />
         </div>
       </div>
-      {requests ? (
+      {requests && isMine ? (
         <div
           id="req"
           className="relative mt-5 rounded-box bg-base-300 p-2 lg:p-4"
@@ -120,30 +125,3 @@ export default async function RecentProfile({ userId }: { userId: string }) {
   );
 }
 
-const RequestComponent = ({ req }: { req: Request }) => {
-  const icons: { [key: string]: JSX.Element } = {
-    pending: <FaClock className="size-6" />,
-    approved: <FaCheckCircle className="size-6 text-success" />,
-    rejected: <FaCircleXmark className="size-6 text-warning" />,
-  };
-
-  return (
-    <div className="line-clamp-2 flex cursor-pointer items-center justify-between gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100">
-      <div>
-        <div className="line-clamp-2">{req.message}</div>
-        <div className="mt-2 flex items-center gap-1 text-xs">
-          <FaCalendar /> {formatDatePost(req.createdAt)}
-          {!areDatesEqual(req.createdAt, req.updatedAt) ? (
-            <span className="text-xs opacity-60">
-              (Zaaktulizowano: {formatDatePost(req.updatedAt)})
-            </span>
-          ) : null}
-        </div>
-      </div>
-      <div className="flex items-center justify-center gap-2 font-semibold">
-        {req.status}
-        {icons[req.status] || <FaCheckCircle />}
-      </div>
-    </div>
-  );
-};

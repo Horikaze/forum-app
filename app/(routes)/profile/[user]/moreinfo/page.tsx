@@ -21,7 +21,7 @@ export default async function RecentPostsPage({
   return (
     <>
       <ProfileLayoutComponent user={user} isMine={isMine} />
-      <RecentProfile userId={session.user.id} />
+      <RecentProfile userId={session.user.id} isMine={isMine} />
     </>
   );
 }

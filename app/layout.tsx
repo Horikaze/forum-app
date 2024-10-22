@@ -4,9 +4,9 @@ import React from "react";
 import { Toaster } from "react-hot-toast";
 import NavBarTop from "./components/navbar/NavBarTop";
 import NavSide from "./components/navbar/NavSide";
+import RecentPanel from "./components/RecentPanel";
 import "./globals.css";
 import SessionWrapper from "./providers/SessionWrapper";
-import RecentPanel from "./components/RecentPanel";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",

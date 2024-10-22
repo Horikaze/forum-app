@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { FaInfo } from "react-icons/fa6";
 import TopicListCard from "./TopicListCard";
-export const experimental_ppr = true;
 type TopicListProps = {
   title: string;
   dbTarget: string;

@@ -2,7 +2,6 @@ import { cn } from "@/app/utils/twUtils";
 import db from "@/lib/db";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
 export default async function Ranking() {
   const res = await db.user.findMany({
@@ -27,14 +26,7 @@ export default async function Ranking() {
           ))}
         </div>
       </div>
-      <div className="flex w-full flex-col items-center gap-5">
-        {/* <h2 className="text-2xl font-bold">Ilość 1CC</h2>
-        <div className="flex w-full flex-col gap-1 overflow-auto">
-          {res.map((u, idx) => (
-            <UserRankinkElement u={u} idx={idx} key={idx} />
-          ))}
-        </div> */}
-      </div>
+      <div className="flex w-full flex-col items-center gap-5"></div>
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { getFormattedDate } from "@/app/utils/formatDate";
 import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
 import { checkImages } from "@/app/utils/zod";
 import db from "@/lib/db";
-import { getUserSessionCreate } from "@/lib/globalActions";
+import { getUserSession } from "@/lib/globalActions";
 import { nanoid } from "nanoid";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
@@ -88,7 +88,7 @@ export const newPostAction = async (
 }> => {
   try {
     const { content, dbTarget, isSketch, subTitle, title } = newPost;
-    const { session } = await getUserSessionCreate(
+    const { session } = await getUserSession(
       adminForumDb.some((e) => e.dbTarget === dbTarget),
     );
     if (images) {
@@ -208,7 +208,7 @@ export const addCommentAction = async (
   images?: PostImage[],
 ) => {
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     const result = commentSchema.safeParse({ content });
     if (!result.success) {
       const errorMessage = result.error.issues
@@ -362,7 +362,7 @@ export const addReactionAction = async (
   isPost: boolean,
 ) => {
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     const userReaction = await db.reaction.findFirst({
       where: {
         [isPost ? "postId" : "commentId"]: targetId,
@@ -528,7 +528,7 @@ export const editPostAction = async ({
   images,
 }: editPostActionProps) => {
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     if (images) {
       if (images.length > 10) {
         throw new Error("Post może mieć maksymalnie 10 obrazów.");
@@ -658,7 +658,7 @@ export const deletePostAction = async (
 ) => {
   let isError = false;
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     await db.$transaction(async (tx) => {
       const imagesToDelete: string[] = [];
       if (isPost) {

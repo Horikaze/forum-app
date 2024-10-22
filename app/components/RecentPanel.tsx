@@ -7,7 +7,6 @@ import {
   RecentReplayComponent,
 } from "./RecentItems";
 import RecentPanelController from "./RecentPanelController";
-export const experimental_ppr = true;
 
 export default function RecentPanel() {
   return (
@@ -17,7 +16,7 @@ export default function RecentPanel() {
           <RecentPosts />
           <RecentComments />
           <RecentReplays />
-        </Suspense>
+        </Suspense>4
       </div>
     </RecentPanelController>
   );

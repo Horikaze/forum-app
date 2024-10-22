@@ -10,7 +10,7 @@ const nextConfig = {
     mdxRs: {
       mdxType: "gfm",
     },
-    ppr: "incremental",
+    // ppr: "incremental",
   },
   devIndicators: {
     buildActivity: true,

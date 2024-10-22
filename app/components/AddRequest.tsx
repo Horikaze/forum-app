@@ -24,17 +24,20 @@ export default function AddRequest({
   );
   const addRequest = async () => {
     let isError = false;
+    let userId = "";
     try {
       const res = await sendRequestAction(inputValue);
       if (!res.success) throw new Error(`${res.message}`);
-      toast.success(res.message);
+      // message is userId
+      userId = res.message;
+      toast.success("Wysłano");
       ref.current?.close();
     } catch (error) {
       isError = true;
       toast.error(`${error}`);
     } finally {
       if (!isError) {
-        redirect("/profile/moreinfo#req");
+        redirect(`/profile/${userId}/moreinfo#req`);
       }
       setIsPending(false);
     }

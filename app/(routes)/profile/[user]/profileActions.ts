@@ -9,7 +9,7 @@ import {
 } from "@/app/utils/replayUtils";
 import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
 import db from "@/lib/db";
-import { getUserSessionCreate } from "@/lib/globalActions";
+import { getUserSession } from "@/lib/globalActions";
 import { Replay } from "@prisma/client";
 import axios from "axios";
 import { nanoid } from "nanoid";
@@ -29,7 +29,7 @@ const registerSchema = z.object({
 
 export const changeNicknameAction = async (nickname: string) => {
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     const result = registerSchema.safeParse({ nickname });
     if (!result.success) {
       const errorMessage = result.error.issues
@@ -82,7 +82,7 @@ const profileImageSchema = z.object({
 });
 export const changeProfileImageAction = async (file: File, target: string) => {
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     const result = profileImageSchema.safeParse({ file });
     if (!result.success) {
       const errorMessage = result.error.issues
@@ -140,7 +140,7 @@ const descriptionSchema = z.object({
 });
 export const changeDescriptionAction = async (description: string) => {
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     const result = descriptionSchema.safeParse({ description });
     if (!result.success) {
       const errorMessage = result.error.issues
@@ -170,7 +170,7 @@ export const changeDescriptionAction = async (description: string) => {
 
 export const removeProfileImageAction = async (target: string) => {
   try {
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
     await db.$transaction(async (tx) => {
       const imageToDelete = await tx.user.findFirst({
         where: {
@@ -257,7 +257,7 @@ export const sendReplayAction = async (
     });
     if (existingRpy) throw new Error("Replay już istnieje");
 
-    const { session } = await getUserSessionCreate();
+    const { session } = await getUserSession();
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -374,7 +374,7 @@ export const deleteReplayAction = async ({
   replayId: string;
 }) => {
   try {
-    const { session, user } = await getUserSessionCreate();
+    const { session, user } = await getUserSession();
 
     const replayToDelete = await db.replay.findFirst({
       where: { replayId },
