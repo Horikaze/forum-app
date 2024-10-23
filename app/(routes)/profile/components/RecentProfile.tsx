@@ -116,7 +116,7 @@ export default async function RecentProfile({
           <div className="divider" />
           <div className="flex flex-col gap-1">
             {requests.requests.map((req, idx) => (
-              <RequestComponent req={req} key={idx} />
+              <RequestComponent isAdmin={false} req={req} key={idx} />
             ))}
           </div>
         </div>
@@ -124,4 +124,3 @@ export default async function RecentProfile({
     </div>
   );
 }
-

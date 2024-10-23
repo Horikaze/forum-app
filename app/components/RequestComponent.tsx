@@ -1,6 +1,5 @@
 "use client";
 import { areDatesEqual, formatDatePost } from "@/app/utils/formatDate";
-import { actionRequestType, editRequestAction } from "@/lib/globalActions";
 import { Request } from "@prisma/client";
 import toast from "react-hot-toast";
 import { FaCheckCircle, FaTrash } from "react-icons/fa";
@@ -11,8 +10,18 @@ import {
   FaClock,
   FaX,
 } from "react-icons/fa6";
+import {
+  actionRequestType,
+  editRequestAction,
+} from "../(routes)/admin/adminActions";
 
-export const RequestComponent = ({ req }: { req: Request }) => {
+export const RequestComponent = ({
+  req,
+  isAdmin,
+}: {
+  req: Request;
+  isAdmin: boolean;
+}) => {
   const icons: { [key: string]: JSX.Element } = {
     pending: <FaClock className="size-6" />,
     approved: <FaCheckCircle className="size-6 text-success" />,
@@ -41,20 +50,24 @@ export const RequestComponent = ({ req }: { req: Request }) => {
       </div>
       <div className="flex items-center justify-center gap-2 font-semibold">
         <div className="flex items-center justify-center gap-2 group-hover:flex">
-          <button
-            onClick={() => editReq("approve")}
-            className="btn btn-circle btn-primary btn-xs tooltip flex items-center"
-            data-tip="Na pewno chcesz akceptować zapytanie? (upewnij się że zostały dodane np. osiągnięcia)"
-          >
-            <FaCheck />
-          </button>
-          <button
-            onClick={() => editReq("reject")}
-            className="btn btn-circle btn-primary btn-xs tooltip flex items-center"
-            data-tip="Na pewno chcesz odrzucić zapytanie?"
-          >
-            <FaX />
-          </button>
+          {isAdmin ? (
+            <>
+              <button
+                onClick={() => editReq("approve")}
+                className="btn btn-circle btn-primary btn-xs tooltip flex items-center"
+                data-tip="Na pewno chcesz akceptować zapytanie? (upewnij się że zostały dodane np. osiągnięcia)"
+              >
+                <FaCheck />
+              </button>
+              <button
+                onClick={() => editReq("reject")}
+                className="btn btn-circle btn-primary btn-xs tooltip flex items-center"
+                data-tip="Na pewno chcesz odrzucić zapytanie?"
+              >
+                <FaX />
+              </button>
+            </>
+          ) : null}
           <button
             onClick={() => editReq("delete")}
             className="btn btn-circle btn-warning btn-xs tooltip flex items-center"

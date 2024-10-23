@@ -3,6 +3,7 @@ import { RequestStatus, UserRole } from "@/app/constants/forum";
 import { auth } from "@/auth";
 import db from "@/lib/db";
 import { redirect } from "next/navigation";
+import ChangeAchievements from "./components/ChangeAchievements";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -30,10 +31,11 @@ export default async function AdminPage() {
         <div className="divider" />
         <div className="flex flex-col gap-1">
           {requests.map((req, idx) => (
-            <RequestComponent req={req} key={idx} />
+            <RequestComponent isAdmin={true} req={req} key={idx} />
           ))}
         </div>
       </div>
+      <ChangeAchievements />
     </div>
   );
 }
