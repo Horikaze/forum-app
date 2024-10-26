@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/app/utils/twUtils";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaDiscord, FaGithub } from "react-icons/fa6";
@@ -11,7 +11,7 @@ export default function LoginForm({}) {
     typeof window !== "undefined" && window.location.origin
       ? window.location.origin
       : "";
-  //we get callbackUrl if middlware redirect
+  //we get callbackUrl if middlware redirects
   const redirectTo =
     searchParams.get("redirectTo") ||
     searchParams.get("callbackUrl")?.split(origin).at(-1) ||
@@ -28,11 +28,12 @@ export default function LoginForm({}) {
     formData.append("nickname", nickname);
     formData.append("password", password);
     formData.append("confirmPassword", confirmPassword);
-
     const res = await loginUserAction(formData);
     setIsLoading(false);
     if (res?.success) {
-      window.location.replace(origin + redirectTo);
+      new Promise((resolve) => setTimeout(resolve, 50)).then(async () => {
+        window.location.replace(origin + redirectTo);
+      });
       return;
     }
     toast.error(`${res?.message}`);
