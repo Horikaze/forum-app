@@ -6,11 +6,23 @@ import Link from "next/link";
 import NavNavigator from "./NavNavigator";
 import { usePathname } from "next/navigation";
 import { UserRole } from "@/app/constants/forum";
+import { deleteFile } from "@/app/utils/storage";
+import { revalidateTag } from "next/cache";
 export default function NavBarTop() {
   const { data: session, status } = useSession();
   return (
     <nav className="z-20 flex h-16 w-full items-center border-b border-base-300 bg-base-200">
+      <div></div>
       <NavNavigator />
+      <form
+        action={async (formData) => {
+          revalidateTag("recent");
+        }}
+      >
+        <button type="submit" className="btn">
+          test
+        </button>
+      </form>
       <div className="ml-auto flex h-16 flex-shrink-0 items-center gap-2 p-2">
         {status === "loading" ? (
           <button className="btn" disabled>

@@ -7,7 +7,10 @@ import AddReplay from "../components/AddReplay";
 import CCTable from "../components/CCTable";
 import ProfileLayoutComponent from "../components/ProfileLayoutComponent";
 
-export default async function page({ params }: { params: { user: string } }) {
+export default async function page(props: {
+  params: Promise<{ user: string }>;
+}) {
+  const params = await props.params;
   const user = await getProfileUserData(params.user);
   if (!user) {
     notFound();

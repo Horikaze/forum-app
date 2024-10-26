@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import SSRMDXRenderer from "../../../../components/SSRMDXRenderer";
 import AddComment from "../../../../components/forumComponents/AddComment";
 type Props = {
-  params: { post: string };
+  params: Promise<{ post: string }>;
 };
 export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
   const params = await props.params;

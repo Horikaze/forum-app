@@ -7,7 +7,7 @@ import {
   getGameNumberFromReplayName,
   getGameString,
 } from "@/app/utils/replayUtils";
-import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
+import { deleteFile, saveFile } from "@/app/utils/storage";
 import db from "@/lib/db";
 import { getUserSession } from "@/lib/globalActions";
 import { Replay } from "@prisma/client";

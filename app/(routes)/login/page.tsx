@@ -1,13 +1,7 @@
 import { Suspense } from "react";
 import LoginForm from "./LoginForm";
 
-export default async function Page(
-  props: {
-    searchParams: Promise<{ redirectTo: string }>;
-  }
-) {
-  const searchParams = await props.searchParams;
-
+export default async function Page() {
   const loginFaq = [
     {
       title: "Czy logowanie się przez providerów(np. Discord) jest bezpieczne?",
@@ -19,14 +13,14 @@ export default async function Page(
     },
   ];
   return (
-    <div className="flex flex-col items-center pt-3 p-2">
+    <div className="flex flex-col items-center p-2 pt-3">
       <Suspense>
         <LoginForm />
       </Suspense>
-      <div className="mt-6 min-h-80 max-w-[700px] gap-2 flex flex-col">
+      <div className="mt-6 flex min-h-80 max-w-[700px] flex-col gap-2">
         <div className="divider">Login FAQ</div>
         {loginFaq.map((e, idx) => (
-          <div key={idx} className="collapse bg-base-200 collapse-arrow">
+          <div key={idx} className="collapse collapse-arrow bg-base-200">
             <input type="checkbox" />
             <div className="collapse-title font-medium">{e.title}</div>
             <div className="collapse-content">

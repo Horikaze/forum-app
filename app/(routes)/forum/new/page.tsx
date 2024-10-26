@@ -17,13 +17,11 @@ import { useState, use } from "react";
 import toast from "react-hot-toast";
 import ChangeImage from "../../profile/components/ChangeImage";
 import { newPostAction } from "../forumActions";
-export default function NewPost(
-  props: {
-    searchParams: Promise<{ forumTarget: string }>;
-  }
-) {
-  const searchParams = use(props.searchParams);
-  const [title, setTitle] = useState(":3");
+export default function NewPost(props: {
+  searchParams: Promise<{ forumTarget: string }>;
+}) {
+  const { forumTarget } = use(props.searchParams);
+  const [title, setTitle] = useState(":D");
   const [subTitle, setSubTitle] = useState("");
   const [inputValue, setInputValue] = useState<string>("");
   const [featuredImage, setFeaturedImage] = useState<string | undefined>(
@@ -34,7 +32,7 @@ export default function NewPost(
   );
   const [images, setImages] = useState<PostImage[]>([]);
   const [dbTarget, setDbTarget] = useState(
-    searchParams.forumTarget || forumCategory[0].dbTarget,
+    forumTarget || forumCategory[0].dbTarget,
   );
   const [isPending, setIsPending] = useState(false);
   const formAction = async (isSketch = false) => {

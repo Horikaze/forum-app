@@ -8,7 +8,7 @@ import {
 } from "@/app/constants/forum";
 import { PostImage } from "@/app/types/types";
 import { getFormattedDate } from "@/app/utils/formatDate";
-import { deleteFile, saveFile } from "@/app/utils/testingFunctions";
+import { deleteFile, saveFile } from "@/app/utils/storage";
 import { checkImages } from "@/app/utils/zod";
 import db from "@/lib/db";
 import { getUserSession } from "@/lib/globalActions";

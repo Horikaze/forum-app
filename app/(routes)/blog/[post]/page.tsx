@@ -7,9 +7,9 @@ import SSRMDXRenderer from "../../../components/SSRMDXRenderer";
 import AddComment from "../../../components/forumComponents/AddComment";
 import { PostDataProps } from "@/app/types/prismaTypes";
 type Props = {
-  params: { post: string };
+  params: Promise<{ post: string }>;
 };
-export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params;
   const post = await db.post.findFirst({
     where: {
@@ -162,7 +162,7 @@ export default async function PostPage(props: Props) {
   if (!post) return notFound();
   const session = await auth();
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex w-full flex-col">
       <PostCard
         post={post}
         renderer={SSRMDXRenderer}

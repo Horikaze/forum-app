@@ -4,11 +4,10 @@ import RecentProfile from "../../components/RecentProfile";
 import ProfileLayoutComponent from "../../components/ProfileLayoutComponent";
 import { getProfileUserData } from "@/lib/globalActions";
 
-export default async function RecentPostsPage({
-  params,
-}: {
-  params: { user: string };
+export default async function RecentPostsPage(props: {
+  params: Promise<{ user: string }>;
 }) {
+  const params = await props.params;
   const user = await getProfileUserData(params.user);
   if (!user) {
     notFound();

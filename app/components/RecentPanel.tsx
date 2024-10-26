@@ -16,7 +16,7 @@ export default function RecentPanel() {
           <RecentPosts />
           <RecentComments />
           <RecentReplays />
-        </Suspense>4
+        </Suspense>
       </div>
     </RecentPanelController>
   );

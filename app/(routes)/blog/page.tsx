@@ -7,11 +7,9 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Blog",
 };
-export default async function Blog(
-  props: {
-    searchParams: Promise<{ page: string | undefined }>;
-  }
-) {
+export default async function Blog(props: {
+  searchParams: Promise<{ page: string | undefined }>;
+}) {
   const searchParams = await props.searchParams;
   const pageNumber = Math.max(1, Number(searchParams.page) || 1);
   const dbTarget = "blog";
