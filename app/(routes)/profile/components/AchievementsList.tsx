@@ -32,7 +32,7 @@ const AchievementsList = ({
           <span className="ml-auto whitespace-nowrap">ID: {info.id}</span>
         </div>
       ) : null}
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(50px,1fr))] justify-items-center gap-1">
+      <div className="flex flex-row flex-wrap justify-center gap-1 xl:justify-start">
         {achievements.map((a, idx) => (
           <div
             key={idx}

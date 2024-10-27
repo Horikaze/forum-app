@@ -1,4 +1,4 @@
-[
+export const forumAchievements = [
   {
     id: 97,
     image: "https://www.touhou.pl/4um/awards/97.png",
@@ -154,14 +154,6 @@
     category: "Ten Desires",
     description:
       "Ukończono Ten Desires wszystkimi opcjami strzału na poziomie trudności Normalnym.",
-  },
-  {
-    id: 97,
-    image: "https://www.touhou.pl/4um/awards/97.png",
-    name: "This is My Waifu, She is My Life: Satori",
-    category: "Waifu",
-    description:
-      "Użytkownik nie zranił Satori w pojedynku z nią. This is how true love shows!",
   },
   {
     id: 96,

@@ -78,7 +78,7 @@ model PostComment {
 
 model Achievement {
   id            String   @id @default(cuid())
-  AchievementId Int
+  achievementId Int
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId        String
   createdAt     DateTime @default(now())

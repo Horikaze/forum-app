@@ -76,6 +76,7 @@ export async function getProfileUserData(userId: string) {
           },
           table: true,
           replay: true,
+          achievements: true,
         },
       });
     },

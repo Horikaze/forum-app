@@ -3,7 +3,7 @@ import Image from "next/image";
 import React from "react";
 import { emoticons } from "./app/constants/emotes";
 import { cn } from "./app/utils/twUtils";
-import toast from "react-hot-toast";
+import MarkdownImage from "./app/components/MarkdownImage";
 type EmoticonProps = {
   src: string;
   alt?: string;
@@ -75,16 +75,8 @@ export function useMDXComponents(components?: MDXComponents): MDXComponents {
       return <li {...props}>{EmoticonWrapper(props)}</li>;
     },
     img: (props) => {
-      const imageName = props.src?.split("/").pop();
       if (!props.src) return;
-      return (
-        <img
-          alt={imageName!}
-          {...props}
-          loading="lazy"
-          className={cn("rounded-md", props.className!)}
-        />
-      );
+      return <MarkdownImage props={props} />;
     },
   };
 }
