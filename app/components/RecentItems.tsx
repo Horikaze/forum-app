@@ -1,11 +1,17 @@
 import Link from "next/link";
 import { FaCalendar, FaImage } from "react-icons/fa6";
-import { RecentComment, RecentPost, RecentReplay } from "../types/prismaTypes";
+import {
+  RecentAchievement,
+  RecentComment,
+  RecentPost,
+  RecentReplay,
+} from "../types/prismaTypes";
 import { formatDatePost } from "../utils/formatDate";
 import { getCCstring } from "../utils/replayUtils";
 import SSRMDXRenderer from "./SSRMDXRenderer";
 import Image from "next/image";
 import { cn } from "../utils/twUtils";
+import { forumAchievements } from "../constants/forumAchievements";
 export const RecentPostComponent = ({ post }: { post: RecentPost }) => {
   return (
     <Link
@@ -30,7 +36,10 @@ export const RecentPostComponent = ({ post }: { post: RecentPost }) => {
       </span>
       <div className="z-10 mt-2 flex justify-between text-xs opacity-90">
         <p>
-          <span className="">Przez:</span> {post.author.nickname}
+          Przez:{" "}
+          <span className="text-black dark:text-white">
+            {post.author.nickname}{" "}
+          </span>
         </p>
         <div className="flex items-center gap-1">
           <FaCalendar /> {formatDatePost(post.createdAt)}
@@ -65,7 +74,12 @@ export const RecentCommentComponent = ({ com }: { com: RecentComment }) => {
         </p>
       )}
       <div className="mt-2 flex justify-between text-xs opacity-80">
-        <p>Przez: {com.author.nickname}</p>
+        <p>
+          Przez:{" "}
+          <span className="text-black dark:text-white">
+            {com.author.nickname}
+          </span>
+        </p>
         <div className="flex items-center gap-1">
           <FaCalendar /> {formatDatePost(com.createdAt)}
         </div>
@@ -92,10 +106,55 @@ export const RecentReplayComponent = ({ rpy }: { rpy: RecentReplay }) => {
       </p>
       <div className="mt-2 flex justify-between text-xs opacity-80">
         <p>
-          <span>Przez:</span> {rpy.profile?.nickname}
+          Przez:{" "}
+          <span className="text-black dark:text-white">
+            {rpy.profile?.nickname}
+          </span>
         </p>
         <div className="flex items-center gap-1">
           <FaCalendar /> {formatDatePost(rpy.createdAt)}
+        </div>
+      </div>
+    </Link>
+  );
+};
+export const RecentAchievementsComponent = ({
+  achi,
+}: {
+  achi: RecentAchievement;
+}) => {
+  const achiData = forumAchievements.find((a) => a.id === achi.achievementId);
+  if (!achiData) return null;
+  return (
+    <Link
+      href={`/profile/${achi.userId}`}
+      className="line-clamp-2 flex flex-col gap-px rounded-md border-b-2 border-base-100 bg-base-200 p-1 text-sm transition-all [overflow-wrap:anywhere] hover:bg-base-100"
+    >
+      <div className="flex items-center gap-1">
+        <Image
+          src={achiData.image}
+          alt={achiData.name}
+          height={40}
+          width={40}
+        />
+        <div>
+          <p className="line-clamp-1 text-xs">
+            {achiData.name} <span className="opacity-60 text-[0.70rem]">ID: {achiData.id}</span>
+          </p>
+          <p className="line-clamp-2 text-[0.70rem] text-xs opacity-80">
+            {achiData.description}
+          </p>
+        </div>
+      </div>
+      <div className="mt-2 flex justify-between text-xs opacity-80">
+        <p>
+          Przez:{" "}
+          <span className="text-black dark:text-white">
+            {achi.user.nickname}{" "}
+          </span>
+        </p>
+        <div className="flex items-center gap-1">
+          <FaCalendar /> {formatDatePost(achi.createdAt)}
         </div>
       </div>
     </Link>

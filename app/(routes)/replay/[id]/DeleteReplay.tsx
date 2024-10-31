@@ -12,8 +12,7 @@ export default function DeleteReplay({
   replayId: string;
 }) {
   const { data: session } = useSession();
-  if (!session || session.user.id !== userId) return null;
-  console.log(session.user.id);
+  if (!session) return null;
   return (
     <div className="dropdown dropdown-end absolute right-5 top-5 z-20 opacity-0 transition-all group-hover:opacity-100">
       <button

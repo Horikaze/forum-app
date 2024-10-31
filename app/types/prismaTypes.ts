@@ -129,6 +129,15 @@ export type RecentPost = Prisma.PostGetPayload<{
     createdAt: true;
   };
 }>;
+export type RecentAchievement = Prisma.AchievementGetPayload<{
+  include: {
+    user: {
+      select: {
+        nickname: true;
+      };
+    };
+  };
+}>;
 export type UserProfile = Prisma.UserGetPayload<{
   include: {
     _count: {

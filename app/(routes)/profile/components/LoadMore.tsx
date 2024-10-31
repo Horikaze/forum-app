@@ -146,7 +146,6 @@ const RecentReplayComponent = ({ rpy }: { rpy: RecentReplay }) => {
   );
 };
 export const RecentPostComponent = ({ post }: { post: RecentPost }) => {
-  console.log("xD");
   return (
     <Link
       href={`${post?.category === "blog" ? "" : "/forum"}/${post.category}/${post.slug}`}

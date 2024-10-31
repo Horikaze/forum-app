@@ -2,6 +2,7 @@ import db from "@/lib/db";
 import { unstable_cache } from "next/cache";
 import { Suspense } from "react";
 import {
+  RecentAchievementsComponent,
   RecentCommentComponent,
   RecentPostComponent,
   RecentReplayComponent,
@@ -15,6 +16,7 @@ export default function RecentPanel() {
         <Suspense fallback={<LoadingSkeleton />}>
           <RecentPosts />
           <RecentComments />
+          <RecentAchievements />
           <RecentReplays />
         </Suspense>
       </div>
@@ -160,6 +162,40 @@ const RecentReplays = async () => {
       <h2 className="mb-2 text-xl font-bold">Ostatnie Powtórki</h2>
       {recentReplays.map((rpy) => (
         <RecentReplayComponent rpy={rpy} key={rpy.replayId} />
+      ))}
+    </div>
+  );
+};
+const getRecentAchievements = unstable_cache(
+  async () => {
+    console.log("cache achievements");
+    return await db.achievement.findMany({
+      relationLoadStrategy: "join",
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: {
+            nickname: true,
+            profileImage: true,
+          },
+        },
+      },
+      take: 3,
+    });
+  },
+  ["recentAchievements"],
+  {
+    revalidate: false,
+    tags: ["recent"],
+  },
+);
+const RecentAchievements = async () => {
+  const recentAchievements = await getRecentAchievements();
+  return (
+    <div className="flex w-full flex-col rounded-box bg-base-200 p-4">
+      <h2 className="mb-2 text-xl font-bold">Ostatnie Osiągnięcia</h2>
+      {recentAchievements.map((achi, idx) => (
+        <RecentAchievementsComponent achi={achi} key={idx} />
       ))}
     </div>
   );
