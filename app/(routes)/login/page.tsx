@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import LoginForm from "./LoginForm";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
 export default async function Page() {
   const loginFaq = [
@@ -12,6 +14,10 @@ export default async function Page() {
       desc: "Do logowania potrzebny jest tylko nick, hasło. Jeżeli logujemy się przez provder może być pobierany również e-mail, lecz jest pobierany tylko po to, aby wygenerować ID(potrzebne do łączenia kont z różnych providerów), a następnie jest usuwany, więc ostatecznie nikt nie ma w niego wglądu.",
     },
   ];
+  const session = await auth();
+  if (session) {
+    redirect("/");
+  }
   return (
     <div className="flex flex-col items-center p-2 pt-3">
       <Suspense>

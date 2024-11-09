@@ -5,12 +5,9 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { FaDiscord, FaGithub } from "react-icons/fa6";
 import { loginUserAction, loginWithProvider } from "./loginActions";
-export default function LoginForm({}) {
+export default function LoginForm() {
   const searchParams = useSearchParams();
-  const origin =
-    typeof window !== "undefined" && window.location.origin
-      ? window.location.origin
-      : "";
+  const router = useRouter();
   //we get callbackUrl if middlware redirects
   const redirectTo =
     searchParams.get("redirectTo") ||
@@ -31,8 +28,9 @@ export default function LoginForm({}) {
     const res = await loginUserAction(formData);
     setIsLoading(false);
     if (res?.success) {
-      new Promise((resolve) => setTimeout(resolve, 50)).then(async () => {
-        window.location.replace(origin + redirectTo);
+      router.push(`${redirectTo}`);
+      new Promise((resolve) => setTimeout(resolve, 500)).then(async () => {
+        window.location.reload();
       });
       return;
     }
@@ -101,7 +99,11 @@ export default function LoginForm({}) {
             />
           </label>
         )}
-        <button className="btn btn-primary my-4" onClick={loginUser}>
+        <button
+          type="button"
+          className="btn btn-primary my-4"
+          onClick={loginUser}
+        >
           {isLoading ? <span className="loading loading-spinner" /> : null}
           {isLogin ? "Zaloguj" : "Rejestruj"}
         </button>
