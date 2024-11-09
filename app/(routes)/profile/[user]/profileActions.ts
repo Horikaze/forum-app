@@ -103,7 +103,7 @@ export const changeProfileImageAction = async (file: File, target: string) => {
       if (prevImage && typeof prevImage[target] === "string") {
         await deleteFile(prevImage[target]);
       }
-      const res = await saveFile(file, `images/userFile/${session.user.id}`);
+      const res = await saveFile(file, `images/userFiles/${session.user.id}`);
       await tx.user.update({
         where: {
           id: session.user.id,
