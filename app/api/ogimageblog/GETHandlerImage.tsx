@@ -27,6 +27,8 @@ export default function GETHandlerImage({
         height: "100%",
         flexDirection: "column",
         justifyContent: "flex-end",
+        fontWeight: 600,
+        textShadow: "4px 4px 0px rgba(26, 26, 29, 1)",
       }}
     >
       <img
@@ -87,7 +89,7 @@ export default function GETHandlerImage({
           {subTitle}
         </p>
       </div>
-
+      {/* 
       <div
         style={{
           position: "absolute",
@@ -129,7 +131,7 @@ export default function GETHandlerImage({
             {commentsCount}
           </span>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

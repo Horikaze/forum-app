@@ -8,7 +8,10 @@ import AddComment from "../../../../components/forumComponents/AddComment";
 type Props = {
   params: Promise<{ post: string }>;
 };
-export async function generateMetadata(props: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata(
+  props: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const params = await props.params;
   const post = await db.post.findFirst({
     where: {
@@ -48,12 +51,13 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
       type: "article",
       authors: [post.author.nickname],
       siteName: "Gensokyawka",
-      images: {
-        url: `/api/embeddedimage?comments=${post._count.comments}&reactions=${post._count.reactions}&nickname=${post.author.nickname}&profileImage=${post.author.profileImage || ""}&title=${encodeURIComponent(post.title)}&subTitle=${encodeURIComponent(post.subTitle || "")}`,
-        width: 1200,
-        height: 600,
-        alt: post.title,
-      },
+      // images: {
+      //   url: `https://${process.env.APP_URL!}/api/ogimageblog?slug=${params.post}`,
+      //   width: 1200,
+      //   height: 600,
+      //   alt: post.title,
+      //   type: "photo",
+      // },
     },
   };
 }
