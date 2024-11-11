@@ -51,10 +51,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       authors: [post.author.nickname],
       siteName: "Gensokyawka",
       images: {
-        url: `${process.env.NODE_ENV === "production" ? "https://forumtest.horikaze.pl" : ""}/api/ogimageblog?slug=${params.post}`,
+        url: `${process.env.APP_URL!}/api/ogimageblog?slug=${params.post}`,
         width: 1200,
         height: 600,
         alt: post.title,
+        type: "photo",
       },
     },
   };
